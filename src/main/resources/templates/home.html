@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{})}"
+      th:with="activePage='home'">
+<head>
+    <title>홈 - MURATEC</title>
+</head>
+<body>
+    <div class="content">
+        <h1 class="mb-4">부품 관리 시스템</h1>
+        
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-box-seam" style="font-size: 3rem; color: #3498db;"></i>
+                        <h5 class="card-title mt-3">부품 관리</h5>
+                        <p class="card-text">부품 등록, 조회, 수정, 삭제</p>
+                        <a href="/parts" class="btn btn-primary">바로가기</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-file-earmark-text" style="font-size: 3rem; color: #e74c3c;"></i>
+                        <h5 class="card-title mt-3">리포트</h5>
+                        <p class="card-text">각종 리포트 조회 및 출력</p>
+                        <a href="#" class="btn btn-secondary disabled">준비중</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-info-circle"></i> 시스템 정보</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-check-circle-fill text-success"></i> Spring Boot 3.5.0</li>
+                            <li><i class="bi bi-check-circle-fill text-success"></i> Java 21</li>
+                            <li><i class="bi bi-check-circle-fill text-success"></i> H2 Database</li>
+                            <li><i class="bi bi-check-circle-fill text-success"></i> Bootstrap 5</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
