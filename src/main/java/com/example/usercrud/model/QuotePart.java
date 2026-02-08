@@ -9,11 +9,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Entity
 @Table(name = "quote_parts")
@@ -29,6 +31,10 @@ public class QuotePart {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quote_id")
     private Quote quote;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "margin_rate_id")
+    private MarginRate marginRate;
 
     @Column(name = "factory_name")
     private String factoryName;
@@ -80,4 +86,34 @@ public class QuotePart {
 
     @Column(name = "remark", length = 500)
     private String remark;
+
+    @Transient
+    public BigDecimal getMarginRateTotal() {
+        if (marginRate == null) {
+            return null;
+        }
+        return marginRate.getTotalRate();
+    }
+
+    @Transient
+    public BigDecimal getUnitPriceBrtWithMargin() {
+        return applyMargin(unitPriceBrt);
+    }
+
+    @Transient
+    public BigDecimal getUnitPriceHmxWithMargin() {
+        return applyMargin(unitPriceHmx);
+    }
+
+    private BigDecimal applyMargin(BigDecimal unitPrice) {
+        if (unitPrice == null || marginRate == null) {
+            return null;
+        }
+        BigDecimal totalRate = marginRate.getTotalRate();
+        if (totalRate == null) {
+            return null;
+        }
+        BigDecimal multiplier = BigDecimal.ONE.add(totalRate.divide(new BigDecimal("100"), 6, RoundingMode.HALF_UP));
+        return unitPrice.multiply(multiplier).setScale(2, RoundingMode.HALF_UP);
+    }
 }

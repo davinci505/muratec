@@ -111,7 +111,16 @@
                                     <label for="unitPriceHmx" class="form-label">Unitprice(HMX)</label>
                                     <input type="number" step="0.01" class="form-control" id="unitPriceHmx" th:field="*{unitPriceHmx}">
                                 </div>
-                                <div class="col-md-8 mb-3">
+                                <div class="col-md-4 mb-3">
+                                    <label for="marginRateId" class="form-label">마진율</label>
+                                    <select id="marginRateId" name="marginRateId" class="form-select">
+                                        <option value="">선택안함</option>
+                                        <option th:each="mr : ${marginRates}" th:value="${mr.id}"
+                                                th:text="${mr.name}"
+                                                th:selected="${quotePart.marginRate != null and quotePart.marginRate.id == mr.id}"></option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
                                     <label for="remark" class="form-label">비고</label>
                                     <input type="text" class="form-control" id="remark" th:field="*{remark}">
                                 </div>

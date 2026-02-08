@@ -4,6 +4,7 @@ import com.example.usercrud.model.JobRequest;
 import com.example.usercrud.service.JobRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -40,7 +41,11 @@ public class JobRequestController {
     }
 
     @PostMapping
-    public String createJob(@ModelAttribute JobRequest job) {
+    public String createJob(@ModelAttribute JobRequest job, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("errorMessage", "날짜 형식이 올바르지 않습니다. YYYY-MM-DD 형식으로 입력하세요.");
+            return "jobs/form";
+        }
         jobRequestService.saveJobRequest(job);
         return "redirect:/jobs";
     }
@@ -63,7 +68,11 @@ public class JobRequestController {
     }
 
     @PostMapping("/{id}")
-    public String updateJob(@PathVariable Long id, @ModelAttribute JobRequest job) {
+    public String updateJob(@PathVariable Long id, @ModelAttribute JobRequest job, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("errorMessage", "날짜 형식이 올바르지 않습니다. YYYY-MM-DD 형식으로 입력하세요.");
+            return "jobs/form";
+        }
         jobRequestService.updateJobRequest(id, job);
         return "redirect:/jobs";
     }

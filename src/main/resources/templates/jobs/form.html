@@ -14,6 +14,7 @@
                         <h2 class="mb-0" th:text="${job.id != null ? '의뢰 수정' : '새 의뢰 추가'}"></h2>
                     </div>
                     <div class="card-body">
+                        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
                         <form th:action="${job.id != null ? '/jobs/' + job.id : '/jobs'}"
                               th:object="${job}"
                               method="post">
@@ -32,7 +33,9 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="requestDate" class="form-label">의뢰날짜</label>
-                                    <input type="text" class="form-control" id="requestDate" th:field="*{requestDate}" placeholder="YYYYMMDD" maxlength="10" pattern="\d{4}-\d{2}-\d{2}" inputmode="numeric">
+                                     <input type="text" class="form-control" id="requestDate" th:field="*{requestDate}" placeholder="YYYYMMDD" maxlength="10" pattern="\d{4}-\d{2}-\d{2}" inputmode="numeric"
+                                         th:classappend="${#fields.hasErrors('requestDate')} ? ' is-invalid' : ''">
+                                    <div class="invalid-feedback">YYYY-MM-DD 형식으로 입력하세요.</div>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="customerName" class="form-label">고객명</label>
@@ -75,7 +78,15 @@
         </div>
     </div>
 </body>
+<script th:inline="javascript">
+    const errorMessage = /*[[${errorMessage}]]*/ null;
+    if (errorMessage) {
+        alert(errorMessage);
+    }
+</script>
 <script>
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+
     function formatDateInput(input) {
         const raw = (input.value || '').replace(/\D/g, '').slice(0, 8);
         if (raw.length === 8) {
@@ -85,6 +96,34 @@
         }
     }
 
+    function setTodayIfEmpty(input) {
+        if (!input || input.value) return;
+        const now = new Date();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        input.value = `${now.getFullYear()}-${month}-${day}`;
+    }
+
+    function isValidDateValue(value) {
+        if (!datePattern.test(value)) {
+            return false;
+        }
+        const parts = value.split('-').map(Number);
+        const year = parts[0];
+        const month = parts[1];
+        const day = parts[2];
+        const date = new Date(year, month - 1, day);
+        return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
+    }
+
+    function validateDateInput(input) {
+        if (!input) return true;
+        const value = (input.value || '').trim();
+        const isValid = value === '' || isValidDateValue(value);
+        input.classList.toggle('is-invalid', !isValid);
+        return isValid;
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         const requestDate = document.getElementById('requestDate');
         if (!requestDate) return;
@@ -92,15 +131,26 @@
         requestDate.addEventListener('input', () => {
             requestDate.value = requestDate.value.replace(/\D/g, '').slice(0, 8);
         });
-        requestDate.addEventListener('blur', () => formatDateInput(requestDate));
+        requestDate.addEventListener('blur', () => {
+            formatDateInput(requestDate);
+            validateDateInput(requestDate);
+        });
 
         const form = requestDate.closest('form');
         if (form) {
-            form.addEventListener('submit', () => formatDateInput(requestDate));
+            form.addEventListener('submit', (event) => {
+                formatDateInput(requestDate);
+                if (!validateDateInput(requestDate)) {
+                    alert('날짜 형식이 올바르지 않습니다. YYYY-MM-DD 형식으로 입력하세요.');
+                    event.preventDefault();
+                }
+            });
         }
 
+        setTodayIfEmpty(requestDate);
         if (requestDate.value) {
             formatDateInput(requestDate);
+            validateDateInput(requestDate);
         }
     });
 </script>

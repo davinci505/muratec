@@ -118,6 +118,13 @@
             }
         };
 
+        function getTodayString() {
+            const now = new Date();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            return `${now.getFullYear()}-${month}-${day}`;
+        }
+
         function addRow() {
             rowCount++;
             const tbody = document.getElementById('tableBody');
@@ -130,20 +137,20 @@
             row.innerHTML = `
                 <td class="row-number">${rowCount}</td>
                 <td><input type="text" class="form-control" name="jobNo"></td>
-                <td><input type="text" class="form-control" name="ccsQuoteDate" placeholder="YYYY-MM-DD"></td>
+                <td><input type="text" class="form-control" name="ccsQuoteDate" placeholder="YYYYMMDD" maxlength="10" pattern="\\d{4}-\\d{2}-\\d{2}" inputmode="numeric" value="${getTodayString()}"></td>
                 <td><input type="text" class="form-control" name="ccsQuoteNo"></td>
                 <td><input type="text" class="form-control" name="ccsAmountBrt"></td>
                 <td><input type="text" class="form-control" name="ccsAmountHmx"></td>
                 <td><input type="text" class="form-control" name="description"></td>
                 <td><input type="text" class="form-control" name="brtQuoteNo"></td>
-                <td><input type="text" class="form-control" name="brtQuoteDate" placeholder="YYYY-MM-DD"></td>
+                <td><input type="text" class="form-control" name="brtQuoteDate" placeholder="YYYYMMDD" maxlength="10" pattern="\\d{4}-\\d{2}-\\d{2}" inputmode="numeric"></td>
                 <td><input type="text" class="form-control" name="brtNegotiatedAmount"></td>
                 <td><select class="form-select" name="status">${statusOptionsHtml}</select></td>
-                <td><input type="text" class="form-control" name="statusDate" placeholder="YYYY-MM-DD"></td>
+                <td><input type="text" class="form-control" name="statusDate" placeholder="YYYYMMDD" maxlength="10" pattern="\\d{4}-\\d{2}-\\d{2}" inputmode="numeric"></td>
                 <td><input type="text" class="form-control" name="hmxOrderNo"></td>
-                <td><input type="text" class="form-control" name="hmxOrderDate" placeholder="YYYY-MM-DD"></td>
+                <td><input type="text" class="form-control" name="hmxOrderDate" placeholder="YYYYMMDD" maxlength="10" pattern="\\d{4}-\\d{2}-\\d{2}" inputmode="numeric"></td>
                 <td><input type="text" class="form-control" name="ccsPoNo"></td>
-                <td><input type="text" class="form-control" name="ccsPoDate" placeholder="YYYY-MM-DD"></td>
+                <td><input type="text" class="form-control" name="ccsPoDate" placeholder="YYYYMMDD" maxlength="10" pattern="\\d{4}-\\d{2}-\\d{2}" inputmode="numeric"></td>
             `;
         }
 
@@ -161,9 +168,42 @@
             return cleaned === '' ? null : Number(cleaned);
         }
 
+        const dateFieldNames = new Set([
+            'ccsQuoteDate',
+            'brtQuoteDate',
+            'statusDate',
+            'hmxOrderDate',
+            'ccsPoDate'
+        ]);
+        const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+
+        function stripToDigits(value) {
+            return (value || '').replace(/\D/g, '').slice(0, 8);
+        }
+
+        function formatDateValue(value) {
+            const raw = stripToDigits(value);
+            if (raw.length === 8) {
+                return raw.slice(0, 4) + '-' + raw.slice(4, 6) + '-' + raw.slice(6);
+            }
+            return raw;
+        }
+
+        function validateDateValue(value) {
+            if (!value) return true;
+            if (!datePattern.test(value)) return false;
+            const parts = value.split('-').map(Number);
+            const year = parts[0];
+            const month = parts[1];
+            const day = parts[2];
+            const date = new Date(year, month - 1, day);
+            return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
+        }
+
         function saveAll() {
             const rows = document.getElementById('tableBody').rows;
             const quotes = [];
+            let firstInvalidInput = null;
 
             for (let i = 0; i < rows.length; i++) {
                 const inputs = rows[i].querySelectorAll('input, select');
@@ -177,25 +217,53 @@
                 }
                 if (isEmpty) continue;
 
+                const ccsQuoteDate = formatDateValue(inputs[1].value) || null;
+                const brtQuoteDate = formatDateValue(inputs[7].value) || null;
+                const statusDate = formatDateValue(inputs[10].value) || null;
+                const hmxOrderDate = formatDateValue(inputs[12].value) || null;
+                const ccsPoDate = formatDateValue(inputs[14].value) || null;
+
+                const dateValues = [
+                    { input: inputs[1], value: ccsQuoteDate },
+                    { input: inputs[7], value: brtQuoteDate },
+                    { input: inputs[10], value: statusDate },
+                    { input: inputs[12], value: hmxOrderDate },
+                    { input: inputs[14], value: ccsPoDate }
+                ];
+
+                dateValues.forEach(({ input, value }) => {
+                    const isValid = validateDateValue(value || '');
+                    input.classList.toggle('is-invalid', !isValid);
+                    if (!isValid && !firstInvalidInput) {
+                        firstInvalidInput = input;
+                    }
+                });
+
                 const quote = {
                     jobNo: inputs[0].value,
-                    ccsQuoteDate: inputs[1].value || null,
+                    ccsQuoteDate: ccsQuoteDate,
                     ccsQuoteNo: inputs[2].value,
                     ccsAmountBrt: toNumber(inputs[3].value),
                     ccsAmountHmx: toNumber(inputs[4].value),
                     description: inputs[5].value,
                     brtQuoteNo: inputs[6].value,
-                    brtQuoteDate: inputs[7].value || null,
+                    brtQuoteDate: brtQuoteDate,
                     brtNegotiatedAmount: toNumber(inputs[8].value),
                     status: inputs[9].value || null,
-                    statusDate: inputs[10].value || null,
+                    statusDate: statusDate,
                     hmxOrderNo: inputs[11].value,
-                    hmxOrderDate: inputs[12].value || null,
+                    hmxOrderDate: hmxOrderDate,
                     ccsPoNo: inputs[13].value,
-                    ccsPoDate: inputs[14].value || null
+                    ccsPoDate: ccsPoDate
                 };
 
                 quotes.push(quote);
+            }
+
+            if (firstInvalidInput) {
+                alert('날짜 형식이 올바르지 않습니다. YYYY-MM-DD 형식으로 입력하세요.');
+                firstInvalidInput.focus();
+                return;
             }
 
             if (quotes.length === 0) {
@@ -223,6 +291,22 @@
                 alert('저장 중 오류가 발생했습니다.');
             });
         }
+
+        document.addEventListener('input', function(e) {
+            const target = e.target;
+            if (target.tagName !== 'INPUT') return;
+            if (!dateFieldNames.has(target.name)) return;
+            target.value = stripToDigits(target.value);
+            target.classList.remove('is-invalid');
+        });
+
+        document.addEventListener('blur', function(e) {
+            const target = e.target;
+            if (target.tagName !== 'INPUT') return;
+            if (!dateFieldNames.has(target.name)) return;
+            target.value = formatDateValue(target.value);
+            target.classList.toggle('is-invalid', !validateDateValue(target.value));
+        }, true);
 
         document.addEventListener('paste', function(e) {
             const target = e.target;
@@ -255,7 +339,11 @@
                     cells.forEach((cellValue, cellOffset) => {
                         const targetInput = inputs[startCellIndex + cellOffset];
                         if (targetInput && targetInput.tagName === 'INPUT') {
-                            targetInput.value = cellValue.trim();
+                            if (dateFieldNames.has(targetInput.name)) {
+                                targetInput.value = formatDateValue(cellValue.trim());
+                            } else {
+                                targetInput.value = cellValue.trim();
+                            }
                         }
                     });
                 }

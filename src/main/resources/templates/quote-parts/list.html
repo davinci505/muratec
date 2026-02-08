@@ -50,6 +50,10 @@
                         <th class="col-medium">견적수량</th>
                         <th class="col-medium">Unitprice(BRT)</th>
                         <th class="col-medium">Unitprice(HMX)</th>
+                        <th class="col-medium">마진율</th>
+                        <th class="col-medium">마진율합계(%)</th>
+                        <th class="col-medium">Unitprice(BRT,마진)</th>
+                        <th class="col-medium">Unitprice(HMX,마진)</th>
                         <th class="col-long">비고</th>
                         <th class="col-short">관리</th>
                     </tr>
@@ -73,6 +77,10 @@
                         <td th:text="${item.quoteQuantity}"></td>
                         <td th:text="${item.unitPriceBrt}"></td>
                         <td th:text="${item.unitPriceHmx}"></td>
+                        <td th:text="${item.marginRate != null ? item.marginRate.name : ''}"></td>
+                        <td th:text="${item.marginRateTotal}"></td>
+                        <td th:text="${item.unitPriceBrtWithMargin}"></td>
+                        <td th:text="${item.unitPriceHmxWithMargin}"></td>
                         <td th:text="${item.remark}"></td>
                         <td>
                             <div class="d-flex gap-1">

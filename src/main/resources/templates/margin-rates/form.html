@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{})}"
+      th:with="activePage='marginRates'">
+<head>
+    <title th:text="${marginRate.id != null ? '마진율 수정 - MURATEC' : '마진율 추가 - MURATEC'}">Margin Rate Form</title>
+</head>
+<body>
+    <div class="content">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="mb-0" th:text="${marginRate.id != null ? '마진율 수정' : '마진율 추가'}"></h2>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="${marginRate.id != null ? '/margin-rates/' + marginRate.id : '/margin-rates'}"
+                              th:object="${marginRate}"
+                              method="post">
+
+                            <div class="mb-3">
+                                <label for="name" class="form-label">이름</label>
+                                <input type="text" class="form-control" id="name" th:field="*{name}" required>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="customsDutyRate" class="form-label">관세(%)</label>
+                                    <input type="number" step="0.01" class="form-control" id="customsDutyRate" th:field="*{customsDutyRate}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="freightRate" class="form-label">운임(%)</label>
+                                    <input type="number" step="0.01" class="form-control" id="freightRate" th:field="*{freightRate}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="insuranceRate" class="form-label">보험(%)</label>
+                                    <input type="number" step="0.01" class="form-control" id="insuranceRate" th:field="*{insuranceRate}">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="domesticTransportRate" class="form-label">국내운송비(%)</label>
+                                    <input type="number" step="0.01" class="form-control" id="domesticTransportRate" th:field="*{domesticTransportRate}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="vatRate" class="form-label">부가세(%)</label>
+                                    <input type="number" step="0.01" class="form-control" id="vatRate" th:field="*{vatRate}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="customsClearanceRate" class="form-label">통관비(%)</label>
+                                    <input type="number" step="0.01" class="form-control" id="customsClearanceRate" th:field="*{customsClearanceRate}">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="warehouseRate" class="form-label">창고료(%)</label>
+                                    <input type="number" step="0.01" class="form-control" id="warehouseRate" th:field="*{warehouseRate}">
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <span th:text="${marginRate.id != null ? '수정' : '등록'}"></span>
+                                </button>
+                                <a href="/margin-rates" class="btn btn-secondary">취소</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

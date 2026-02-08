@@ -6,6 +6,7 @@ import com.example.usercrud.service.JobRequestService;
 import com.example.usercrud.service.QuoteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -89,7 +90,18 @@ public class QuoteController {
 
     @PostMapping
     public String createQuote(@ModelAttribute Quote quote,
-                              @RequestParam("jobRequestId") Long jobRequestId) {
+                              BindingResult bindingResult,
+                              @RequestParam("jobRequestId") Long jobRequestId,
+                              Model model) {
+        if (bindingResult.hasErrors()) {
+            if (jobRequestId != null) {
+                jobRequestService.getJobRequestById(jobRequestId).ifPresent(quote::setJobRequest);
+            }
+            model.addAttribute("jobs", jobRequestService.getAllJobRequests());
+            model.addAttribute("statusOptions", STATUS_OPTIONS);
+            model.addAttribute("errorMessage", "날짜 형식이 올바르지 않습니다. YYYY-MM-DD 형식으로 입력하세요.");
+            return "quotes/form";
+        }
         JobRequest jobRequest = jobRequestService.getJobRequestById(jobRequestId)
                 .orElseThrow(() -> new RuntimeException("JobRequest not found"));
         quote.setJobRequest(jobRequest);
@@ -141,7 +153,18 @@ public class QuoteController {
     @PostMapping("/{id}")
     public String updateQuote(@PathVariable Long id,
                               @ModelAttribute Quote quote,
-                              @RequestParam("jobRequestId") Long jobRequestId) {
+                              BindingResult bindingResult,
+                              @RequestParam("jobRequestId") Long jobRequestId,
+                              Model model) {
+        if (bindingResult.hasErrors()) {
+            if (jobRequestId != null) {
+                jobRequestService.getJobRequestById(jobRequestId).ifPresent(quote::setJobRequest);
+            }
+            model.addAttribute("jobs", jobRequestService.getAllJobRequests());
+            model.addAttribute("statusOptions", STATUS_OPTIONS);
+            model.addAttribute("errorMessage", "날짜 형식이 올바르지 않습니다. YYYY-MM-DD 형식으로 입력하세요.");
+            return "quotes/form";
+        }
         JobRequest jobRequest = jobRequestService.getJobRequestById(jobRequestId)
                 .orElseThrow(() -> new RuntimeException("JobRequest not found"));
         quote.setJobRequest(jobRequest);

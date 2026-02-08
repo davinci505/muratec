@@ -2,6 +2,7 @@ package com.example.usercrud.controller;
 
 import com.example.usercrud.model.Quote;
 import com.example.usercrud.model.QuotePart;
+import com.example.usercrud.service.MarginRateService;
 import com.example.usercrud.service.QuotePartService;
 import com.example.usercrud.service.QuoteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ public class QuotePartController {
     @Autowired
     private QuoteService quoteService;
 
+    @Autowired
+    private MarginRateService marginRateService;
+
     @GetMapping
     public String listQuoteParts(@RequestParam(value = "quoteId", required = false) Long quoteId,
                                  @RequestParam(value = "q", required = false) String q,
@@ -53,6 +57,7 @@ public class QuotePartController {
         }
         model.addAttribute("quotePart", quotePart);
         model.addAttribute("quotes", quoteService.getAllQuotes());
+        model.addAttribute("marginRates", marginRateService.getAllMarginRates());
         return "quote-parts/form";
     }
 
@@ -63,10 +68,16 @@ public class QuotePartController {
 
     @PostMapping
     public String createQuotePart(@ModelAttribute QuotePart quotePart,
-                                  @RequestParam("quoteId") Long quoteId) {
+                                  @RequestParam("quoteId") Long quoteId,
+                                  @RequestParam(value = "marginRateId", required = false) Long marginRateId) {
         Quote quote = quoteService.getQuoteById(quoteId)
                 .orElseThrow(() -> new RuntimeException("Quote not found"));
         quotePart.setQuote(quote);
+        if (marginRateId != null) {
+            marginRateService.getMarginRateById(marginRateId).ifPresent(quotePart::setMarginRate);
+        } else {
+            quotePart.setMarginRate(null);
+        }
         quotePartService.saveQuotePart(quotePart);
         return "redirect:/quote-parts";
     }
@@ -111,16 +122,23 @@ public class QuotePartController {
                 .orElseThrow(() -> new RuntimeException("QuotePart not found"));
         model.addAttribute("quotePart", quotePart);
         model.addAttribute("quotes", quoteService.getAllQuotes());
+        model.addAttribute("marginRates", marginRateService.getAllMarginRates());
         return "quote-parts/form";
     }
 
     @PostMapping("/{id}")
     public String updateQuotePart(@PathVariable Long id,
                                   @ModelAttribute QuotePart quotePart,
-                                  @RequestParam("quoteId") Long quoteId) {
+                                  @RequestParam("quoteId") Long quoteId,
+                                  @RequestParam(value = "marginRateId", required = false) Long marginRateId) {
         Quote quote = quoteService.getQuoteById(quoteId)
                 .orElseThrow(() -> new RuntimeException("Quote not found"));
         quotePart.setQuote(quote);
+        if (marginRateId != null) {
+            marginRateService.getMarginRateById(marginRateId).ifPresent(quotePart::setMarginRate);
+        } else {
+            quotePart.setMarginRate(null);
+        }
         quotePartService.updateQuotePart(id, quotePart);
         return "redirect:/quote-parts";
     }
