@@ -7,7 +7,7 @@
 </head>
 <body>
     <div class="content">
-        <h1 class="mb-4">CCS 견적 관리</h1>
+        <h1 class="mb-4 text-center">CCS 견적 관리</h1>
 
         <div th:if="${jobRequest != null}" class="alert alert-secondary">
             <strong>의뢰인:</strong> <span th:text="${jobRequest.requester}"></span>
@@ -80,9 +80,13 @@
                         <td th:text="${quote.ccsPoNo}"></td>
                         <td th:text="${quote.ccsPoDate}"></td>
                         <td>
-                            <div class="d-flex gap-1">
-                                <a th:href="@{/quotes/edit/{id}(id=${quote.id})}" class="btn btn-sm btn-outline-primary">수정</a>
-                                <a th:href="@{/quotes/delete/{id}(id=${quote.id})}" class="btn btn-sm btn-outline-danger" onclick="return confirm('삭제하시겠습니까?');">삭제</a>
+                            <div class="d-flex gap-1 justify-content-center">
+                                <a th:href="@{/quotes/edit/{id}(id=${quote.id})}" class="btn btn-sm btn-outline-primary px-2" title="수정" aria-label="수정">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <a th:href="@{/quotes/delete/{id}(id=${quote.id})}" class="btn btn-sm btn-outline-danger px-2" title="삭제" aria-label="삭제" onclick="return confirm('삭제하시겠습니까?');">
+                                    <i class="bi bi-trash"></i>
+                                </a>
                             </div>
                         </td>
                     </tr>

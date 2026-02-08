@@ -7,7 +7,7 @@
 </head>
 <body>
     <div class="content">
-        <h1 class="mb-4">견적 부품 관리</h1>
+        <h1 class="mb-4 text-center">견적 부품 관리</h1>
 
         <div th:if="${quote != null}" class="alert alert-secondary">
             <strong>CCS견적번호:</strong> <span th:text="${quote.ccsQuoteNo}"></span>
@@ -85,9 +85,13 @@
                         <td th:text="${item.unitPriceHmxWithMargin != null ? item.unitPriceHmxWithMargin : '-'}"></td>
                         <td th:text="${item.remark}"></td>
                         <td>
-                            <div class="d-flex gap-1">
-                                <a th:href="@{/quote-parts/edit/{id}(id=${item.id})}" class="btn btn-sm btn-outline-primary">수정</a>
-                                <a th:href="@{/quote-parts/delete/{id}(id=${item.id})}" class="btn btn-sm btn-outline-danger" onclick="return confirm('삭제하시겠습니까?');">삭제</a>
+                            <div class="d-flex gap-1 justify-content-center">
+                                <a th:href="@{/quote-parts/edit/{id}(id=${item.id})}" class="btn btn-sm btn-outline-primary px-2" title="수정" aria-label="수정">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <a th:href="@{/quote-parts/delete/{id}(id=${item.id})}" class="btn btn-sm btn-outline-danger px-2" title="삭제" aria-label="삭제" onclick="return confirm('삭제하시겠습니까?');">
+                                    <i class="bi bi-trash"></i>
+                                </a>
                             </div>
                         </td>
                     </tr>
