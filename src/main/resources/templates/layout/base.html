@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:replace="${title}">Parts Management System</title>
+    <title th:replace="${title}">MURATEC Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
@@ -167,12 +167,6 @@
                 <a href="/" th:classappend="${activePage == 'home'} ? 'active' : ''">
                     <i class="bi bi-house-door-fill"></i>
                     <span>홈</span>
-                </a>
-            </li>
-            <li>
-                <a href="/parts" th:classappend="${activePage == 'parts'} ? 'active' : ''">
-                    <i class="bi bi-box-seam"></i>
-                    <span>부품 관리</span>
                 </a>
             </li>
             <li>
