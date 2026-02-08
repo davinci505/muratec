@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{})}"
+      th:with="activePage='quoteParts'">
+<head>
+    <title th:text="${quotePart.id != null ? '견적 부품 수정 - MURATEC' : '견적 부품 추가 - MURATEC'}">Quote Part Form</title>
+</head>
+<body>
+    <div class="content">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="mb-0" th:text="${quotePart.id != null ? '견적 부품 수정' : '견적 부품 추가'}"></h2>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="${quotePart.id != null ? '/quote-parts/' + quotePart.id : '/quote-parts'}"
+                              th:object="${quotePart}"
+                              method="post">
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="quoteId" class="form-label">CCS견적번호</label>
+                                    <select id="quoteId" name="quoteId" class="form-select">
+                                        <option value="">선택하세요</option>
+                                        <option th:each="q : ${quotes}" th:value="${q.id}"
+                                                th:text="${q.ccsQuoteNo}" 
+                                                th:selected="${quotePart.quote != null and quotePart.quote.id == q.id}"></option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="partNo" class="form-label">품번</label>
+                                    <input type="text" class="form-control" id="partNo" th:field="*{partNo}">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="factoryName" class="form-label">공장명</label>
+                                    <input type="text" class="form-control" id="factoryName" th:field="*{factoryName}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="productName" class="form-label">제품명</label>
+                                    <input type="text" class="form-control" id="productName" th:field="*{productName}">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="productSpec" class="form-label">제품스펙</label>
+                                    <input type="text" class="form-control" id="productSpec" th:field="*{productSpec}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="newPartsNo" class="form-label">NewPartsNo</label>
+                                    <input type="text" class="form-control" id="newPartsNo" th:field="*{newPartsNo}">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="model" class="form-label">Model</label>
+                                    <input type="text" class="form-control" id="model" th:field="*{model}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="machineName" class="form-label">Machine Name</label>
+                                    <input type="text" class="form-control" id="machineName" th:field="*{machineName}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="type" class="form-label">Type</label>
+                                    <input type="text" class="form-control" id="type" th:field="*{type}">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="unitName" class="form-label">UnitName</label>
+                                    <input type="text" class="form-control" id="unitName" th:field="*{unitName}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="maker" class="form-label">Maker</label>
+                                    <input type="text" class="form-control" id="maker" th:field="*{maker}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="murataPartsNo" class="form-label">MurataPartsNo</label>
+                                    <input type="text" class="form-control" id="murataPartsNo" th:field="*{murataPartsNo}">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" th:field="*{description}" rows="3"></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="partQuantity" class="form-label">Part(수량)</label>
+                                    <input type="number" class="form-control" id="partQuantity" th:field="*{partQuantity}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="quoteQuantity" class="form-label">견적수량</label>
+                                    <input type="number" class="form-control" id="quoteQuantity" th:field="*{quoteQuantity}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="unitPriceBrt" class="form-label">Unitprice(BRT)</label>
+                                    <input type="number" step="0.01" class="form-control" id="unitPriceBrt" th:field="*{unitPriceBrt}">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="unitPriceHmx" class="form-label">Unitprice(HMX)</label>
+                                    <input type="number" step="0.01" class="form-control" id="unitPriceHmx" th:field="*{unitPriceHmx}">
+                                </div>
+                                <div class="col-md-8 mb-3">
+                                    <label for="remark" class="form-label">비고</label>
+                                    <input type="text" class="form-control" id="remark" th:field="*{remark}">
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <span th:text="${quotePart.id != null ? '수정' : '등록'}"></span>
+                                </button>
+                                <a href="/quote-parts" class="btn btn-secondary">취소</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

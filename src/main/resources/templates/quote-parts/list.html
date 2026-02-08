@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{})}"
+      th:with="activePage='quoteParts'">
+<head>
+    <title>견적 부품 관리 - MURATEC</title>
+</head>
+<body>
+    <div class="content">
+        <h1 class="mb-4">견적 부품 관리</h1>
+
+        <div th:if="${quote != null}" class="alert alert-secondary">
+            <strong>CCS견적번호:</strong> <span th:text="${quote.ccsQuoteNo}"></span>
+        </div>
+
+        <div class="mb-3 d-flex gap-2 align-items-center">
+            <a th:href="@{/quote-parts/new(quoteId=${quoteId})}" class="btn btn-primary">새 부품 추가</a>
+            <a href="/quote-parts/bulk" class="btn btn-success">📊 대량 등록</a>
+
+            <form method="get" action="/quote-parts" class="ms-auto d-flex gap-2 align-items-center">
+                <input type="hidden" name="quoteId" th:value="${quoteId}">
+                <input type="text" name="q" class="form-control form-control-sm" placeholder="품번/제품명 검색"
+                       th:value="${q}" style="width: 200px;">
+                <button type="submit" class="btn btn-outline-secondary btn-sm">검색</button>
+            </form>
+        </div>
+
+        <div th:if="${quoteParts.isEmpty()}" class="alert alert-info">
+            등록된 부품이 없습니다.
+        </div>
+
+        <div th:if="${!quoteParts.isEmpty()}" class="table-responsive">
+            <table class="table table-striped table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th class="col-medium">CCS견적번호</th>
+                        <th class="col-medium">공장명</th>
+                        <th class="col-medium">제품명</th>
+                        <th class="col-medium">제품스펙</th>
+                        <th class="col-medium">품번</th>
+                        <th class="col-medium">NewPartsNo</th>
+                        <th class="col-medium">Model</th>
+                        <th class="col-medium">MachineName</th>
+                        <th class="col-medium">Type</th>
+                        <th class="col-medium">UnitName</th>
+                        <th class="col-long">Description</th>
+                        <th class="col-medium">Maker</th>
+                        <th class="col-medium">MurataPartsNo</th>
+                        <th class="col-medium">Part(수량)</th>
+                        <th class="col-medium">견적수량</th>
+                        <th class="col-medium">Unitprice(BRT)</th>
+                        <th class="col-medium">Unitprice(HMX)</th>
+                        <th class="col-long">비고</th>
+                        <th class="col-short">관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${quoteParts}">
+                        <td th:text="${item.quote != null ? item.quote.ccsQuoteNo : ''}"></td>
+                        <td th:text="${item.factoryName}"></td>
+                        <td th:text="${item.productName}"></td>
+                        <td th:text="${item.productSpec}"></td>
+                        <td th:text="${item.partNo}"></td>
+                        <td th:text="${item.newPartsNo}"></td>
+                        <td th:text="${item.model}"></td>
+                        <td th:text="${item.machineName}"></td>
+                        <td th:text="${item.type}"></td>
+                        <td th:text="${item.unitName}"></td>
+                        <td th:text="${item.description}"></td>
+                        <td th:text="${item.maker}"></td>
+                        <td th:text="${item.murataPartsNo}"></td>
+                        <td th:text="${item.partQuantity}"></td>
+                        <td th:text="${item.quoteQuantity}"></td>
+                        <td th:text="${item.unitPriceBrt}"></td>
+                        <td th:text="${item.unitPriceHmx}"></td>
+                        <td th:text="${item.remark}"></td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a th:href="@{/quote-parts/edit/{id}(id=${item.id})}" class="btn btn-sm btn-outline-primary">수정</a>
+                                <a th:href="@{/quote-parts/delete/{id}(id=${item.id})}" class="btn btn-sm btn-outline-danger" onclick="return confirm('삭제하시겠습니까?');">삭제</a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

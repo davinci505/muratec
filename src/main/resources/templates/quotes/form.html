@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{})}"
+      th:with="activePage='quotes'">
+<head>
+    <title th:text="${quote.id != null ? '견적 수정 - MURATEC' : '새 견적 추가 - MURATEC'}">Quote Form</title>
+</head>
+<body>
+    <div class="content">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="mb-0" th:text="${quote.id != null ? '견적 수정' : '새 견적 추가'}"></h2>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="${quote.id != null ? '/quotes/' + quote.id : '/quotes'}"
+                              th:object="${quote}"
+                              method="post">
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="jobRequestId" class="form-label">작번/의뢰인 선택</label>
+                                    <select id="jobRequestId" name="jobRequestId" class="form-select">
+                                        <option value="">선택하세요</option>
+                                        <option th:each="job : ${jobs}" th:value="${job.id}"
+                                                th:text="${job.jobNo + ' / ' + job.requester}" 
+                                                th:selected="${quote.jobRequest != null and quote.jobRequest.id == job.id}"></option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="ccsQuoteNo" class="form-label">CCS견적번호</label>
+                                    <input type="text" class="form-control" id="ccsQuoteNo" th:field="*{ccsQuoteNo}">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="ccsQuoteDate" class="form-label">CCS견적날짜</label>
+                                    <input type="date" class="form-control" id="ccsQuoteDate" th:field="*{ccsQuoteDate}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="ccsAmountBrt" class="form-label">CCS금액(BRT)</label>
+                                    <input type="number" step="0.01" class="form-control" id="ccsAmountBrt" th:field="*{ccsAmountBrt}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="ccsAmountHmx" class="form-label">CCS금액(HMX)</label>
+                                    <input type="number" step="0.01" class="form-control" id="ccsAmountHmx" th:field="*{ccsAmountHmx}">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="description" class="form-label">내역</label>
+                                <textarea class="form-control" id="description" th:field="*{description}" rows="3"></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="brtQuoteNo" class="form-label">BRT견적번호</label>
+                                    <input type="text" class="form-control" id="brtQuoteNo" th:field="*{brtQuoteNo}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="brtQuoteDate" class="form-label">BRT견적날짜</label>
+                                    <input type="date" class="form-control" id="brtQuoteDate" th:field="*{brtQuoteDate}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="brtNegotiatedAmount" class="form-label">BRT네고금액</label>
+                                    <input type="number" step="0.01" class="form-control" id="brtNegotiatedAmount" th:field="*{brtNegotiatedAmount}">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="status" class="form-label">상태</label>
+                                    <select id="status" class="form-select" th:field="*{status}">
+                                        <option value="">선택하세요</option>
+                                        <option th:each="s : ${statusOptions}" th:value="${s}" th:text="${s}"></option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="statusDate" class="form-label">상태날짜</label>
+                                    <input type="date" class="form-control" id="statusDate" th:field="*{statusDate}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="hmxOrderNo" class="form-label">HMX발주번호</label>
+                                    <input type="text" class="form-control" id="hmxOrderNo" th:field="*{hmxOrderNo}">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="hmxOrderDate" class="form-label">HMX발주날짜</label>
+                                    <input type="date" class="form-control" id="hmxOrderDate" th:field="*{hmxOrderDate}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="ccsPoNo" class="form-label">CCSPO번호</label>
+                                    <input type="text" class="form-control" id="ccsPoNo" th:field="*{ccsPoNo}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="ccsPoDate" class="form-label">CCSPO날짜</label>
+                                    <input type="date" class="form-control" id="ccsPoDate" th:field="*{ccsPoDate}">
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <span th:text="${quote.id != null ? '수정' : '등록'}"></span>
+                                </button>
+                                <a href="/quotes" class="btn btn-secondary">취소</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -176,6 +176,24 @@
                 </a>
             </li>
             <li>
+                <a href="/jobs" th:classappend="${activePage == 'jobs'} ? 'active' : ''">
+                    <i class="bi bi-clipboard-check"></i>
+                    <span>작번 의뢰</span>
+                </a>
+            </li>
+            <li>
+                <a href="/quotes" th:classappend="${activePage == 'quotes'} ? 'active' : ''">
+                    <i class="bi bi-receipt"></i>
+                    <span>CCS 견적</span>
+                </a>
+            </li>
+            <li>
+                <a href="/quote-parts" th:classappend="${activePage == 'quoteParts'} ? 'active' : ''">
+                    <i class="bi bi-stack"></i>
+                    <span>견적 부품</span>
+                </a>
+            </li>
+            <li>
                 <a href="#" th:classappend="${activePage == 'report'} ? 'active' : ''">
                     <i class="bi bi-file-earmark-text"></i>
                     <span>리포트</span>

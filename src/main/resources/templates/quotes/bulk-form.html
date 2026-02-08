@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{::style}, ~{::script})}"
+      th:with="activePage='quotes'">
+<head>
+    <title>견적 대량 등록 - MURATEC</title>
+    <style>
+        .excel-table {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .excel-table table {
+            width: 100%;
+            table-layout: fixed;
+        }
+        .excel-table input,
+        .excel-table select {
+            width: 100%;
+            font-size: 0.7rem;
+            padding: 2px 4px;
+            border: 1px solid #ccc;
+        }
+        .excel-table th {
+            background-color: #2c3e50;
+            color: white;
+            font-weight: bold;
+            padding: 4px 2px;
+            font-size: 0.65rem;
+            white-space: normal;
+            word-wrap: break-word;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            line-height: 1.2;
+        }
+        .excel-table td {
+            padding: 1px;
+            border: 1px solid #ddd;
+        }
+        .row-number {
+            background-color: #ecf0f1;
+            font-weight: bold;
+            text-align: center;
+            width: 30px;
+            max-width: 30px;
+            padding: 2px !important;
+        }
+        .btn-container {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 100;
+            padding: 10px 0;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #ddd;
+        }
+        .table-container {
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+        .row-number { width: 3% !important; }
+        .col-short { width: 6%; }
+        .col-medium { width: 7.5%; }
+        .col-long { width: 9%; }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="btn-container">
+            <h2>CCS 견적 대량 등록</h2>
+            <div class="d-flex gap-2 mt-2">
+                <button class="btn btn-success" onclick="addRow()">+ 행 추가</button>
+                <button class="btn btn-danger" onclick="removeLastRow()">- 마지막 행 삭제</button>
+                <button class="btn btn-primary" onclick="saveAll()">전체 저장</button>
+                <a href="/quotes" class="btn btn-secondary">취소</a>
+                <div class="ms-auto">
+                    <small class="text-muted">💡 Tip: jobNo 기준으로 의뢰를 연결합니다</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="excel-table">
+                <table class="table table-bordered" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th class="row-number">#</th>
+                            <th class="col-medium">작번</th>
+                            <th class="col-medium">CCS견적날짜</th>
+                            <th class="col-medium">CCS견적번호</th>
+                            <th class="col-medium">CCS금액(BRT)</th>
+                            <th class="col-medium">CCS금액(HMX)</th>
+                            <th class="col-long">내역</th>
+                            <th class="col-medium">BRT견적번호</th>
+                            <th class="col-medium">BRT견적날짜</th>
+                            <th class="col-medium">BRT네고금액</th>
+                            <th class="col-short">상태</th>
+                            <th class="col-medium">상태날짜</th>
+                            <th class="col-medium">HMX발주번호</th>
+                            <th class="col-medium">HMX발주날짜</th>
+                            <th class="col-medium">CCSPO번호</th>
+                            <th class="col-medium">CCSPO날짜</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        const statusOptions = /*[[${statusOptions}]]*/ [];
+        let rowCount = 0;
+
+        window.onload = function() {
+            for (let i = 0; i < 10; i++) {
+                addRow();
+            }
+        };
+
+        function addRow() {
+            rowCount++;
+            const tbody = document.getElementById('tableBody');
+            const row = tbody.insertRow();
+
+            const statusOptionsHtml = ['<option value="">선택</option>']
+                .concat(statusOptions.map(s => `<option value="${s}">${s}</option>`))
+                .join('');
+
+            row.innerHTML = `
+                <td class="row-number">${rowCount}</td>
+                <td><input type="text" class="form-control" name="jobNo"></td>
+                <td><input type="text" class="form-control" name="ccsQuoteDate" placeholder="YYYY-MM-DD"></td>
+                <td><input type="text" class="form-control" name="ccsQuoteNo"></td>
+                <td><input type="text" class="form-control" name="ccsAmountBrt"></td>
+                <td><input type="text" class="form-control" name="ccsAmountHmx"></td>
+                <td><input type="text" class="form-control" name="description"></td>
+                <td><input type="text" class="form-control" name="brtQuoteNo"></td>
+                <td><input type="text" class="form-control" name="brtQuoteDate" placeholder="YYYY-MM-DD"></td>
+                <td><input type="text" class="form-control" name="brtNegotiatedAmount"></td>
+                <td><select class="form-select" name="status">${statusOptionsHtml}</select></td>
+                <td><input type="text" class="form-control" name="statusDate" placeholder="YYYY-MM-DD"></td>
+                <td><input type="text" class="form-control" name="hmxOrderNo"></td>
+                <td><input type="text" class="form-control" name="hmxOrderDate" placeholder="YYYY-MM-DD"></td>
+                <td><input type="text" class="form-control" name="ccsPoNo"></td>
+                <td><input type="text" class="form-control" name="ccsPoDate" placeholder="YYYY-MM-DD"></td>
+            `;
+        }
+
+        function removeLastRow() {
+            const tbody = document.getElementById('tableBody');
+            if (tbody.rows.length > 0) {
+                tbody.deleteRow(tbody.rows.length - 1);
+                rowCount--;
+            }
+        }
+
+        function toNumber(value) {
+            if (!value) return null;
+            const cleaned = value.replace(/,/g, '').trim();
+            return cleaned === '' ? null : Number(cleaned);
+        }
+
+        function saveAll() {
+            const rows = document.getElementById('tableBody').rows;
+            const quotes = [];
+
+            for (let i = 0; i < rows.length; i++) {
+                const inputs = rows[i].querySelectorAll('input, select');
+
+                let isEmpty = true;
+                for (let j = 0; j < inputs.length; j++) {
+                    if (inputs[j].value.trim() !== '') {
+                        isEmpty = false;
+                        break;
+                    }
+                }
+                if (isEmpty) continue;
+
+                const quote = {
+                    jobNo: inputs[0].value,
+                    ccsQuoteDate: inputs[1].value || null,
+                    ccsQuoteNo: inputs[2].value,
+                    ccsAmountBrt: toNumber(inputs[3].value),
+                    ccsAmountHmx: toNumber(inputs[4].value),
+                    description: inputs[5].value,
+                    brtQuoteNo: inputs[6].value,
+                    brtQuoteDate: inputs[7].value || null,
+                    brtNegotiatedAmount: toNumber(inputs[8].value),
+                    status: inputs[9].value || null,
+                    statusDate: inputs[10].value || null,
+                    hmxOrderNo: inputs[11].value,
+                    hmxOrderDate: inputs[12].value || null,
+                    ccsPoNo: inputs[13].value,
+                    ccsPoDate: inputs[14].value || null
+                };
+
+                quotes.push(quote);
+            }
+
+            if (quotes.length === 0) {
+                alert('저장할 데이터가 없습니다.');
+                return;
+            }
+
+            fetch('/quotes/bulk', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(quotes)
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert(quotes.length + '건 요청되었습니다.');
+                    window.location.href = '/quotes';
+                } else {
+                    alert('저장 중 오류가 발생했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('저장 중 오류가 발생했습니다.');
+            });
+        }
+
+        document.addEventListener('paste', function(e) {
+            const target = e.target;
+            if (target.tagName !== 'INPUT') return;
+
+            const pastedData = e.clipboardData.getData('text');
+            if (!pastedData.includes('\t') && !pastedData.includes('\n')) return;
+
+            e.preventDefault();
+
+            const rows = pastedData.split('\n');
+            const currentRow = target.closest('tr');
+            const currentCell = target.closest('td');
+            const startRowIndex = currentRow.rowIndex - 1;
+            const startCellIndex = Array.from(currentRow.cells).indexOf(currentCell) - 1;
+
+            const tbody = document.getElementById('tableBody');
+
+            const neededRows = startRowIndex + rows.length;
+            while (tbody.rows.length < neededRows) {
+                addRow();
+            }
+
+            rows.forEach((row, rowOffset) => {
+                const cells = row.split('\t');
+                const targetRow = tbody.rows[startRowIndex + rowOffset];
+
+                if (targetRow) {
+                    const inputs = targetRow.querySelectorAll('input, select');
+                    cells.forEach((cellValue, cellOffset) => {
+                        const targetInput = inputs[startCellIndex + cellOffset];
+                        if (targetInput && targetInput.tagName === 'INPUT') {
+                            targetInput.value = cellValue.trim();
+                        }
+                    });
+                }
+            });
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.target.tagName !== 'INPUT') return;
+
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const currentInput = e.target;
+                const allInputs = Array.from(document.querySelectorAll('#tableBody input'));
+                const currentIndex = allInputs.indexOf(currentInput);
+
+                if (e.shiftKey) {
+                    if (currentIndex > 0) {
+                        allInputs[currentIndex - 1].focus();
+                    }
+                } else {
+                    if (currentIndex < allInputs.length - 1) {
+                        allInputs[currentIndex + 1].focus();
+                    } else {
+                        addRow();
+                        setTimeout(() => {
+                            const newInputs = document.querySelectorAll('#tableBody input');
+                            newInputs[currentIndex + 1].focus();
+                        }, 50);
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
