@@ -37,6 +37,7 @@ public class QuotePartService {
 
         quotePart.setQuote(details.getQuote());
         quotePart.setMarginRate(details.getMarginRate());
+        quotePart.setExpenseRate(details.getExpenseRate());
         quotePart.setFactoryName(details.getFactoryName());
         quotePart.setProductName(details.getProductName());
         quotePart.setProductSpec(details.getProductSpec());

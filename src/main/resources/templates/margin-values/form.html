@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{})}"
+    th:with="activePage='marginValues'">
+<head>
+    <title th:text="${marginValue.id != null ? '마진율 수정 - MURATEC' : '마진율 추가 - MURATEC'}">Margin Value Form</title>
+</head>
+<body>
+    <div class="content">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="mb-0" th:text="${marginValue.id != null ? '마진율 수정' : '마진율 추가'}"></h2>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="${marginValue.id != null ? '/margin-values/' + marginValue.id : '/margin-values'}"
+                              th:object="${marginValue}"
+                              method="post">
+
+                            <div class="mb-3">
+                                <label for="name" class="form-label">이름</label>
+                                <input type="text" class="form-control" id="name" th:field="*{name}" required>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="yenExchangeRate" class="form-label">엔화환율</label>
+                                    <input type="number" step="0.0001" class="form-control" id="yenExchangeRate" th:field="*{yenExchangeRate}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="marginRate" class="form-label">마진율(%)</label>
+                                    <input type="number" step="0.01" class="form-control" id="marginRate" th:field="*{marginRate}">
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <span th:text="${marginValue.id != null ? '수정' : '등록'}"></span>
+                                </button>
+                                <a href="/margin-values" class="btn btn-secondary">취소</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

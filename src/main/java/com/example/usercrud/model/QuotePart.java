@@ -36,6 +36,10 @@ public class QuotePart {
     @JoinColumn(name = "margin_rate_id")
     private MarginRate marginRate;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "expense_rate_id")
+    private MarginRate expenseRate;
+
     @Column(name = "factory_name")
     private String factoryName;
 
@@ -89,10 +93,28 @@ public class QuotePart {
 
     @Transient
     public BigDecimal getMarginRateTotal() {
+        return getCombinedRateTotal();
+    }
+
+    @Transient
+    public BigDecimal getExpenseRateTotal() {
+        if (expenseRate == null) {
+            return null;
+        }
+        return expenseRate.getTotalRate();
+    }
+
+    @Transient
+    public BigDecimal getMarginValueRate() {
         if (marginRate == null) {
             return null;
         }
-        return marginRate.getTotalRate();
+        return marginRate.getMarginRate();
+    }
+
+    @Transient
+    public BigDecimal getCombinedRateTotal() {
+        return sumRates(getExpenseRateTotal(), getMarginValueRate());
     }
 
     @Transient
@@ -106,14 +128,51 @@ public class QuotePart {
     }
 
     private BigDecimal applyMargin(BigDecimal unitPrice) {
-        if (unitPrice == null || marginRate == null) {
+        if (unitPrice == null) {
             return null;
         }
-        BigDecimal totalRate = marginRate.getTotalRate();
-        if (totalRate == null) {
+        BigDecimal expenseRateTotal = getExpenseRateTotal();
+        BigDecimal marginValueRate = getMarginValueRate();
+        BigDecimal exchangeRate = getExchangeRate();
+        if (expenseRateTotal == null || marginValueRate == null || exchangeRate == null) {
             return null;
         }
-        BigDecimal multiplier = BigDecimal.ONE.add(totalRate.divide(new BigDecimal("100"), 6, RoundingMode.HALF_UP));
-        return unitPrice.multiply(multiplier).setScale(2, RoundingMode.HALF_UP);
+        if (BigDecimal.ZERO.compareTo(marginValueRate) == 0) {
+            return null;
+        }
+        BigDecimal numerator = unitPrice
+                .multiply(expenseRateTotal)
+                .multiply(exchangeRate);
+        BigDecimal result = numerator.divide(marginValueRate, 6, RoundingMode.HALF_UP);
+        return result.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal applyExchangeRate(BigDecimal unitPrice) {
+        if (marginRate == null) {
+            return unitPrice;
+        }
+        BigDecimal exchangeRate = marginRate.getYenExchangeRate();
+        if (exchangeRate == null) {
+            return unitPrice;
+        }
+        return unitPrice.multiply(exchangeRate);
+    }
+
+    private BigDecimal getExchangeRate() {
+        if (marginRate == null) {
+            return null;
+        }
+        return marginRate.getYenExchangeRate();
+    }
+
+    private BigDecimal sumRates(BigDecimal... values) {
+        BigDecimal total = null;
+        for (BigDecimal value : values) {
+            if (value == null) {
+                continue;
+            }
+            total = (total == null) ? value : total.add(value);
+        }
+        return total;
     }
 }

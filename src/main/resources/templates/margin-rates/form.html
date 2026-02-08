@@ -3,7 +3,7 @@
       th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{})}"
       th:with="activePage='marginRates'">
 <head>
-    <title th:text="${marginRate.id != null ? '마진율 수정 - MURATEC' : '마진율 추가 - MURATEC'}">Margin Rate Form</title>
+    <title th:text="${marginRate.id != null ? '제비용 수정 - MURATEC' : '제비용 추가 - MURATEC'}">Expense Form</title>
 </head>
 <body>
     <div class="content">
@@ -11,7 +11,7 @@
             <div class="col-md-10">
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <h2 class="mb-0" th:text="${marginRate.id != null ? '마진율 수정' : '마진율 추가'}"></h2>
+                        <h2 class="mb-0" th:text="${marginRate.id != null ? '제비용 수정' : '제비용 추가'}"></h2>
                     </div>
                     <div class="card-body">
                         <form th:action="${marginRate.id != null ? '/margin-rates/' + marginRate.id : '/margin-rates'}"

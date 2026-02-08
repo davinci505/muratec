@@ -3,18 +3,18 @@
       th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{})}"
       th:with="activePage='marginRates'">
 <head>
-    <title>마진율 관리 - MURATEC</title>
+    <title>제비용 관리 - MURATEC</title>
 </head>
 <body>
     <div class="content">
-        <h1 class="mb-4">마진율 관리</h1>
+        <h1 class="mb-4">제비용 관리</h1>
 
         <div class="mb-3">
-            <a href="/margin-rates/new" class="btn btn-primary">새 마진율 추가</a>
+            <a href="/margin-rates/new" class="btn btn-primary">새 제비용 추가</a>
         </div>
 
         <div th:if="${marginRates.isEmpty()}" class="alert alert-info">
-            등록된 마진율이 없습니다.
+            등록된 제비용이 없습니다.
         </div>
 
         <div th:if="${!marginRates.isEmpty()}" class="table-responsive">

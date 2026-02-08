@@ -94,6 +94,7 @@ spring-boot-devtools.log
 # H2 Database
 *.h2.db
 *.trace.db
+*.db
 
 # Application specific
 application-local.properties

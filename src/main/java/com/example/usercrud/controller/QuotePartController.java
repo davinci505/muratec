@@ -57,7 +57,8 @@ public class QuotePartController {
         }
         model.addAttribute("quotePart", quotePart);
         model.addAttribute("quotes", quoteService.getAllQuotes());
-        model.addAttribute("marginRates", marginRateService.getAllMarginRates());
+        model.addAttribute("marginValues", marginRateService.getMarginValues());
+        model.addAttribute("expenseRates", marginRateService.getExpenseRates());
         return "quote-parts/form";
     }
 
@@ -69,7 +70,8 @@ public class QuotePartController {
     @PostMapping
     public String createQuotePart(@ModelAttribute QuotePart quotePart,
                                   @RequestParam("quoteId") Long quoteId,
-                                  @RequestParam(value = "marginRateId", required = false) Long marginRateId) {
+                                  @RequestParam(value = "marginRateId", required = false) Long marginRateId,
+                                  @RequestParam(value = "expenseRateId", required = false) Long expenseRateId) {
         Quote quote = quoteService.getQuoteById(quoteId)
                 .orElseThrow(() -> new RuntimeException("Quote not found"));
         quotePart.setQuote(quote);
@@ -77,6 +79,11 @@ public class QuotePartController {
             marginRateService.getMarginRateById(marginRateId).ifPresent(quotePart::setMarginRate);
         } else {
             quotePart.setMarginRate(null);
+        }
+        if (expenseRateId != null) {
+            marginRateService.getMarginRateById(expenseRateId).ifPresent(quotePart::setExpenseRate);
+        } else {
+            quotePart.setExpenseRate(null);
         }
         quotePartService.saveQuotePart(quotePart);
         return "redirect:/quote-parts";
@@ -122,7 +129,8 @@ public class QuotePartController {
                 .orElseThrow(() -> new RuntimeException("QuotePart not found"));
         model.addAttribute("quotePart", quotePart);
         model.addAttribute("quotes", quoteService.getAllQuotes());
-        model.addAttribute("marginRates", marginRateService.getAllMarginRates());
+        model.addAttribute("marginValues", marginRateService.getMarginValues());
+        model.addAttribute("expenseRates", marginRateService.getExpenseRates());
         return "quote-parts/form";
     }
 
@@ -130,7 +138,8 @@ public class QuotePartController {
     public String updateQuotePart(@PathVariable Long id,
                                   @ModelAttribute QuotePart quotePart,
                                   @RequestParam("quoteId") Long quoteId,
-                                  @RequestParam(value = "marginRateId", required = false) Long marginRateId) {
+                                  @RequestParam(value = "marginRateId", required = false) Long marginRateId,
+                                  @RequestParam(value = "expenseRateId", required = false) Long expenseRateId) {
         Quote quote = quoteService.getQuoteById(quoteId)
                 .orElseThrow(() -> new RuntimeException("Quote not found"));
         quotePart.setQuote(quote);
@@ -138,6 +147,11 @@ public class QuotePartController {
             marginRateService.getMarginRateById(marginRateId).ifPresent(quotePart::setMarginRate);
         } else {
             quotePart.setMarginRate(null);
+        }
+        if (expenseRateId != null) {
+            marginRateService.getMarginRateById(expenseRateId).ifPresent(quotePart::setExpenseRate);
+        } else {
+            quotePart.setExpenseRate(null);
         }
         quotePartService.updateQuotePart(id, quotePart);
         return "redirect:/quote-parts";

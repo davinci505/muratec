@@ -112,15 +112,27 @@
                                     <input type="number" step="0.01" class="form-control" id="unitPriceHmx" th:field="*{unitPriceHmx}">
                                 </div>
                                 <div class="col-md-4 mb-3">
+                                    <label for="expenseRateId" class="form-label">제비용</label>
+                                    <select id="expenseRateId" name="expenseRateId" class="form-select">
+                                        <option value="">선택안함</option>
+                                        <option th:each="er : ${expenseRates}" th:value="${er.id}"
+                                                th:text="${er.name}"
+                                                th:selected="${quotePart.expenseRate != null and quotePart.expenseRate.id == er.id}"></option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
                                     <label for="marginRateId" class="form-label">마진율</label>
                                     <select id="marginRateId" name="marginRateId" class="form-select">
                                         <option value="">선택안함</option>
-                                        <option th:each="mr : ${marginRates}" th:value="${mr.id}"
+                                        <option th:each="mr : ${marginValues}" th:value="${mr.id}"
                                                 th:text="${mr.name}"
                                                 th:selected="${quotePart.marginRate != null and quotePart.marginRate.id == mr.id}"></option>
                                     </select>
                                 </div>
-                                <div class="col-md-4 mb-3">
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
                                     <label for="remark" class="form-label">비고</label>
                                     <input type="text" class="form-control" id="remark" th:field="*{remark}">
                                 </div>

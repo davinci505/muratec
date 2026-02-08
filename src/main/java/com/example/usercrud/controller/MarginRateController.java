@@ -20,7 +20,7 @@ public class MarginRateController {
 
     @GetMapping
     public String listMarginRates(Model model) {
-        model.addAttribute("marginRates", marginRateService.getAllMarginRates());
+        model.addAttribute("marginRates", marginRateService.getExpenseRates());
         return "margin-rates/list";
     }
 
@@ -32,6 +32,7 @@ public class MarginRateController {
 
     @PostMapping
     public String createMarginRate(@ModelAttribute MarginRate marginRate) {
+        marginRate.setCategory("EXPENSE");
         marginRateService.saveMarginRate(marginRate);
         return "redirect:/margin-rates";
     }

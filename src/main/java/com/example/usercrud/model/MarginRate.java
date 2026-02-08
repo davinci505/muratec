@@ -27,6 +27,15 @@ public class MarginRate {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "category", length = 30)
+    private String category;
+
+    @Column(name = "yen_exchange_rate", precision = 15, scale = 4)
+    private BigDecimal yenExchangeRate;
+
+    @Column(name = "margin_rate", precision = 7, scale = 2)
+    private BigDecimal marginRate;
+
     @Column(name = "customs_duty_rate", precision = 7, scale = 2)
     private BigDecimal customsDutyRate;
 
@@ -57,7 +66,8 @@ public class MarginRate {
                 domesticTransportRate,
                 vatRate,
                 customsClearanceRate,
-                warehouseRate
+                warehouseRate,
+                marginRate
         );
     }
 
