@@ -43,19 +43,9 @@ public class QuoteController {
     @GetMapping
     public String listQuotes(@RequestParam(value = "jobId", required = false) Long jobId,
                              @RequestParam(value = "status", required = false) String status,
+                             @RequestParam(value = "ccsQuoteNo", required = false) String ccsQuoteNo,
                              Model model) {
-        List<Quote> quotes;
-        boolean hasStatus = status != null && !status.isBlank();
-
-        if (jobId != null && hasStatus) {
-            quotes = quoteService.getByJobRequestAndStatus(jobId, status);
-        } else if (jobId != null) {
-            quotes = quoteService.getByJobRequest(jobId);
-        } else if (hasStatus) {
-            quotes = quoteService.getByStatus(status);
-        } else {
-            quotes = quoteService.getAllQuotes();
-        }
+        List<Quote> quotes = quoteService.getByFilters(jobId, status, ccsQuoteNo);
 
         if (jobId != null) {
             JobRequest jobRequest = jobRequestService.getJobRequestById(jobId).orElse(null);
@@ -66,6 +56,7 @@ public class QuoteController {
         model.addAttribute("statusOptions", STATUS_OPTIONS);
         model.addAttribute("status", status);
         model.addAttribute("jobId", jobId);
+        model.addAttribute("ccsQuoteNo", ccsQuoteNo);
         return "quotes/list";
     }
 
@@ -93,6 +84,16 @@ public class QuoteController {
                               BindingResult bindingResult,
                               @RequestParam("jobRequestId") Long jobRequestId,
                               Model model) {
+        if (isStatusMissing(quote)) {
+            if (jobRequestId != null) {
+                jobRequestService.getJobRequestById(jobRequestId).ifPresent(quote::setJobRequest);
+            }
+            model.addAttribute("jobs", jobRequestService.getAllJobRequests());
+            model.addAttribute("statusOptions", STATUS_OPTIONS);
+            model.addAttribute("statusError", true);
+            model.addAttribute("errorMessage", "상태를 선택하세요.");
+            return "quotes/form";
+        }
         if (bindingResult.hasErrors()) {
             if (jobRequestId != null) {
                 jobRequestService.getJobRequestById(jobRequestId).ifPresent(quote::setJobRequest);
@@ -156,6 +157,16 @@ public class QuoteController {
                               BindingResult bindingResult,
                               @RequestParam("jobRequestId") Long jobRequestId,
                               Model model) {
+        if (isStatusMissing(quote)) {
+            if (jobRequestId != null) {
+                jobRequestService.getJobRequestById(jobRequestId).ifPresent(quote::setJobRequest);
+            }
+            model.addAttribute("jobs", jobRequestService.getAllJobRequests());
+            model.addAttribute("statusOptions", STATUS_OPTIONS);
+            model.addAttribute("statusError", true);
+            model.addAttribute("errorMessage", "상태를 선택하세요.");
+            return "quotes/form";
+        }
         if (bindingResult.hasErrors()) {
             if (jobRequestId != null) {
                 jobRequestService.getJobRequestById(jobRequestId).ifPresent(quote::setJobRequest);
@@ -176,6 +187,10 @@ public class QuoteController {
     public String deleteQuote(@PathVariable Long id) {
         quoteService.deleteQuote(id);
         return "redirect:/quotes";
+    }
+
+    private boolean isStatusMissing(Quote quote) {
+        return quote == null || quote.getStatus() == null || quote.getStatus().isBlank();
     }
 
     public static class QuoteBulkRequest {

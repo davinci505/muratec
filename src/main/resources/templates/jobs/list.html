@@ -9,9 +9,16 @@
     <div class="content">
         <h1 class="mb-4 text-center">작번 의뢰 관리</h1>
 
-        <div class="mb-3 d-flex gap-2">
+        <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
             <a href="/jobs/new" class="btn btn-primary">새 의뢰 추가</a>
             <a href="/jobs/bulk" class="btn btn-success">📊 대량 등록</a>
+            <form class="d-flex gap-2 ms-auto" method="get" action="/jobs">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="작번 또는 의뢰인" th:value="${q}">
+                    <button type="submit" class="btn btn-outline-secondary">검색</button>
+                    <a href="/jobs" class="btn btn-outline-secondary">초기화</a>
+                </div>
+            </form>
         </div>
 
         <div th:if="${jobs.isEmpty()}" class="alert alert-info">

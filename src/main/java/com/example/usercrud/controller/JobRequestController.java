@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
@@ -24,8 +25,9 @@ public class JobRequestController {
     private JobRequestService jobRequestService;
 
     @GetMapping
-    public String listJobs(Model model) {
-        model.addAttribute("jobs", jobRequestService.getAllJobRequests());
+    public String listJobs(@RequestParam(value = "q", required = false) String query, Model model) {
+        model.addAttribute("jobs", jobRequestService.searchByJobNoOrRequester(query));
+        model.addAttribute("q", query);
         return "jobs/list";
     }
 

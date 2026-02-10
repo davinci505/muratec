@@ -26,6 +26,9 @@
                     <option value="">전체</option>
                     <option th:each="s : ${statusOptions}" th:value="${s}" th:text="${s}" th:selected="${s == status}"></option>
                 </select>
+                <label for="ccsQuoteNo" class="form-label mb-0">CCS견적번호</label>
+                <input id="ccsQuoteNo" name="ccsQuoteNo" type="text" class="form-control form-control-sm"
+                       style="width: 160px;" placeholder="번호 검색" th:value="${ccsQuoteNo}">
                 <button type="submit" class="btn btn-outline-secondary btn-sm">필터</button>
             </form>
         </div>

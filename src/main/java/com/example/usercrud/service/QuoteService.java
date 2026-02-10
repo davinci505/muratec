@@ -41,6 +41,36 @@ public class QuoteService {
         return quoteRepository.findByJobRequestIdAndStatus(jobRequestId, status);
     }
 
+    public List<Quote> getByFilters(Long jobRequestId, String status, String ccsQuoteNo) {
+        boolean hasJob = jobRequestId != null;
+        boolean hasStatus = status != null && !status.isBlank();
+        boolean hasCcsQuoteNo = ccsQuoteNo != null && !ccsQuoteNo.isBlank();
+        String keyword = hasCcsQuoteNo ? ccsQuoteNo.trim() : null;
+
+        if (hasJob && hasStatus && hasCcsQuoteNo) {
+            return quoteRepository.findByJobRequestIdAndStatusAndCcsQuoteNoContainingIgnoreCase(jobRequestId, status, keyword);
+        }
+        if (hasJob && hasStatus) {
+            return quoteRepository.findByJobRequestIdAndStatus(jobRequestId, status);
+        }
+        if (hasJob && hasCcsQuoteNo) {
+            return quoteRepository.findByJobRequestIdAndCcsQuoteNoContainingIgnoreCase(jobRequestId, keyword);
+        }
+        if (hasStatus && hasCcsQuoteNo) {
+            return quoteRepository.findByStatusAndCcsQuoteNoContainingIgnoreCase(status, keyword);
+        }
+        if (hasJob) {
+            return quoteRepository.findByJobRequestId(jobRequestId);
+        }
+        if (hasStatus) {
+            return quoteRepository.findByStatus(status);
+        }
+        if (hasCcsQuoteNo) {
+            return quoteRepository.findByCcsQuoteNoContainingIgnoreCase(keyword);
+        }
+        return quoteRepository.findAll();
+    }
+
     public Quote saveQuote(Quote quote) {
         return quoteRepository.save(quote);
     }

@@ -18,6 +18,14 @@ public class JobRequestService {
         return jobRequestRepository.findAll();
     }
 
+    public List<JobRequest> searchByJobNoOrRequester(String query) {
+        if (query == null || query.isBlank()) {
+            return getAllJobRequests();
+        }
+        String keyword = query.trim();
+        return jobRequestRepository.findByJobNoContainingIgnoreCaseOrRequesterContainingIgnoreCase(keyword, keyword);
+    }
+
     public Optional<JobRequest> getJobRequestById(Long id) {
         return jobRequestRepository.findById(id);
     }

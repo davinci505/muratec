@@ -16,4 +16,12 @@ public interface QuoteRepository extends JpaRepository<Quote, Long> {
     List<Quote> findByStatus(String status);
 
     Optional<Quote> findByCcsQuoteNo(String ccsQuoteNo);
+
+    List<Quote> findByCcsQuoteNoContainingIgnoreCase(String ccsQuoteNo);
+
+    List<Quote> findByJobRequestIdAndCcsQuoteNoContainingIgnoreCase(Long jobRequestId, String ccsQuoteNo);
+
+    List<Quote> findByStatusAndCcsQuoteNoContainingIgnoreCase(String status, String ccsQuoteNo);
+
+    List<Quote> findByJobRequestIdAndStatusAndCcsQuoteNoContainingIgnoreCase(Long jobRequestId, String status, String ccsQuoteNo);
 }
