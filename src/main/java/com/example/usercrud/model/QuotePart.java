@@ -147,17 +147,6 @@ public class QuotePart {
         return result.setScale(2, RoundingMode.HALF_UP);
     }
 
-    private BigDecimal applyExchangeRate(BigDecimal unitPrice) {
-        if (marginRate == null) {
-            return unitPrice;
-        }
-        BigDecimal exchangeRate = marginRate.getYenExchangeRate();
-        if (exchangeRate == null) {
-            return unitPrice;
-        }
-        return unitPrice.multiply(exchangeRate);
-    }
-
     private BigDecimal getExchangeRate() {
         if (marginRate == null) {
             return null;

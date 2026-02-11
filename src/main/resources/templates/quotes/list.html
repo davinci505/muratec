@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{})}"
-      th:with="activePage='quotes'">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{})}"
+    th:with="activePage='quotes'">
+
 <head>
     <title>CCS 견적 관리 - MURATEC</title>
 </head>
+
 <body>
     <div class="content">
         <h1 class="mb-4 text-center">CCS 견적 관리</h1>
@@ -15,20 +16,21 @@
             <span class="ms-3"><strong>의뢰날짜:</strong> <span th:text="${jobRequest.requestDate}"></span></span>
         </div>
 
-        <div class="mb-3 d-flex gap-2 align-items-center">
+        <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
             <a th:href="@{/quotes/new(jobId=${jobId})}" class="btn btn-primary">새 견적 추가</a>
             <a href="/quotes/bulk" class="btn btn-success">📊 대량 등록</a>
 
-            <form method="get" action="/quotes" class="ms-auto d-flex gap-2 align-items-center">
+            <form method="get" action="/quotes" class="ms-auto d-flex flex-wrap gap-2 align-items-center">
                 <input type="hidden" name="jobId" th:value="${jobId}">
                 <label for="status" class="form-label mb-0">상태</label>
                 <select id="status" name="status" class="form-select form-select-sm" style="width: 140px;">
                     <option value="">전체</option>
-                    <option th:each="s : ${statusOptions}" th:value="${s}" th:text="${s}" th:selected="${s == status}"></option>
+                    <option th:each="s : ${statusOptions}" th:value="${s}" th:text="${s}" th:selected="${s == status}">
+                    </option>
                 </select>
                 <label for="ccsQuoteNo" class="form-label mb-0">CCS견적번호</label>
                 <input id="ccsQuoteNo" name="ccsQuoteNo" type="text" class="form-control form-control-sm"
-                       style="width: 160px;" placeholder="번호 검색" th:value="${ccsQuoteNo}">
+                    style="width: 160px;" placeholder="번호 검색" th:value="${ccsQuoteNo}">
                 <button type="submit" class="btn btn-outline-secondary btn-sm">필터</button>
             </form>
         </div>
@@ -84,10 +86,13 @@
                         <td th:text="${quote.ccsPoDate}"></td>
                         <td>
                             <div class="d-flex gap-1 justify-content-center">
-                                <a th:href="@{/quotes/edit/{id}(id=${quote.id})}" class="btn btn-sm btn-outline-primary px-2" title="수정" aria-label="수정">
+                                <a th:href="@{/quotes/edit/{id}(id=${quote.id})}"
+                                    class="btn btn-sm btn-outline-primary px-2" title="수정" aria-label="수정">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
-                                <a th:href="@{/quotes/delete/{id}(id=${quote.id})}" class="btn btn-sm btn-outline-danger px-2" title="삭제" aria-label="삭제" onclick="return confirm('삭제하시겠습니까?');">
+                                <a th:href="@{/quotes/delete/{id}(id=${quote.id})}"
+                                    class="btn btn-sm btn-outline-danger px-2" title="삭제" aria-label="삭제"
+                                    onclick="return confirm('삭제하시겠습니까?');">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </div>
@@ -98,4 +103,5 @@
         </div>
     </div>
 </body>
+
 </html>

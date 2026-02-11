@@ -44,11 +44,12 @@ public class QuoteService {
     public List<Quote> getByFilters(Long jobRequestId, String status, String ccsQuoteNo) {
         boolean hasJob = jobRequestId != null;
         boolean hasStatus = status != null && !status.isBlank();
-        boolean hasCcsQuoteNo = ccsQuoteNo != null && !ccsQuoteNo.isBlank();
-        String keyword = hasCcsQuoteNo ? ccsQuoteNo.trim() : null;
+        String keyword = (ccsQuoteNo != null && !ccsQuoteNo.isBlank()) ? ccsQuoteNo.trim() : null;
+        boolean hasCcsQuoteNo = keyword != null;
 
         if (hasJob && hasStatus && hasCcsQuoteNo) {
-            return quoteRepository.findByJobRequestIdAndStatusAndCcsQuoteNoContainingIgnoreCase(jobRequestId, status, keyword);
+            return quoteRepository.findByJobRequestIdAndStatusAndCcsQuoteNoContainingIgnoreCase(jobRequestId, status,
+                    keyword);
         }
         if (hasJob && hasStatus) {
             return quoteRepository.findByJobRequestIdAndStatus(jobRequestId, status);
