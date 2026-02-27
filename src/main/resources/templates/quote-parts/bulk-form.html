@@ -72,6 +72,7 @@
                 <button class="btn btn-danger" onclick="removeLastRow()">- 마지막 행 삭제</button>
                 <button class="btn btn-primary" onclick="saveAll()">전체 저장</button>
                 <a href="/quote-parts" class="btn btn-secondary">취소</a>
+                <button class="btn btn-outline-secondary" id="fullscreenBtn" onclick="toggleFullscreen()" title="전체화면">⛶ 전체화면</button>
                 <div class="ms-auto">
                     <small class="text-muted">💡 Tip: CCS견적번호로 연결합니다</small>
                 </div>
@@ -295,6 +296,23 @@
                         }, 50);
                     }
                 }
+            }
+        });
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        document.addEventListener('fullscreenchange', function() {
+            const btn = document.getElementById('fullscreenBtn');
+            if (document.fullscreenElement) {
+                btn.textContent = '✕ 전체화면 종료';
+            } else {
+                btn.textContent = '⛶ 전체화면';
             }
         });
     </script>
