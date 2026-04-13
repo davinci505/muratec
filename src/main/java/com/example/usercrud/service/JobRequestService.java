@@ -49,6 +49,7 @@ public class JobRequestService {
         JobRequest jobRequest = jobRequestRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("JobRequest not found"));
 
+        jobRequest.setDivision(details.getDivision());
         jobRequest.setJobNo(details.getJobNo());
         jobRequest.setRequester(details.getRequester());
         jobRequest.setRequestDate(details.getRequestDate());
@@ -57,6 +58,7 @@ public class JobRequestService {
         jobRequest.setProductName(details.getProductName());
         jobRequest.setProductSpec(details.getProductSpec());
         jobRequest.setPartNo(details.getPartNo());
+        jobRequest.setAmount(details.getAmount());
 
         return jobRequestRepository.save(jobRequest);
     }

@@ -29,6 +29,7 @@ public class QuoteController {
     private static final List<String> STATUS_OPTIONS = List.of(
             "견적중",
             "재견적",
+            "견적재출",
             "발주전",
             "납품예정",
             "납품완료"
@@ -123,14 +124,11 @@ public class QuoteController {
             quote.setJobRequest(jobRequest.get());
             quote.setCcsQuoteDate(req.ccsQuoteDate);
             quote.setCcsQuoteNo(req.ccsQuoteNo);
-            quote.setCcsAmountBrt(req.ccsAmountBrt);
-            quote.setCcsAmountHmx(req.ccsAmountHmx);
             quote.setDescription(req.description);
             quote.setBrtQuoteNo(req.brtQuoteNo);
             quote.setBrtQuoteDate(req.brtQuoteDate);
             quote.setBrtNegotiatedAmount(req.brtNegotiatedAmount);
             quote.setStatus(req.status);
-            quote.setStatusDate(req.statusDate);
             quote.setHmxOrderNo(req.hmxOrderNo);
             quote.setHmxOrderDate(req.hmxOrderDate);
             quote.setCcsPoNo(req.ccsPoNo);
@@ -197,14 +195,11 @@ public class QuoteController {
         public String jobNo;
         public LocalDate ccsQuoteDate;
         public String ccsQuoteNo;
-        public BigDecimal ccsAmountBrt;
-        public BigDecimal ccsAmountHmx;
         public String description;
         public String brtQuoteNo;
         public LocalDate brtQuoteDate;
         public BigDecimal brtNegotiatedAmount;
         public String status;
-        public LocalDate statusDate;
         public String hmxOrderNo;
         public LocalDate hmxOrderDate;
         public String ccsPoNo;

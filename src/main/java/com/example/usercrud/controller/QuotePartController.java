@@ -75,6 +75,7 @@ public class QuotePartController {
         Quote quote = quoteService.getQuoteById(quoteId)
                 .orElseThrow(() -> new RuntimeException("Quote not found"));
         quotePart.setQuote(quote);
+        quotePart.setFactoryName(quote.getJobRequest() != null ? quote.getJobRequest().getFactoryName() : null);
         if (marginRateId != null) {
             marginRateService.getMarginRateById(marginRateId).ifPresent(quotePart::setMarginRate);
         } else {
@@ -100,7 +101,7 @@ public class QuotePartController {
             }
             QuotePart quotePart = new QuotePart();
             quotePart.setQuote(quote.get());
-            quotePart.setFactoryName(req.factoryName);
+            quotePart.setFactoryName(quote.get().getJobRequest() != null ? quote.get().getJobRequest().getFactoryName() : null);
             quotePart.setProductName(req.productName);
             quotePart.setProductSpec(req.productSpec);
             quotePart.setPartNo(req.partNo);
@@ -143,6 +144,7 @@ public class QuotePartController {
         Quote quote = quoteService.getQuoteById(quoteId)
                 .orElseThrow(() -> new RuntimeException("Quote not found"));
         quotePart.setQuote(quote);
+        quotePart.setFactoryName(quote.getJobRequest() != null ? quote.getJobRequest().getFactoryName() : null);
         if (marginRateId != null) {
             marginRateService.getMarginRateById(marginRateId).ifPresent(quotePart::setMarginRate);
         } else {
@@ -165,7 +167,6 @@ public class QuotePartController {
 
     public static class QuotePartBulkRequest {
         public String ccsQuoteNo;
-        public String factoryName;
         public String productName;
         public String productSpec;
         public String partNo;

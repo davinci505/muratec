@@ -88,14 +88,11 @@
                             <th class="col-medium">작번</th>
                             <th class="col-medium">CCS견적날짜</th>
                             <th class="col-medium">CCS견적번호</th>
-                            <th class="col-medium">CCS금액(BRT)</th>
-                            <th class="col-medium">CCS금액(HMX)</th>
                             <th class="col-long">내역</th>
                             <th class="col-medium">BRT견적번호</th>
                             <th class="col-medium">BRT견적날짜</th>
                             <th class="col-medium">BRT네고금액</th>
                             <th class="col-short">상태</th>
-                            <th class="col-medium">상태날짜</th>
                             <th class="col-medium">HMX발주번호</th>
                             <th class="col-medium">HMX발주날짜</th>
                             <th class="col-medium">CCSPO번호</th>
@@ -139,14 +136,11 @@
                 <td><input type="text" class="form-control" name="jobNo"></td>
                 <td><input type="text" class="form-control" name="ccsQuoteDate" placeholder="YYYYMMDD" maxlength="10" pattern="\\d{4}-\\d{2}-\\d{2}" inputmode="numeric" value="${getTodayString()}"></td>
                 <td><input type="text" class="form-control" name="ccsQuoteNo"></td>
-                <td><input type="text" class="form-control" name="ccsAmountBrt"></td>
-                <td><input type="text" class="form-control" name="ccsAmountHmx"></td>
                 <td><input type="text" class="form-control" name="description"></td>
                 <td><input type="text" class="form-control" name="brtQuoteNo"></td>
                 <td><input type="text" class="form-control" name="brtQuoteDate" placeholder="YYYYMMDD" maxlength="10" pattern="\\d{4}-\\d{2}-\\d{2}" inputmode="numeric"></td>
                 <td><input type="text" class="form-control" name="brtNegotiatedAmount"></td>
                 <td><select class="form-select" name="status">${statusOptionsHtml}</select></td>
-                <td><input type="text" class="form-control" name="statusDate" placeholder="YYYYMMDD" maxlength="10" pattern="\\d{4}-\\d{2}-\\d{2}" inputmode="numeric"></td>
                 <td><input type="text" class="form-control" name="hmxOrderNo"></td>
                 <td><input type="text" class="form-control" name="hmxOrderDate" placeholder="YYYYMMDD" maxlength="10" pattern="\\d{4}-\\d{2}-\\d{2}" inputmode="numeric"></td>
                 <td><input type="text" class="form-control" name="ccsPoNo"></td>
@@ -171,7 +165,6 @@
         const dateFieldNames = new Set([
             'ccsQuoteDate',
             'brtQuoteDate',
-            'statusDate',
             'hmxOrderDate',
             'ccsPoDate'
         ]);
@@ -218,17 +211,15 @@
                 if (isEmpty) continue;
 
                 const ccsQuoteDate = formatDateValue(inputs[1].value) || null;
-                const brtQuoteDate = formatDateValue(inputs[7].value) || null;
-                const statusDate = formatDateValue(inputs[10].value) || null;
-                const hmxOrderDate = formatDateValue(inputs[12].value) || null;
-                const ccsPoDate = formatDateValue(inputs[14].value) || null;
+                const brtQuoteDate = formatDateValue(inputs[5].value) || null;
+                const hmxOrderDate = formatDateValue(inputs[9].value) || null;
+                const ccsPoDate = formatDateValue(inputs[11].value) || null;
 
                 const dateValues = [
                     { input: inputs[1], value: ccsQuoteDate },
-                    { input: inputs[7], value: brtQuoteDate },
-                    { input: inputs[10], value: statusDate },
-                    { input: inputs[12], value: hmxOrderDate },
-                    { input: inputs[14], value: ccsPoDate }
+                    { input: inputs[5], value: brtQuoteDate },
+                    { input: inputs[9], value: hmxOrderDate },
+                    { input: inputs[11], value: ccsPoDate }
                 ];
 
                 dateValues.forEach(({ input, value }) => {
@@ -243,17 +234,14 @@
                     jobNo: inputs[0].value,
                     ccsQuoteDate: ccsQuoteDate,
                     ccsQuoteNo: inputs[2].value,
-                    ccsAmountBrt: toNumber(inputs[3].value),
-                    ccsAmountHmx: toNumber(inputs[4].value),
-                    description: inputs[5].value,
-                    brtQuoteNo: inputs[6].value,
+                    description: inputs[3].value,
+                    brtQuoteNo: inputs[4].value,
                     brtQuoteDate: brtQuoteDate,
-                    brtNegotiatedAmount: toNumber(inputs[8].value),
-                    status: inputs[9].value || null,
-                    statusDate: statusDate,
-                    hmxOrderNo: inputs[11].value,
+                    brtNegotiatedAmount: toNumber(inputs[6].value),
+                    status: inputs[7].value || null,
+                    hmxOrderNo: inputs[8].value,
                     hmxOrderDate: hmxOrderDate,
-                    ccsPoNo: inputs[13].value,
+                    ccsPoNo: inputs[10].value,
                     ccsPoDate: ccsPoDate
                 };
 

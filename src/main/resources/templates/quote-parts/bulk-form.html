@@ -85,19 +85,10 @@
                         <tr>
                             <th class="row-number">#</th>
                             <th class="col-medium">CCS견적번호</th>
-                            <th class="col-medium">공장명</th>
                             <th class="col-medium">제품명</th>
                             <th class="col-medium">제품스펙</th>
                             <th class="col-medium">품번</th>
-                            <th class="col-medium">NewPartsNo</th>
-                            <th class="col-medium">Model</th>
-                            <th class="col-medium">MachineName</th>
-                            <th class="col-medium">Type</th>
-                            <th class="col-medium">UnitName</th>
-                            <th class="col-long">Description</th>
-                            <th class="col-medium">Maker</th>
-                            <th class="col-medium">MurataPartsNo</th>
-                            <th class="col-medium">Part(수량)</th>
+                            <th class="col-medium">시리얼넘버</th>
                             <th class="col-medium">견적수량</th>
                             <th class="col-medium">Unitprice(BRT)</th>
                             <th class="col-medium">Unitprice(HMX)</th>
@@ -127,19 +118,10 @@
             row.innerHTML = `
                 <td class="row-number">${rowCount}</td>
                 <td><input type="text" class="form-control" name="ccsQuoteNo"></td>
-                <td><input type="text" class="form-control" name="factoryName"></td>
                 <td><input type="text" class="form-control" name="productName"></td>
                 <td><input type="text" class="form-control" name="productSpec"></td>
                 <td><input type="text" class="form-control" name="partNo"></td>
-                <td><input type="text" class="form-control" name="newPartsNo"></td>
                 <td><input type="text" class="form-control" name="model"></td>
-                <td><input type="text" class="form-control" name="machineName"></td>
-                <td><input type="text" class="form-control" name="type"></td>
-                <td><input type="text" class="form-control" name="unitName"></td>
-                <td><input type="text" class="form-control" name="description"></td>
-                <td><input type="text" class="form-control" name="maker"></td>
-                <td><input type="text" class="form-control" name="murataPartsNo"></td>
-                <td><input type="text" class="form-control" name="partQuantity"></td>
                 <td><input type="text" class="form-control" name="quoteQuantity"></td>
                 <td><input type="text" class="form-control" name="unitPriceBrt"></td>
                 <td><input type="text" class="form-control" name="unitPriceHmx"></td>
@@ -185,23 +167,14 @@
 
                 const item = {
                     ccsQuoteNo: inputs[0].value,
-                    factoryName: inputs[1].value,
-                    productName: inputs[2].value,
-                    productSpec: inputs[3].value,
-                    partNo: inputs[4].value,
-                    newPartsNo: inputs[5].value,
-                    model: inputs[6].value,
-                    machineName: inputs[7].value,
-                    type: inputs[8].value,
-                    unitName: inputs[9].value,
-                    description: inputs[10].value,
-                    maker: inputs[11].value,
-                    murataPartsNo: inputs[12].value,
-                    partQuantity: toInteger(inputs[13].value),
-                    quoteQuantity: toInteger(inputs[14].value),
-                    unitPriceBrt: toNumber(inputs[15].value),
-                    unitPriceHmx: toNumber(inputs[16].value),
-                    remark: inputs[17].value
+                    productName: inputs[1].value,
+                    productSpec: inputs[2].value,
+                    partNo: inputs[3].value,
+                    model: inputs[4].value,
+                    quoteQuantity: toInteger(inputs[5].value),
+                    unitPriceBrt: toNumber(inputs[6].value),
+                    unitPriceHmx: toNumber(inputs[7].value),
+                    remark: inputs[8].value
                 };
 
                 quoteParts.push(item);
