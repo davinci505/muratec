@@ -138,5 +138,18 @@
 
         window.updateUnitPriceHmx();
     </script>
+<script th:inline="javascript">
+/*<![CDATA[*/
+document.addEventListener('DOMContentLoaded', function() {
+  var isAdd = /*[[${quotePart.id == null}]]*/ true;
+  if (isAdd) {
+    var brtSelect = document.getElementById('brtRateId');
+    var hmxSelect = document.getElementById('hmxRateId');
+    if (brtSelect && brtSelect.options.length > 1) brtSelect.selectedIndex = 1;
+    if (hmxSelect && hmxSelect.options.length > 1) hmxSelect.selectedIndex = 2;
+  }
+});
+/*]]>*/
+</script>
 </body>
 </html>
