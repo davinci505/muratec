@@ -38,6 +38,10 @@ public class QuotePartService {
         quotePart.setQuote(details.getQuote());
         quotePart.setMarginRate(details.getMarginRate());
         quotePart.setExpenseRate(details.getExpenseRate());
+        quotePart.setBrtMarginRate(details.getBrtMarginRate());
+        quotePart.setHmxMarginRate(details.getHmxMarginRate());
+        quotePart.setBrtExpenseRate(details.getBrtExpenseRate());
+        quotePart.setHmxExpenseRate(details.getHmxExpenseRate());
         quotePart.setFactoryName(details.getFactoryName());
         quotePart.setProductName(details.getProductName());
         quotePart.setProductSpec(details.getProductSpec());
@@ -53,7 +57,6 @@ public class QuotePartService {
         quotePart.setPartQuantity(details.getPartQuantity());
         quotePart.setQuoteQuantity(details.getQuoteQuantity());
         quotePart.setUnitPriceBrt(details.getUnitPriceBrt());
-        quotePart.setUnitPriceHmx(details.getUnitPriceHmx());
         quotePart.setRemark(details.getRemark());
 
         return quotePartRepository.save(quotePart);

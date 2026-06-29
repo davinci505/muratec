@@ -20,54 +20,32 @@ public class MarginValueController {
 
     @GetMapping
     public String listMarginValues(Model model) {
-        model.addAttribute("marginRates", marginRateService.getMarginValues());
-        return "margin-values/list";
+        return "redirect:/margin-rates";
     }
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
-        model.addAttribute("marginValue", new MarginValueForm());
-        return "margin-values/form";
+        return "redirect:/margin-rates/new";
     }
 
     @PostMapping
     public String createMarginValue(@ModelAttribute("marginValue") MarginValueForm form) {
-        MarginRate marginRate = new MarginRate();
-        marginRate.setName(form.getName());
-        marginRate.setCategory("MARGIN_VALUE");
-        marginRate.setYenExchangeRate(form.getYenExchangeRate());
-        marginRate.setMarginRate(form.getMarginRate());
-        marginRateService.saveMarginRate(marginRate);
-        return "redirect:/margin-values";
+        return "redirect:/margin-rates";
     }
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
-        MarginRate marginRate = marginRateService.getMarginRateById(id)
-                .orElseThrow(() -> new RuntimeException("MarginRate not found"));
-        MarginValueForm form = new MarginValueForm();
-        form.setId(marginRate.getId());
-        form.setName(marginRate.getName());
-        form.setYenExchangeRate(marginRate.getYenExchangeRate());
-        form.setMarginRate(marginRate.getMarginRate());
-        model.addAttribute("marginValue", form);
-        return "margin-values/form";
+        return "redirect:/margin-rates/edit/" + id;
     }
 
     @PostMapping("/{id}")
     public String updateMarginValue(@PathVariable Long id,
                                     @ModelAttribute("marginValue") MarginValueForm form) {
-        MarginRate details = new MarginRate();
-        details.setName(form.getName());
-        details.setYenExchangeRate(form.getYenExchangeRate());
-        details.setMarginRate(form.getMarginRate());
-        marginRateService.updateMarginValue(id, details);
-        return "redirect:/margin-values";
+        return "redirect:/margin-rates";
     }
 
     @GetMapping("/delete/{id}")
     public String deleteMarginValue(@PathVariable Long id) {
-        marginRateService.deleteMarginRate(id);
-        return "redirect:/margin-values";
+        return "redirect:/margin-rates/delete/" + id;
     }
 }

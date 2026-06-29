@@ -91,7 +91,6 @@
                             <th class="col-medium">시리얼넘버</th>
                             <th class="col-medium">견적수량</th>
                             <th class="col-medium">Unitprice(BRT)</th>
-                            <th class="col-medium">Unitprice(HMX)</th>
                             <th class="col-long">비고</th>
                         </tr>
                     </thead>
@@ -124,7 +123,6 @@
                 <td><input type="text" class="form-control" name="model"></td>
                 <td><input type="text" class="form-control" name="quoteQuantity"></td>
                 <td><input type="text" class="form-control" name="unitPriceBrt"></td>
-                <td><input type="text" class="form-control" name="unitPriceHmx"></td>
                 <td><input type="text" class="form-control" name="remark"></td>
             `;
         }
@@ -173,8 +171,7 @@
                     model: inputs[4].value,
                     quoteQuantity: toInteger(inputs[5].value),
                     unitPriceBrt: toNumber(inputs[6].value),
-                    unitPriceHmx: toNumber(inputs[7].value),
-                    remark: inputs[8].value
+                    remark: inputs[7].value
                 };
 
                 quoteParts.push(item);

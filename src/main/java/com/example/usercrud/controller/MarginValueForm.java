@@ -7,7 +7,7 @@ public class MarginValueForm {
     private Long id;
     private String name;
     private BigDecimal yenExchangeRate;
-    private BigDecimal marginRate;
+    private BigDecimal marginRate = new BigDecimal("0.65");
 
     public Long getId() {
         return id;

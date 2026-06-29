@@ -5,11 +5,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
 
@@ -34,41 +36,27 @@ public class MarginRate {
     private BigDecimal yenExchangeRate;
 
     @Column(name = "margin_rate", precision = 7, scale = 2)
+    @ColumnDefault("0.65")
     private BigDecimal marginRate;
 
-    @Column(name = "customs_duty_rate", precision = 7, scale = 2)
-    private BigDecimal customsDutyRate;
-
-    @Column(name = "freight_rate", precision = 7, scale = 2)
-    private BigDecimal freightRate;
-
-    @Column(name = "insurance_rate", precision = 7, scale = 2)
-    private BigDecimal insuranceRate;
-
-    @Column(name = "domestic_transport_rate", precision = 7, scale = 2)
-    private BigDecimal domesticTransportRate;
-
-    @Column(name = "vat_rate", precision = 7, scale = 2)
-    private BigDecimal vatRate;
-
-    @Column(name = "customs_clearance_rate", precision = 7, scale = 2)
-    private BigDecimal customsClearanceRate;
-
-    @Column(name = "warehouse_rate", precision = 7, scale = 2)
-    private BigDecimal warehouseRate;
+    @Column(name = "transport_clearance_rate", precision = 7, scale = 2)
+    private BigDecimal transportClearanceRate;
 
     @Transient
     public BigDecimal getTotalRate() {
-        return sum(
-                customsDutyRate,
-                freightRate,
-                insuranceRate,
-                domesticTransportRate,
-                vatRate,
-                customsClearanceRate,
-                warehouseRate,
-                marginRate
-        );
+        return transportClearanceRate == null ? BigDecimal.ZERO : transportClearanceRate;
+    }
+
+    @Transient
+    public BigDecimal getTransportClearanceRate() {
+        return transportClearanceRate;
+    }
+
+    @PrePersist
+    public void applyDefaults() {
+        if (marginRate == null) {
+            marginRate = new BigDecimal("0.65");
+        }
     }
 
     private BigDecimal sum(BigDecimal... values) {
