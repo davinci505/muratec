@@ -57,22 +57,22 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <label for="quoteQuantity" class="form-label">견적수량</label>
                                     <input type="number" class="form-control" id="quoteQuantity" th:field="*{quoteQuantity}">
                                 </div>
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <label for="unitPriceBrt" class="form-label">Unitprice(BRT)</label>
                                     <input type="number" step="0.01" class="form-control" id="unitPriceBrt" th:field="*{unitPriceBrt}" oninput="window.updateUnitPriceHmx()">
                                 </div>
-                            </div>
-
-                            <div class="row">
                                 <div class="col-md-4 mb-3">
                                     <label for="unitPriceHmx" class="form-label">Unitprice(HMX)</label>
                                     <input type="number" step="0.01" class="form-control" id="unitPriceHmx" th:value="${quotePart.unitPriceHmx}" readonly>
                                 </div>
-                                <div class="col-md-4 mb-3">
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
                                     <label for="brtRateId" class="form-label">BRT 환율/제비용</label>
                                     <select id="brtRateId" name="brtRateId" class="form-select">
                                         <option value="">선택안함</option>
@@ -84,7 +84,7 @@
                                                               or (quotePart.brtMarginRate == null and quotePart.brtExpenseRate == null and quotePart.expenseRate != null and quotePart.expenseRate.id == rate.id)}"></option>
                                     </select>
                                 </div>
-                                <div class="col-md-4 mb-3">
+                                <div class="col-md-6 mb-3">
                                     <label for="hmxRateId" class="form-label">HMX 환율/제비용</label>
                                     <select id="hmxRateId" name="hmxRateId" class="form-select">
                                         <option value="">선택안함</option>

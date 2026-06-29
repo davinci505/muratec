@@ -172,12 +172,12 @@ public class QuotePart {
 
     @Transient
     public BigDecimal getUnitPriceBrtWithMargin() {
-        return applyMargin(unitPriceBrt, getBrtExpenseRateRef(), getBrtMarginRateRef());
+        return applyMarginBrt(unitPriceBrt, getBrtExpenseRateRef());
     }
 
     @Transient
     public BigDecimal getUnitPriceHmxWithMargin() {
-        return applyMargin(getUnitPriceHmx(), getHmxExpenseRateRef(), getHmxMarginRateRef());
+        return applyMarginHmx(getUnitPriceHmx(), getHmxMarginRateRef());
     }
 
     @Transient
@@ -188,22 +188,43 @@ public class QuotePart {
         return unitPriceBrt.multiply(HMX_MULTIPLIER).setScale(2, RoundingMode.HALF_UP);
     }
 
-    private BigDecimal applyMargin(BigDecimal unitPrice, MarginRate expenseRateRef, MarginRate marginRateRef) {
-        if (unitPrice == null) {
+    private BigDecimal applyMarginBrt(BigDecimal unitPrice, MarginRate expenseRateRef) {
+        if (unitPrice == null || BigDecimal.ZERO.compareTo(unitPrice) == 0) {
             return null;
         }
-        BigDecimal expenseRateTotal = expenseRateRef == null ? null : expenseRateRef.getTotalRate();
-        BigDecimal marginValueRate = marginRateRef == null ? null : marginRateRef.getMarginRate();
-        BigDecimal exchangeRate = marginRateRef == null ? null : marginRateRef.getYenExchangeRate();
-        if (expenseRateTotal == null || marginValueRate == null || exchangeRate == null) {
+        if (expenseRateRef == null) {
             return null;
         }
-        if (BigDecimal.ZERO.compareTo(marginValueRate) == 0) {
+        BigDecimal transportClearanceRate = expenseRateRef.getTransportClearanceRate();
+        BigDecimal exchangeRate = expenseRateRef.getYenExchangeRate();
+        if (transportClearanceRate == null || exchangeRate == null) {
             return null;
         }
-        BigDecimal numerator = unitPrice
-                .multiply(expenseRateTotal)
+        if (BigDecimal.ZERO.compareTo(exchangeRate) == 0) {
+            return null;
+        }
+        BigDecimal result = unitPrice
+                .multiply(transportClearanceRate)
                 .multiply(exchangeRate);
+        return result.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal applyMarginHmx(BigDecimal unitPrice, MarginRate marginRateRef) {
+        if (unitPrice == null || BigDecimal.ZERO.compareTo(unitPrice) == 0) {
+            return null;
+        }
+        if (marginRateRef == null) {
+            return null;
+        }
+        BigDecimal marginValueRate = marginRateRef.getMarginRate();
+        BigDecimal exchangeRate = marginRateRef.getYenExchangeRate();
+        if (marginValueRate == null || exchangeRate == null) {
+            return null;
+        }
+        if (BigDecimal.ZERO.compareTo(marginValueRate) == 0 || BigDecimal.ZERO.compareTo(exchangeRate) == 0) {
+            return null;
+        }
+        BigDecimal numerator = unitPrice.multiply(exchangeRate);
         BigDecimal result = numerator.divide(marginValueRate, 6, RoundingMode.HALF_UP);
         return result.setScale(2, RoundingMode.HALF_UP);
     }
