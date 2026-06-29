@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -26,6 +27,9 @@ public class JobRequest {
 
     @Column(name = "job_no")
     private String jobNo;
+
+    @Column(name = "division")
+    private String division;
 
     @Column(name = "requester")
     private String requester;
@@ -48,4 +52,7 @@ public class JobRequest {
 
     @Column(name = "part_no")
     private String partNo;
+
+    @Column(name = "amount")
+    private BigDecimal amount;
 }

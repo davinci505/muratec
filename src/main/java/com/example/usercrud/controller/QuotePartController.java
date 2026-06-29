@@ -70,20 +70,33 @@ public class QuotePartController {
     @PostMapping
     public String createQuotePart(@ModelAttribute QuotePart quotePart,
                                   @RequestParam("quoteId") Long quoteId,
-                                  @RequestParam(value = "marginRateId", required = false) Long marginRateId,
-                                  @RequestParam(value = "expenseRateId", required = false) Long expenseRateId) {
+                                  @RequestParam(value = "brtRateId", required = false) Long brtRateId,
+                                  @RequestParam(value = "hmxRateId", required = false) Long hmxRateId) {
         Quote quote = quoteService.getQuoteById(quoteId)
                 .orElseThrow(() -> new RuntimeException("Quote not found"));
         quotePart.setQuote(quote);
-        if (marginRateId != null) {
-            marginRateService.getMarginRateById(marginRateId).ifPresent(quotePart::setMarginRate);
+        quotePart.setFactoryName(quote.getJobRequest() != null ? quote.getJobRequest().getFactoryName() : null);
+        if (brtRateId != null) {
+            marginRateService.getMarginRateById(brtRateId).ifPresent(rate -> {
+                quotePart.setBrtMarginRate(rate);
+                quotePart.setBrtExpenseRate(rate);
+                quotePart.setMarginRate(rate);
+                quotePart.setExpenseRate(rate);
+            });
         } else {
+            quotePart.setBrtMarginRate(null);
+            quotePart.setBrtExpenseRate(null);
             quotePart.setMarginRate(null);
-        }
-        if (expenseRateId != null) {
-            marginRateService.getMarginRateById(expenseRateId).ifPresent(quotePart::setExpenseRate);
-        } else {
             quotePart.setExpenseRate(null);
+        }
+        if (hmxRateId != null) {
+            marginRateService.getMarginRateById(hmxRateId).ifPresent(rate -> {
+                quotePart.setHmxMarginRate(rate);
+                quotePart.setHmxExpenseRate(rate);
+            });
+        } else {
+            quotePart.setHmxMarginRate(null);
+            quotePart.setHmxExpenseRate(null);
         }
         quotePartService.saveQuotePart(quotePart);
         return "redirect:/quote-parts";
@@ -100,7 +113,7 @@ public class QuotePartController {
             }
             QuotePart quotePart = new QuotePart();
             quotePart.setQuote(quote.get());
-            quotePart.setFactoryName(req.factoryName);
+            quotePart.setFactoryName(quote.get().getJobRequest() != null ? quote.get().getJobRequest().getFactoryName() : null);
             quotePart.setProductName(req.productName);
             quotePart.setProductSpec(req.productSpec);
             quotePart.setPartNo(req.partNo);
@@ -115,7 +128,6 @@ public class QuotePartController {
             quotePart.setPartQuantity(req.partQuantity);
             quotePart.setQuoteQuantity(req.quoteQuantity);
             quotePart.setUnitPriceBrt(req.unitPriceBrt);
-            quotePart.setUnitPriceHmx(req.unitPriceHmx);
             quotePart.setRemark(req.remark);
             quotePartService.saveQuotePart(quotePart);
             saved++;
@@ -138,20 +150,33 @@ public class QuotePartController {
     public String updateQuotePart(@PathVariable Long id,
                                   @ModelAttribute QuotePart quotePart,
                                   @RequestParam("quoteId") Long quoteId,
-                                  @RequestParam(value = "marginRateId", required = false) Long marginRateId,
-                                  @RequestParam(value = "expenseRateId", required = false) Long expenseRateId) {
+                                  @RequestParam(value = "brtRateId", required = false) Long brtRateId,
+                                  @RequestParam(value = "hmxRateId", required = false) Long hmxRateId) {
         Quote quote = quoteService.getQuoteById(quoteId)
                 .orElseThrow(() -> new RuntimeException("Quote not found"));
         quotePart.setQuote(quote);
-        if (marginRateId != null) {
-            marginRateService.getMarginRateById(marginRateId).ifPresent(quotePart::setMarginRate);
+        quotePart.setFactoryName(quote.getJobRequest() != null ? quote.getJobRequest().getFactoryName() : null);
+        if (brtRateId != null) {
+            marginRateService.getMarginRateById(brtRateId).ifPresent(rate -> {
+                quotePart.setBrtMarginRate(rate);
+                quotePart.setBrtExpenseRate(rate);
+                quotePart.setMarginRate(rate);
+                quotePart.setExpenseRate(rate);
+            });
         } else {
+            quotePart.setBrtMarginRate(null);
+            quotePart.setBrtExpenseRate(null);
             quotePart.setMarginRate(null);
-        }
-        if (expenseRateId != null) {
-            marginRateService.getMarginRateById(expenseRateId).ifPresent(quotePart::setExpenseRate);
-        } else {
             quotePart.setExpenseRate(null);
+        }
+        if (hmxRateId != null) {
+            marginRateService.getMarginRateById(hmxRateId).ifPresent(rate -> {
+                quotePart.setHmxMarginRate(rate);
+                quotePart.setHmxExpenseRate(rate);
+            });
+        } else {
+            quotePart.setHmxMarginRate(null);
+            quotePart.setHmxExpenseRate(null);
         }
         quotePartService.updateQuotePart(id, quotePart);
         return "redirect:/quote-parts";
@@ -165,7 +190,6 @@ public class QuotePartController {
 
     public static class QuotePartBulkRequest {
         public String ccsQuoteNo;
-        public String factoryName;
         public String productName;
         public String productSpec;
         public String partNo;
@@ -180,7 +204,6 @@ public class QuotePartController {
         public Integer partQuantity;
         public Integer quoteQuantity;
         public BigDecimal unitPriceBrt;
-        public BigDecimal unitPriceHmx;
         public String remark;
     }
 }

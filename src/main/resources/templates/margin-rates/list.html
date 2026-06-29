@@ -3,18 +3,18 @@
       th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{})}"
       th:with="activePage='marginRates'">
 <head>
-    <title>제비용 관리 - MURATEC</title>
+    <title>환율/제비용 관리 - MURATEC</title>
 </head>
 <body>
     <div class="content">
-        <h1 class="mb-4 text-center">제비용 관리</h1>
+        <h1 class="mb-4 text-center">환율/제비용 관리</h1>
 
         <div class="mb-3">
-            <a href="/margin-rates/new" class="btn btn-primary">새 제비용 추가</a>
+            <a href="/margin-rates/new" class="btn btn-primary">새 항목 추가</a>
         </div>
 
         <div th:if="${marginRates.isEmpty()}" class="alert alert-info">
-            등록된 제비용이 없습니다.
+            등록된 항목이 없습니다.
         </div>
 
         <div th:if="${!marginRates.isEmpty()}" class="table-responsive">
@@ -23,14 +23,9 @@
                     <tr>
                         <th class="col-id">ID</th>
                         <th class="col-medium">이름</th>
-                        <th class="col-medium">관세</th>
-                        <th class="col-medium">운임</th>
-                        <th class="col-medium">보험</th>
-                        <th class="col-medium">국내운송</th>
-                        <th class="col-medium">부가세</th>
-                        <th class="col-medium">통관비</th>
-                        <th class="col-medium">창고료</th>
-                        <th class="col-medium">합계(%)</th>
+                        <th class="col-medium">환율</th>
+                        <th class="col-medium">마진값</th>
+                        <th class="col-medium">운임및통관경비</th>
                         <th class="col-short">관리</th>
                     </tr>
                 </thead>
@@ -38,14 +33,9 @@
                     <tr th:each="item : ${marginRates}">
                         <td th:text="${item.id}"></td>
                         <td th:text="${item.name}"></td>
-                        <td th:text="${item.customsDutyRate}"></td>
-                        <td th:text="${item.freightRate}"></td>
-                        <td th:text="${item.insuranceRate}"></td>
-                        <td th:text="${item.domesticTransportRate}"></td>
-                        <td th:text="${item.vatRate}"></td>
-                        <td th:text="${item.customsClearanceRate}"></td>
-                        <td th:text="${item.warehouseRate}"></td>
-                        <td th:text="${item.totalRate}"></td>
+                        <td th:text="${item.yenExchangeRate != null ? #numbers.formatDecimal(item.yenExchangeRate, 1, 2) : '-'}"></td>
+                        <td th:text="${item.marginRate != null ? #numbers.formatDecimal(item.marginRate, 1, 2) : '-'}"></td>
+                        <td th:text="${item.transportClearanceRate}"></td>
                         <td>
                             <div class="d-flex gap-1 justify-content-center">
                                 <a th:href="@{/margin-rates/edit/{id}(id=${item.id})}" class="btn btn-sm btn-outline-primary px-2" title="수정" aria-label="수정">

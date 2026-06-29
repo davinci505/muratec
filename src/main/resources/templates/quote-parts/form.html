@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{})}"
+    th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{::script})}"
       th:with="activePage='quoteParts'">
 <head>
     <title th:text="${quotePart.id != null ? '견적 부품 수정 - MURATEC' : '견적 부품 추가 - MURATEC'}">Quote Part Form</title>
@@ -24,7 +24,8 @@
                                     <select id="quoteId" name="quoteId" class="form-select">
                                         <option value="">선택하세요</option>
                                         <option th:each="q : ${quotes}" th:value="${q.id}"
-                                                th:text="${q.ccsQuoteNo}" 
+                                                th:text="${q.ccsQuoteNo}"
+                                                th:attr="data-factory-name=${q.jobRequest != null ? q.jobRequest.factoryName : ''}"
                                                 th:selected="${quotePart.quote != null and quotePart.quote.id == q.id}"></option>
                                     </select>
                                 </div>
@@ -35,98 +36,62 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="factoryName" class="form-label">공장명</label>
-                                    <input type="text" class="form-control" id="factoryName" th:field="*{factoryName}">
-                                </div>
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-12 mb-3">
                                     <label for="productName" class="form-label">제품명</label>
                                     <input type="text" class="form-control" id="productName" th:field="*{productName}">
                                 </div>
                             </div>
 
                             <div class="row">
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-12 mb-3">
                                     <label for="productSpec" class="form-label">제품스펙</label>
                                     <input type="text" class="form-control" id="productSpec" th:field="*{productSpec}">
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="newPartsNo" class="form-label">NewPartsNo</label>
-                                    <input type="text" class="form-control" id="newPartsNo" th:field="*{newPartsNo}">
-                                </div>
                             </div>
 
                             <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label for="model" class="form-label">Model</label>
+                                <div class="col-md-12 mb-3">
+                                    <label for="model" class="form-label">시리얼넘버</label>
                                     <input type="text" class="form-control" id="model" th:field="*{model}">
                                 </div>
-                                <div class="col-md-4 mb-3">
-                                    <label for="machineName" class="form-label">Machine Name</label>
-                                    <input type="text" class="form-control" id="machineName" th:field="*{machineName}">
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label for="type" class="form-label">Type</label>
-                                    <input type="text" class="form-control" id="type" th:field="*{type}">
-                                </div>
                             </div>
 
                             <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label for="unitName" class="form-label">UnitName</label>
-                                    <input type="text" class="form-control" id="unitName" th:field="*{unitName}">
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label for="maker" class="form-label">Maker</label>
-                                    <input type="text" class="form-control" id="maker" th:field="*{maker}">
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label for="murataPartsNo" class="form-label">MurataPartsNo</label>
-                                    <input type="text" class="form-control" id="murataPartsNo" th:field="*{murataPartsNo}">
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="description" class="form-label">Description</label>
-                                <textarea class="form-control" id="description" th:field="*{description}" rows="3"></textarea>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label for="partQuantity" class="form-label">Part(수량)</label>
-                                    <input type="number" class="form-control" id="partQuantity" th:field="*{partQuantity}">
-                                </div>
-                                <div class="col-md-4 mb-3">
+                                <div class="col-md-6 mb-3">
                                     <label for="quoteQuantity" class="form-label">견적수량</label>
                                     <input type="number" class="form-control" id="quoteQuantity" th:field="*{quoteQuantity}">
                                 </div>
-                                <div class="col-md-4 mb-3">
+                                <div class="col-md-6 mb-3">
                                     <label for="unitPriceBrt" class="form-label">Unitprice(BRT)</label>
-                                    <input type="number" step="0.01" class="form-control" id="unitPriceBrt" th:field="*{unitPriceBrt}">
+                                    <input type="number" step="0.01" class="form-control" id="unitPriceBrt" th:field="*{unitPriceBrt}" oninput="window.updateUnitPriceHmx()">
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col-md-4 mb-3">
                                     <label for="unitPriceHmx" class="form-label">Unitprice(HMX)</label>
-                                    <input type="number" step="0.01" class="form-control" id="unitPriceHmx" th:field="*{unitPriceHmx}">
+                                    <input type="number" step="0.01" class="form-control" id="unitPriceHmx" th:value="${quotePart.unitPriceHmx}" readonly>
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label for="expenseRateId" class="form-label">제비용</label>
-                                    <select id="expenseRateId" name="expenseRateId" class="form-select">
+                                    <label for="brtRateId" class="form-label">BRT 환율/제비용</label>
+                                    <select id="brtRateId" name="brtRateId" class="form-select">
                                         <option value="">선택안함</option>
-                                        <option th:each="er : ${expenseRates}" th:value="${er.id}"
-                                                th:text="${er.name}"
-                                                th:selected="${quotePart.expenseRate != null and quotePart.expenseRate.id == er.id}"></option>
+                                        <option th:each="rate : ${marginValues}" th:value="${rate.id}"
+                                                th:text="${rate.name}"
+                                                th:selected="${(quotePart.brtMarginRate != null and quotePart.brtMarginRate.id == rate.id)
+                                                              or (quotePart.brtExpenseRate != null and quotePart.brtExpenseRate.id == rate.id)
+                                                              or (quotePart.brtMarginRate == null and quotePart.brtExpenseRate == null and quotePart.marginRate != null and quotePart.marginRate.id == rate.id)
+                                                              or (quotePart.brtMarginRate == null and quotePart.brtExpenseRate == null and quotePart.expenseRate != null and quotePart.expenseRate.id == rate.id)}"></option>
                                     </select>
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label for="marginRateId" class="form-label">마진율</label>
-                                    <select id="marginRateId" name="marginRateId" class="form-select">
+                                    <label for="hmxRateId" class="form-label">HMX 환율/제비용</label>
+                                    <select id="hmxRateId" name="hmxRateId" class="form-select">
                                         <option value="">선택안함</option>
-                                        <option th:each="mr : ${marginValues}" th:value="${mr.id}"
-                                                th:text="${mr.name}"
-                                                th:selected="${quotePart.marginRate != null and quotePart.marginRate.id == mr.id}"></option>
+                                        <option th:each="rate : ${marginValues}" th:value="${rate.id}"
+                                                th:text="${rate.name}"
+                                                th:selected="${(quotePart.hmxMarginRate != null and quotePart.hmxMarginRate.id == rate.id)
+                                                              or (quotePart.hmxExpenseRate != null and quotePart.hmxExpenseRate.id == rate.id)}"></option>
                                     </select>
                                 </div>
                             </div>
@@ -150,5 +115,28 @@
             </div>
         </div>
     </div>
+
+    <script>
+        window.updateUnitPriceHmx = function () {
+            const unitPriceBrtInput = document.getElementById('unitPriceBrt');
+            const unitPriceHmxInput = document.getElementById('unitPriceHmx');
+            const rawValue = unitPriceBrtInput.value.trim();
+
+            if (rawValue === '') {
+                unitPriceHmxInput.value = '';
+                return;
+            }
+
+            const unitPriceBrt = Number(rawValue);
+            if (Number.isNaN(unitPriceBrt)) {
+                unitPriceHmxInput.value = '';
+                return;
+            }
+
+            unitPriceHmxInput.value = (unitPriceBrt * 1.65).toFixed(2);
+        };
+
+        window.updateUnitPriceHmx();
+    </script>
 </body>
 </html>

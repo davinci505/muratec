@@ -87,14 +87,11 @@ public class QuoteService {
         quote.setJobRequest(details.getJobRequest());
         quote.setCcsQuoteDate(details.getCcsQuoteDate());
         quote.setCcsQuoteNo(details.getCcsQuoteNo());
-        quote.setCcsAmountBrt(details.getCcsAmountBrt());
-        quote.setCcsAmountHmx(details.getCcsAmountHmx());
         quote.setDescription(details.getDescription());
         quote.setBrtQuoteNo(details.getBrtQuoteNo());
         quote.setBrtQuoteDate(details.getBrtQuoteDate());
         quote.setBrtNegotiatedAmount(details.getBrtNegotiatedAmount());
         quote.setStatus(details.getStatus());
-        quote.setStatusDate(details.getStatusDate());
         quote.setHmxOrderNo(details.getHmxOrderNo());
         quote.setHmxOrderDate(details.getHmxOrderDate());
         quote.setCcsPoNo(details.getCcsPoNo());

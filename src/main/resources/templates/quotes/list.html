@@ -11,7 +11,8 @@
         <h1 class="mb-4 text-center">CCS 견적 관리</h1>
 
         <div th:if="${jobRequest != null}" class="alert alert-secondary">
-            <strong>의뢰인:</strong> <span th:text="${jobRequest.requester}"></span>
+            <strong>구분:</strong> <span th:text="${jobRequest.division}"></span>
+            <span class="ms-3"><strong>의뢰인:</strong> <span th:text="${jobRequest.requester}"></span></span>
             <span class="ms-3"><strong>작번:</strong> <span th:text="${jobRequest.jobNo}"></span></span>
             <span class="ms-3"><strong>의뢰날짜:</strong> <span th:text="${jobRequest.requestDate}"></span></span>
         </div>
@@ -43,19 +44,18 @@
             <table class="table table-striped table-bordered table-hover">
                 <thead>
                     <tr>
-                        <th class="col-medium">의뢰인</th>
+                        <th class="col-medium">구분</th>
                         <th class="col-medium">작번</th>
+                        <th class="col-medium">고객명</th>
+                        <th class="col-medium">의뢰인</th>
                         <th class="col-medium">의뢰날짜</th>
                         <th class="col-medium">CCS견적날짜</th>
                         <th class="col-medium">CCS견적번호</th>
-                        <th class="col-medium">CCS금액(BRT)</th>
-                        <th class="col-medium">CCS금액(HMX)</th>
                         <th class="col-long">내역</th>
                         <th class="col-medium">BRT견적번호</th>
                         <th class="col-medium">BRT견적날짜</th>
                         <th class="col-medium">BRT네고금액</th>
                         <th class="col-medium">상태</th>
-                        <th class="col-medium">상태날짜</th>
                         <th class="col-medium">HMX발주번호</th>
                         <th class="col-medium">HMX발주날짜</th>
                         <th class="col-medium">CCSPO번호</th>
@@ -65,21 +65,20 @@
                 </thead>
                 <tbody>
                     <tr th:each="quote : ${quotes}">
-                        <td th:text="${quote.jobRequest != null ? quote.jobRequest.requester : ''}"></td>
+                        <td th:text="${quote.jobRequest != null ? quote.jobRequest.division : ''}"></td>
                         <td th:text="${quote.jobRequest != null ? quote.jobRequest.jobNo : ''}"></td>
+                        <td th:text="${quote.jobRequest != null ? quote.jobRequest.customerName : ''}"></td>
+                        <td th:text="${quote.jobRequest != null ? quote.jobRequest.requester : ''}"></td>
                         <td th:text="${quote.jobRequest != null ? quote.jobRequest.requestDate : ''}"></td>
                         <td th:text="${quote.ccsQuoteDate}"></td>
                         <td>
                             <a th:href="@{/quote-parts(quoteId=${quote.id})}" th:text="${quote.ccsQuoteNo}"></a>
                         </td>
-                        <td th:text="${quote.ccsAmountBrt}"></td>
-                        <td th:text="${quote.ccsAmountHmx}"></td>
                         <td th:text="${quote.description}"></td>
                         <td th:text="${quote.brtQuoteNo}"></td>
                         <td th:text="${quote.brtQuoteDate}"></td>
                         <td th:text="${quote.brtNegotiatedAmount}"></td>
                         <td th:text="${quote.status}"></td>
-                        <td th:text="${quote.statusDate}"></td>
                         <td th:text="${quote.hmxOrderNo}"></td>
                         <td th:text="${quote.hmxOrderDate}"></td>
                         <td th:text="${quote.ccsPoNo}"></td>

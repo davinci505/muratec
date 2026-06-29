@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.math.BigDecimal;
+
 @Controller
 @RequestMapping("/margin-rates")
 public class MarginRateController {
@@ -20,19 +22,21 @@ public class MarginRateController {
 
     @GetMapping
     public String listMarginRates(Model model) {
-        model.addAttribute("marginRates", marginRateService.getExpenseRates());
+        model.addAttribute("marginRates", marginRateService.getAllMarginRates());
         return "margin-rates/list";
     }
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
-        model.addAttribute("marginRate", new MarginRate());
+        MarginRate marginRate = new MarginRate();
+        marginRate.setMarginRate(new BigDecimal("0.65"));
+        model.addAttribute("rateForm", marginRate);
         return "margin-rates/form";
     }
 
     @PostMapping
-    public String createMarginRate(@ModelAttribute MarginRate marginRate) {
-        marginRate.setCategory("EXPENSE");
+    public String createMarginRate(@ModelAttribute("rateForm") MarginRate marginRate) {
+        marginRate.setCategory(null);
         marginRateService.saveMarginRate(marginRate);
         return "redirect:/margin-rates";
     }
@@ -41,12 +45,12 @@ public class MarginRateController {
     public String showEditForm(@PathVariable Long id, Model model) {
         MarginRate marginRate = marginRateService.getMarginRateById(id)
                 .orElseThrow(() -> new RuntimeException("MarginRate not found"));
-        model.addAttribute("marginRate", marginRate);
+        model.addAttribute("rateForm", marginRate);
         return "margin-rates/form";
     }
 
     @PostMapping("/{id}")
-    public String updateMarginRate(@PathVariable Long id, @ModelAttribute MarginRate marginRate) {
+    public String updateMarginRate(@PathVariable Long id, @ModelAttribute("rateForm") MarginRate marginRate) {
         marginRateService.updateMarginRate(id, marginRate);
         return "redirect:/margin-rates";
     }
