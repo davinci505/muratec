@@ -26,20 +26,18 @@
 
         /* 사이드바 스타일 */
         .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            width: 250px;
-            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
-            padding-top: 20px;
-            z-index: 1000;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-            transform: translateX(0);
-            transition: transform 0.25s ease;
-        }
-
-        .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 250px; /* original width */
+    background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+    padding-top: 20px;
+    z-index: 1000;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    transform: translateX(0);
+    transition: transform 0.25s ease;
+}     .sidebar-overlay {
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.4);
@@ -61,7 +59,8 @@
         .sidebar-toggle {
             position: fixed;
             top: 12px;
-            left: 12px;
+            left: 12px; /* original left position */
+            right: auto;
             z-index: 1100;
             border: none;
             background: #2c3e50;
@@ -73,9 +72,7 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-        }
-
-        .sidebar-toggle:hover {
+        }.sidebar-toggle:hover {
             background: #34495e;
         }
 
@@ -146,25 +143,14 @@
 
         /* 메인 컨텐츠 영역 */
         .main-content {
-            margin-left: 250px;
-            padding: 20px;
-            min-height: 100vh;
-            background-color: #f8f9fa;
-        }
-
-        /* 반응형 - 작은 화면 */
+    margin-left: 250px; /* original margin */
+    padding: 20px;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}     /* 반응형 - 작은 화면 */
         @media (max-width: 768px) {
             .sidebar {
                 width: 70px;
-            }
-
-            .sidebar-brand,
-            .sidebar-menu span {
-                display: none;
-            }
-
-            .sidebar-menu i {
-                margin-right: 0;
             }
 
             .main-content {
