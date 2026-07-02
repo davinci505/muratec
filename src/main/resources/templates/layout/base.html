@@ -22,14 +22,79 @@
 
         body.sidebar-hidden .main-content {
             margin-left: 0;
+            width: 100%;
+        }
+
+        /* 헤더 스타일 */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: linear-gradient(90deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 1050;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .header .btn-menu {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-right: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .header .btn-menu:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        .header .btn-back {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .header .btn-back:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            flex-grow: 1;
+            text-align: left;
         }
 
         /* 사이드바 스타일 */
         .sidebar {
     position: fixed;
-    top: 0;
+    top: 50px; /* 헤더 높이만큼 아래부터 시작 */
     left: 0;
-    height: 100vh;
+    height: calc(100vh - 50px);
     width: 250px; /* original width */
     background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
     padding-top: 20px;
@@ -39,7 +104,7 @@
     transition: transform 0.25s ease;
 }     .sidebar-overlay {
             position: fixed;
-            inset: 0;
+            inset: 50px 0 0 0; /* 헤더 아래부터 시작 */
             background: rgba(0, 0, 0, 0.4);
             z-index: 900;
             opacity: 0;
@@ -72,7 +137,9 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-        }.sidebar-toggle:hover {
+        }
+
+        .sidebar-toggle:hover {
             background: #34495e;
         }
 
@@ -147,6 +214,8 @@
     padding: 20px;
     min-height: 100vh;
     background-color: #f8f9fa;
+    width: calc(100% - 250px);
+    margin-top: 50px; /* 헤더 높이만큼 아래부터 시작 */
 }     /* 반응형 - 작은 화면 */
         @media (max-width: 768px) {
             .sidebar {
@@ -155,6 +224,7 @@
 
             .main-content {
                 margin-left: 70px;
+                width: calc(100% - 70px);
             }
 
             body.sidebar-hidden .sidebar {
@@ -163,6 +233,19 @@
 
             body.sidebar-hidden .main-content {
                 margin-left: 0;
+                width: 100%;
+            }
+
+            .header .btn-menu {
+                margin-right: 10px;
+            }
+            
+            .header .btn-back {
+                margin-left: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1rem;
             }
         }
 
@@ -225,9 +308,17 @@
 </head>
 
 <body class="sidebar-hidden">
-    <button type="button" class="sidebar-toggle" aria-label="메뉴 열기">
-        <i class="bi bi-list"></i>
-    </button>
+    <!-- 헤더 -->
+    <header class="header">
+        <button type="button" class="btn-menu" id="btnMenu" aria-label="메뉴 열기">
+            <i class="bi bi-list"></i>
+        </button>
+        <h1 id="pageTitle">MURATEC Management System</h1>
+        <button type="button" class="btn-back" id="btnBack" aria-label="이전 페이지로 가기">
+            <i class="bi bi-arrow-left"></i>
+        </button>
+    </header>
+    
     <div class="sidebar-overlay" aria-hidden="true"></div>
     <!-- 사이드바 -->
     <div class="sidebar">
@@ -296,7 +387,8 @@
     <script>
         (function () {
             var body = document.body;
-            var toggle = document.querySelector('.sidebar-toggle');
+            var menuBtn = document.getElementById('btnMenu');
+            var backBtn = document.getElementById('btnBack');
             var overlay = document.querySelector('.sidebar-overlay');
 
             function openSidebar() {
@@ -309,15 +401,25 @@
                 body.classList.add('sidebar-hidden');
             }
 
-            toggle.addEventListener('click', function () {
-                if (body.classList.contains('sidebar-open')) {
-                    closeSidebar();
-                } else {
-                    openSidebar();
-                }
-            });
+            if (menuBtn) {
+                menuBtn.addEventListener('click', function () {
+                    if (body.classList.contains('sidebar-open')) {
+                        closeSidebar();
+                    } else {
+                        openSidebar();
+                    }
+                });
+            }
 
             overlay.addEventListener('click', closeSidebar);
+            
+            // 뒤로가기 버튼 이벤트
+            if (backBtn) {
+                backBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.history.back();
+                });
+            }
         })();
     </script>
     <th:block th:replace="${scripts}"></th:block>
