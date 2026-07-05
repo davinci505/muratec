@@ -36,7 +36,6 @@ public class MarginRateController {
 
     @PostMapping
     public String createMarginRate(@ModelAttribute("rateForm") MarginRate marginRate) {
-        marginRate.setCategory(null);
         marginRateService.saveMarginRate(marginRate);
         return "redirect:/margin-rates";
     }

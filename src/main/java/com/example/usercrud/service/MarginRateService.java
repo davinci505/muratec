@@ -43,7 +43,6 @@ public class MarginRateService {
                 .orElseThrow(() -> new RuntimeException("MarginRate not found"));
 
         marginRate.setName(details.getName());
-        marginRate.setCategory(null);
         marginRate.setYenExchangeRate(details.getYenExchangeRate());
         marginRate.setTransportClearanceRate(details.getTransportClearanceRate());
         marginRate.setMarginRate(details.getMarginRate());

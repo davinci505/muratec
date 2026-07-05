@@ -77,11 +77,7 @@
                                     <select id="brtRateId" name="brtRateId" class="form-select">
                                         <option value="">선택안함</option>
                                         <option th:each="rate : ${marginValues}" th:value="${rate.name}"
-                                                th:text="${rate.name}"
-                                                th:selected="${(quotePart.brtMarginRate != null and quotePart.brtMarginRate.name == rate.name)
-                                                              or (quotePart.brtExpenseRate != null and quotePart.brtExpenseRate.name == rate.name)
-                                                              or (quotePart.brtMarginRate == null and quotePart.brtExpenseRate == null and quotePart.marginRate != null and quotePart.marginRate.name == rate.name)
-                                                              or (quotePart.brtMarginRate == null and quotePart.brtExpenseRate == null and quotePart.expenseRate != null and quotePart.expenseRate.name == rate.name)}"></option>
+                                                th:text="${rate.name}"></option>
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-3">
@@ -89,9 +85,7 @@
                                     <select id="hmxRateId" name="hmxRateId" class="form-select">
                                         <option value="">선택안함</option>
                                         <option th:each="rate : ${marginValues}" th:value="${rate.name}"
-                                                th:text="${rate.name}"
-                                                th:selected="${(quotePart.hmxMarginRate != null and quotePart.hmxMarginRate.name == rate.name)
-                                                              or (quotePart.hmxExpenseRate != null and quotePart.hmxExpenseRate.name == rate.name)}"></option>
+                                                th:text="${rate.name}"></option>
                                     </select>
                                 </div>
                             </div>

@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 
 @Entity
 @Table(name = "quote_parts")
@@ -31,30 +32,6 @@ public class QuotePart {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quote_id")
     private Quote quote;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "margin_rate_id", referencedColumnName = "name")
-    private MarginRate marginRate;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "brt_margin_rate_id", referencedColumnName = "name")
-    private MarginRate brtMarginRate;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hmx_margin_rate_id", referencedColumnName = "name")
-    private MarginRate hmxMarginRate;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "expense_rate_id", referencedColumnName = "name")
-    private MarginRate expenseRate;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "brt_expense_rate_id", referencedColumnName = "name")
-    private MarginRate brtExpenseRate;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hmx_expense_rate_id", referencedColumnName = "name")
-    private MarginRate hmxExpenseRate;
 
     @Column(name = "factory_name")
     private String factoryName;
@@ -110,77 +87,6 @@ public class QuotePart {
     private String remark;
 
     @Transient
-    public BigDecimal getMarginRateTotal() {
-        return getCombinedRateTotal();
-    }
-
-    @Transient
-    public BigDecimal getExpenseRateTotal() {
-        return getBrtExpenseRateTotal();
-    }
-
-    @Transient
-    public BigDecimal getBrtExpenseRateTotal() {
-        MarginRate rate = getBrtExpenseRateRef();
-        return rate == null ? null : rate.getTotalRate();
-    }
-
-    @Transient
-    public BigDecimal getHmxExpenseRateTotal() {
-        MarginRate rate = getHmxExpenseRateRef();
-        return rate == null ? null : rate.getTotalRate();
-    }
-
-    @Transient
-    public BigDecimal getMarginValueRate() {
-        return getBrtMarginValueRate();
-    }
-
-    @Transient
-    public BigDecimal getBrtMarginValueRate() {
-        MarginRate rate = getBrtMarginRateRef();
-        return rate == null ? null : rate.getMarginRate();
-    }
-
-    @Transient
-    public BigDecimal getHmxMarginValueRate() {
-        MarginRate rate = getHmxMarginRateRef();
-        return rate == null ? null : rate.getMarginRate();
-    }
-
-    @Transient
-    public BigDecimal getExchangeRateValue() {
-        return getBrtExchangeRateValue();
-    }
-
-    @Transient
-    public BigDecimal getBrtExchangeRateValue() {
-        MarginRate rate = getBrtMarginRateRef();
-        return rate == null ? null : rate.getYenExchangeRate();
-    }
-
-    @Transient
-    public BigDecimal getHmxExchangeRateValue() {
-        MarginRate rate = getHmxMarginRateRef();
-        return rate == null ? null : rate.getYenExchangeRate();
-    }
-
-    @Transient
-    public BigDecimal getCombinedRateTotal() {
-        return sumRates(getExpenseRateTotal(), getMarginValueRate());
-    }
-
-    @Transient
-    public BigDecimal getUnitPriceBrtWithMargin() {
-        return applyMarginBrt(unitPriceBrt, getBrtExpenseRateRef());
-    }
-
-    @Transient
-    public BigDecimal getUnitPriceHmxWithMargin() {
-        return applyMarginHmx(getUnitPriceHmx(), getHmxMarginRateRef());
-    }
-
-    @Transient
     public BigDecimal getUnitPriceHmx() {
         if (unitPriceBrt == null) {
             return null;
@@ -188,83 +94,28 @@ public class QuotePart {
         return unitPriceBrt.multiply(HMX_MULTIPLIER).setScale(2, RoundingMode.HALF_UP);
     }
 
-    private BigDecimal applyMarginBrt(BigDecimal unitPrice, MarginRate expenseRateRef) {
-        if (unitPrice == null || BigDecimal.ZERO.compareTo(unitPrice) == 0) {
+    @Transient
+    private List<MarginRate> marginRatesForDisplay;
+
+    public BigDecimal getDisplayRateValue(MarginRate rate) {
+        if (rate == null) {
             return null;
         }
-        if (expenseRateRef == null) {
-            return null;
-        }
-        BigDecimal transportClearanceRate = expenseRateRef.getTransportClearanceRate();
-        BigDecimal exchangeRate = expenseRateRef.getYenExchangeRate();
-        if (transportClearanceRate == null || exchangeRate == null) {
-            return null;
-        }
-        if (BigDecimal.ZERO.compareTo(exchangeRate) == 0) {
-            return null;
-        }
-        BigDecimal result = unitPrice
-                .multiply(transportClearanceRate)
-                .multiply(exchangeRate);
-        return result.setScale(2, RoundingMode.HALF_UP);
+        return rate.getDisplayRateValue();
     }
 
-    private BigDecimal applyMarginHmx(BigDecimal unitPrice, MarginRate marginRateRef) {
-        if (unitPrice == null || BigDecimal.ZERO.compareTo(unitPrice) == 0) {
+    public BigDecimal getDisplayExchangeRate(MarginRate rate) {
+        if (rate == null) {
             return null;
         }
-        if (marginRateRef == null) {
+        return rate.getYenExchangeRate();
+    }
+
+    public BigDecimal getDisplayUnitPriceWithMargin(MarginRate rate) {
+        if (rate == null) {
             return null;
         }
-        BigDecimal marginValueRate = marginRateRef.getMarginRate();
-        BigDecimal exchangeRate = marginRateRef.getYenExchangeRate();
-        if (marginValueRate == null || exchangeRate == null) {
-            return null;
-        }
-        if (BigDecimal.ZERO.compareTo(marginValueRate) == 0 || BigDecimal.ZERO.compareTo(exchangeRate) == 0) {
-            return null;
-        }
-        BigDecimal numerator = unitPrice.multiply(exchangeRate);
-        BigDecimal result = numerator.divide(marginValueRate, 6, RoundingMode.HALF_UP);
-        return result.setScale(2, RoundingMode.HALF_UP);
-    }
-
-    private MarginRate getBrtMarginRateRef() {
-        return brtMarginRate != null ? brtMarginRate : marginRate;
-    }
-
-    private MarginRate getHmxMarginRateRef() {
-        if (hmxMarginRate != null) {
-            return hmxMarginRate;
-        }
-        if (brtMarginRate != null) {
-            return brtMarginRate;
-        }
-        return marginRate;
-    }
-
-    private MarginRate getBrtExpenseRateRef() {
-        return brtExpenseRate != null ? brtExpenseRate : expenseRate;
-    }
-
-    private MarginRate getHmxExpenseRateRef() {
-        if (hmxExpenseRate != null) {
-            return hmxExpenseRate;
-        }
-        if (brtExpenseRate != null) {
-            return brtExpenseRate;
-        }
-        return expenseRate;
-    }
-
-    private BigDecimal sumRates(BigDecimal... values) {
-        BigDecimal total = null;
-        for (BigDecimal value : values) {
-            if (value == null) {
-                continue;
-            }
-            total = (total == null) ? value : total.add(value);
-        }
-        return total;
+        BigDecimal basePrice = rate.isHmxType() ? getUnitPriceHmx() : unitPriceBrt;
+        return rate.calculateUnitPriceWithMargin(basePrice);
     }
 }

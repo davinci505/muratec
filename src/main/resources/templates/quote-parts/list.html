@@ -66,43 +66,27 @@
                         <td th:text="${item.unitPriceBrt}"></td>
                         <td th:text="${item.unitPriceHmx}"></td>
                         <td>
-                            <div class="small text-nowrap">
-                                <strong>BRT</strong>
-                                
-                            </div>
-                            <div class="small text-nowrap border-top mt-1 pt-1">
-                                <strong>HMX</strong>
-                                
+                            <div th:each="rate, stat : ${marginRates}"
+                                 th:class="${stat.first} ? 'small text-nowrap' : 'small text-nowrap border-top mt-1 pt-1'">
+                                <strong th:text="${rate.name}"></strong>
                             </div>
                         </td>
                         <td>
-                            <div class="small text-nowrap">
-                                
-                                <span th:text="${item.brtExpenseRateTotal != null ? item.brtExpenseRateTotal : '-'}"></span>
-                            </div>
-                            <div class="small text-nowrap border-top mt-1 pt-1">
-                                
-                                <span th:text="${item.hmxMarginValueRate != null ? item.hmxMarginValueRate : '-'}"></span>
+                            <div th:each="rate, stat : ${marginRates}"
+                                 th:class="${stat.first} ? 'small text-nowrap' : 'small text-nowrap border-top mt-1 pt-1'">
+                                <span th:text="${item.getDisplayRateValue(rate) != null ? item.getDisplayRateValue(rate) : '-'}"></span>
                             </div>
                         </td>
                         <td>
-                            <div class="small text-nowrap">
-                                
-                                <span th:text="${item.brtExchangeRateValue != null ? #numbers.formatDecimal(item.brtExchangeRateValue, 1, 2) : '-'}"></span>
-                            </div>
-                            <div class="small text-nowrap border-top mt-1 pt-1">
-                                
-                                <span th:text="${item.hmxExchangeRateValue != null ? #numbers.formatDecimal(item.hmxExchangeRateValue, 1, 2) : '-'}"></span>
+                            <div th:each="rate, stat : ${marginRates}"
+                                 th:class="${stat.first} ? 'small text-nowrap' : 'small text-nowrap border-top mt-1 pt-1'">
+                                <span th:text="${item.getDisplayExchangeRate(rate) != null ? #numbers.formatDecimal(item.getDisplayExchangeRate(rate), 1, 2) : '-'}"></span>
                             </div>
                         </td>
                         <td>
-                            <div class="small text-nowrap">
-                                
-                                <span th:text="${item.unitPriceBrtWithMargin != null ? item.unitPriceBrtWithMargin : '-'}"></span>
-                            </div>
-                            <div class="small text-nowrap border-top mt-1 pt-1">
-                                
-                                <span th:text="${item.unitPriceHmxWithMargin != null ? item.unitPriceHmxWithMargin : '-'}"></span>
+                            <div th:each="rate, stat : ${marginRates}"
+                                 th:class="${stat.first} ? 'small text-nowrap' : 'small text-nowrap border-top mt-1 pt-1'">
+                                <span th:text="${item.getDisplayUnitPriceWithMargin(rate) != null ? item.getDisplayUnitPriceWithMargin(rate) : '-'}"></span>
                             </div>
                         </td>
                         <td th:text="${item.remark}"></td>

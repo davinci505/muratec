@@ -36,12 +36,6 @@ public class QuotePartService {
                 .orElseThrow(() -> new RuntimeException("QuotePart not found"));
 
         quotePart.setQuote(details.getQuote());
-        quotePart.setMarginRate(details.getMarginRate());
-        quotePart.setExpenseRate(details.getExpenseRate());
-        quotePart.setBrtMarginRate(details.getBrtMarginRate());
-        quotePart.setHmxMarginRate(details.getHmxMarginRate());
-        quotePart.setBrtExpenseRate(details.getBrtExpenseRate());
-        quotePart.setHmxExpenseRate(details.getHmxExpenseRate());
         quotePart.setFactoryName(details.getFactoryName());
         quotePart.setProductName(details.getProductName());
         quotePart.setProductSpec(details.getProductSpec());

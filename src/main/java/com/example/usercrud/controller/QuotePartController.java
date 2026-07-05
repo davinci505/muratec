@@ -1,5 +1,6 @@
 package com.example.usercrud.controller;
 
+import com.example.usercrud.model.MarginRate;
 import com.example.usercrud.model.Quote;
 import com.example.usercrud.model.QuotePart;
 import com.example.usercrud.service.MarginRateService;
@@ -39,7 +40,9 @@ public class QuotePartController {
                                  @RequestParam(value = "q", required = false) String q,
                                  Model model) {
         List<QuotePart> quoteParts = quotePartService.search(quoteId, q);
+        List<MarginRate> marginRates = marginRateService.getAllMarginRates();
         model.addAttribute("quoteParts", quoteParts);
+        model.addAttribute("marginRates", marginRates);
         model.addAttribute("quoteId", quoteId);
         model.addAttribute("q", q);
         if (quoteId != null) {
@@ -69,35 +72,11 @@ public class QuotePartController {
 
     @PostMapping
     public String createQuotePart(@ModelAttribute QuotePart quotePart,
-                                  @RequestParam("quoteId") Long quoteId,
-                                  @RequestParam(value = "brtRateId", required = false) String brtRateId,
-                                  @RequestParam(value = "hmxRateId", required = false) String hmxRateId) {
+                                  @RequestParam("quoteId") Long quoteId) {
         Quote quote = quoteService.getQuoteById(quoteId)
                 .orElseThrow(() -> new RuntimeException("Quote not found"));
         quotePart.setQuote(quote);
         quotePart.setFactoryName(quote.getJobRequest() != null ? quote.getJobRequest().getFactoryName() : null);
-        if (brtRateId != null) {
-            marginRateService.getMarginRateById(brtRateId).ifPresent(rate -> {
-                quotePart.setBrtMarginRate(rate);
-                quotePart.setBrtExpenseRate(rate);
-                quotePart.setMarginRate(rate);
-                quotePart.setExpenseRate(rate);
-            });
-        } else {
-            quotePart.setBrtMarginRate(null);
-            quotePart.setBrtExpenseRate(null);
-            quotePart.setMarginRate(null);
-            quotePart.setExpenseRate(null);
-        }
-        if (hmxRateId != null) {
-            marginRateService.getMarginRateById(hmxRateId).ifPresent(rate -> {
-                quotePart.setHmxMarginRate(rate);
-                quotePart.setHmxExpenseRate(rate);
-            });
-        } else {
-            quotePart.setHmxMarginRate(null);
-            quotePart.setHmxExpenseRate(null);
-        }
         quotePartService.saveQuotePart(quotePart);
         return "redirect:/quote-parts";
     }
@@ -149,35 +128,11 @@ public class QuotePartController {
     @PostMapping("/{id}")
     public String updateQuotePart(@PathVariable Long id,
                                   @ModelAttribute QuotePart quotePart,
-                                  @RequestParam("quoteId") Long quoteId,
-                                  @RequestParam(value = "brtRateId", required = false) String brtRateId,
-                                  @RequestParam(value = "hmxRateId", required = false) String hmxRateId) {
+                                  @RequestParam("quoteId") Long quoteId) {
         Quote quote = quoteService.getQuoteById(quoteId)
                 .orElseThrow(() -> new RuntimeException("Quote not found"));
         quotePart.setQuote(quote);
         quotePart.setFactoryName(quote.getJobRequest() != null ? quote.getJobRequest().getFactoryName() : null);
-        if (brtRateId != null) {
-            marginRateService.getMarginRateById(brtRateId).ifPresent(rate -> {
-                quotePart.setBrtMarginRate(rate);
-                quotePart.setBrtExpenseRate(rate);
-                quotePart.setMarginRate(rate);
-                quotePart.setExpenseRate(rate);
-            });
-        } else {
-            quotePart.setBrtMarginRate(null);
-            quotePart.setBrtExpenseRate(null);
-            quotePart.setMarginRate(null);
-            quotePart.setExpenseRate(null);
-        }
-        if (hmxRateId != null) {
-            marginRateService.getMarginRateById(hmxRateId).ifPresent(rate -> {
-                quotePart.setHmxMarginRate(rate);
-                quotePart.setHmxExpenseRate(rate);
-            });
-        } else {
-            quotePart.setHmxMarginRate(null);
-            quotePart.setHmxExpenseRate(null);
-        }
         quotePartService.updateQuotePart(id, quotePart);
         return "redirect:/quote-parts";
     }
