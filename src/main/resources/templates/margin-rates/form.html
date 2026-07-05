@@ -3,7 +3,7 @@
       th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{})}"
       th:with="activePage='marginRates'">
 <head>
-    <title th:text="${rateForm.id != null ? '환율/제비용 수정 - MURATEC' : '환율/제비용 추가 - MURATEC'}">Rate Form</title>
+    <title th:text="${rateForm.name != null ? '환율/제비용 수정 - MURATEC' : '환율/제비용 추가 - MURATEC'}">Rate Form</title>
 </head>
 <body>
     <div class="content">
@@ -11,16 +11,16 @@
             <div class="col-md-10">
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <h2 class="mb-0" th:text="${rateForm.id != null ? '환율/제비용 수정' : '환율/제비용 추가'}"></h2>
+                        <h2 class="mb-0" th:text="${rateForm.name != null ? '환율/제비용 수정' : '환율/제비용 추가'}"></h2>
                     </div>
                     <div class="card-body">
-                        <form th:action="${rateForm.id != null ? '/margin-rates/' + rateForm.id : '/margin-rates'}"
+                        <form th:action="${rateForm.name != null ? '/margin-rates/' + rateForm.name : '/margin-rates'}"
                               th:object="${rateForm}"
                               method="post">
 
                             <div class="mb-3">
                                 <label for="name" class="form-label">이름</label>
-                                <input type="text" class="form-control" id="name" th:field="*{name}" required>
+                                <input type="text" class="form-control" id="name" th:field="*{name}" required th:readonly="${rateForm.name != null}">
                             </div>
 
                             <div class="row">
@@ -40,7 +40,7 @@
 
                             <div class="d-flex gap-2">
                                 <button type="submit" class="btn btn-primary">
-                                    <span th:text="${rateForm.id != null ? '수정' : '등록'}"></span>
+                                    <span th:text="${rateForm.name != null ? '수정' : '등록'}"></span>
                                 </button>
                                 <a href="/margin-rates" class="btn btn-secondary">취소</a>
                             </div>

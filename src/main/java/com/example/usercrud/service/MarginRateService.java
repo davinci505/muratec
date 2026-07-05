@@ -26,7 +26,7 @@ public class MarginRateService {
         return getAllMarginRates();
     }
 
-    public Optional<MarginRate> getMarginRateById(Long id) {
+    public Optional<MarginRate> getMarginRateById(String id) {
         return marginRateRepository.findById(id);
     }
 
@@ -34,11 +34,11 @@ public class MarginRateService {
         return marginRateRepository.save(marginRate);
     }
 
-    public void deleteMarginRate(Long id) {
+    public void deleteMarginRate(String id) {
         marginRateRepository.deleteById(id);
     }
 
-    public MarginRate updateMarginRate(Long id, MarginRate details) {
+    public MarginRate updateMarginRate(String id, MarginRate details) {
         MarginRate marginRate = marginRateRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("MarginRate not found"));
 
@@ -51,7 +51,7 @@ public class MarginRateService {
         return marginRateRepository.save(marginRate);
     }
 
-    public MarginRate updateMarginValue(Long id, MarginRate details) {
+    public MarginRate updateMarginValue(String id, MarginRate details) {
         return updateMarginRate(id, details);
     }
 }

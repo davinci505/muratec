@@ -42,7 +42,7 @@ public class MarginRateController {
     }
 
     @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Long id, Model model) {
+    public String showEditForm(@PathVariable String id, Model model) {
         MarginRate marginRate = marginRateService.getMarginRateById(id)
                 .orElseThrow(() -> new RuntimeException("MarginRate not found"));
         model.addAttribute("rateForm", marginRate);
@@ -50,13 +50,13 @@ public class MarginRateController {
     }
 
     @PostMapping("/{id}")
-    public String updateMarginRate(@PathVariable Long id, @ModelAttribute("rateForm") MarginRate marginRate) {
+    public String updateMarginRate(@PathVariable String id, @ModelAttribute("rateForm") MarginRate marginRate) {
         marginRateService.updateMarginRate(id, marginRate);
         return "redirect:/margin-rates";
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteMarginRate(@PathVariable Long id) {
+    public String deleteMarginRate(@PathVariable String id) {
         marginRateService.deleteMarginRate(id);
         return "redirect:/margin-rates";
     }

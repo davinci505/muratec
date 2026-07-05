@@ -33,27 +33,27 @@ public class QuotePart {
     private Quote quote;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "margin_rate_id")
+    @JoinColumn(name = "margin_rate_id", referencedColumnName = "name")
     private MarginRate marginRate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "brt_margin_rate_id")
+    @JoinColumn(name = "brt_margin_rate_id", referencedColumnName = "name")
     private MarginRate brtMarginRate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hmx_margin_rate_id")
+    @JoinColumn(name = "hmx_margin_rate_id", referencedColumnName = "name")
     private MarginRate hmxMarginRate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "expense_rate_id")
+    @JoinColumn(name = "expense_rate_id", referencedColumnName = "name")
     private MarginRate expenseRate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "brt_expense_rate_id")
+    @JoinColumn(name = "brt_expense_rate_id", referencedColumnName = "name")
     private MarginRate brtExpenseRate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hmx_expense_rate_id")
+    @JoinColumn(name = "hmx_expense_rate_id", referencedColumnName = "name")
     private MarginRate hmxExpenseRate;
 
     @Column(name = "factory_name")

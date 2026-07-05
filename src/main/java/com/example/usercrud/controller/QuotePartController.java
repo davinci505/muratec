@@ -70,8 +70,8 @@ public class QuotePartController {
     @PostMapping
     public String createQuotePart(@ModelAttribute QuotePart quotePart,
                                   @RequestParam("quoteId") Long quoteId,
-                                  @RequestParam(value = "brtRateId", required = false) Long brtRateId,
-                                  @RequestParam(value = "hmxRateId", required = false) Long hmxRateId) {
+                                  @RequestParam(value = "brtRateId", required = false) String brtRateId,
+                                  @RequestParam(value = "hmxRateId", required = false) String hmxRateId) {
         Quote quote = quoteService.getQuoteById(quoteId)
                 .orElseThrow(() -> new RuntimeException("Quote not found"));
         quotePart.setQuote(quote);
@@ -150,8 +150,8 @@ public class QuotePartController {
     public String updateQuotePart(@PathVariable Long id,
                                   @ModelAttribute QuotePart quotePart,
                                   @RequestParam("quoteId") Long quoteId,
-                                  @RequestParam(value = "brtRateId", required = false) Long brtRateId,
-                                  @RequestParam(value = "hmxRateId", required = false) Long hmxRateId) {
+                                  @RequestParam(value = "brtRateId", required = false) String brtRateId,
+                                  @RequestParam(value = "hmxRateId", required = false) String hmxRateId) {
         Quote quote = quoteService.getQuoteById(quoteId)
                 .orElseThrow(() -> new RuntimeException("Quote not found"));
         quotePart.setQuote(quote);

@@ -76,22 +76,22 @@
                                     <label for="brtRateId" class="form-label">BRT 환율/제비용</label>
                                     <select id="brtRateId" name="brtRateId" class="form-select">
                                         <option value="">선택안함</option>
-                                        <option th:each="rate : ${marginValues}" th:value="${rate.id}"
+                                        <option th:each="rate : ${marginValues}" th:value="${rate.name}"
                                                 th:text="${rate.name}"
-                                                th:selected="${(quotePart.brtMarginRate != null and quotePart.brtMarginRate.id == rate.id)
-                                                              or (quotePart.brtExpenseRate != null and quotePart.brtExpenseRate.id == rate.id)
-                                                              or (quotePart.brtMarginRate == null and quotePart.brtExpenseRate == null and quotePart.marginRate != null and quotePart.marginRate.id == rate.id)
-                                                              or (quotePart.brtMarginRate == null and quotePart.brtExpenseRate == null and quotePart.expenseRate != null and quotePart.expenseRate.id == rate.id)}"></option>
+                                                th:selected="${(quotePart.brtMarginRate != null and quotePart.brtMarginRate.name == rate.name)
+                                                              or (quotePart.brtExpenseRate != null and quotePart.brtExpenseRate.name == rate.name)
+                                                              or (quotePart.brtMarginRate == null and quotePart.brtExpenseRate == null and quotePart.marginRate != null and quotePart.marginRate.name == rate.name)
+                                                              or (quotePart.brtMarginRate == null and quotePart.brtExpenseRate == null and quotePart.expenseRate != null and quotePart.expenseRate.name == rate.name)}"></option>
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="hmxRateId" class="form-label">HMX 환율/제비용</label>
                                     <select id="hmxRateId" name="hmxRateId" class="form-select">
                                         <option value="">선택안함</option>
-                                        <option th:each="rate : ${marginValues}" th:value="${rate.id}"
+                                        <option th:each="rate : ${marginValues}" th:value="${rate.name}"
                                                 th:text="${rate.name}"
-                                                th:selected="${(quotePart.hmxMarginRate != null and quotePart.hmxMarginRate.id == rate.id)
-                                                              or (quotePart.hmxExpenseRate != null and quotePart.hmxExpenseRate.id == rate.id)}"></option>
+                                                th:selected="${(quotePart.hmxMarginRate != null and quotePart.hmxMarginRate.name == rate.name)
+                                                              or (quotePart.hmxExpenseRate != null and quotePart.hmxExpenseRate.name == rate.name)}"></option>
                                     </select>
                                 </div>
                             </div>

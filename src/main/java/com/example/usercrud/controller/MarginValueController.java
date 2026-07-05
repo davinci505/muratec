@@ -1,6 +1,5 @@
 package com.example.usercrud.controller;
 
-import com.example.usercrud.model.MarginRate;
 import com.example.usercrud.service.MarginRateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
