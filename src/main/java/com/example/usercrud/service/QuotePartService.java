@@ -4,6 +4,7 @@ import com.example.usercrud.model.QuotePart;
 import com.example.usercrud.repository.QuotePartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +16,7 @@ public class QuotePartService {
     private QuotePartRepository quotePartRepository;
 
     public List<QuotePart> search(Long quoteId, String q) {
-        String query = (q == null || q.isBlank()) ? null : q.trim();
+        String query = (q == null || !StringUtils.hasText(q)) ? null : q.trim();
         return quotePartRepository.search(quoteId, query);
     }
 
@@ -38,19 +39,15 @@ public class QuotePartService {
         quotePart.setQuote(details.getQuote());
         quotePart.setFactoryName(details.getFactoryName());
         quotePart.setProductName(details.getProductName());
-        quotePart.setProductSpec(details.getProductSpec());
-        quotePart.setPartNo(details.getPartNo());
-        quotePart.setNewPartsNo(details.getNewPartsNo());
-        quotePart.setModel(details.getModel());
-        quotePart.setMachineName(details.getMachineName());
-        quotePart.setType(details.getType());
-        quotePart.setUnitName(details.getUnitName());
-        quotePart.setDescription(details.getDescription());
-        quotePart.setMaker(details.getMaker());
-        quotePart.setMurataPartsNo(details.getMurataPartsNo());
-        quotePart.setPartQuantity(details.getPartQuantity());
-        quotePart.setQuoteQuantity(details.getQuoteQuantity());
-        quotePart.setUnitPriceBrt(details.getUnitPriceBrt());
+        quotePart.setPartNoProductSpec(details.getPartNoProductSpec());
+        quotePart.setCcsPoNo(details.getCcsPoNo());
+        quotePart.setWorkNoSerialNo(details.getWorkNoSerialNo());
+        quotePart.setOrderQuantity(details.getOrderQuantity());
+        quotePart.setCcsPoAmount(details.getCcsPoAmount());
+        quotePart.setHmxOrderNo(details.getHmxOrderNo());
+        quotePart.setHmxOrderAmount(details.getHmxOrderAmount());
+        quotePart.setStatus(details.getStatus());
+        quotePart.setDeliveryDate(details.getDeliveryDate());
         quotePart.setRemark(details.getRemark());
 
         return quotePartRepository.save(quotePart);

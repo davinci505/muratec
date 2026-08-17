@@ -1,14 +1,14 @@
 package com.example.usercrud.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,11 +39,8 @@ public class Quote {
     @Column(name = "ccs_quote_no")
     private String ccsQuoteNo;
 
-    @Column(name = "ccs_amount_brt", precision = 15, scale = 2)
-    private BigDecimal ccsAmountBrt;
-
-    @Column(name = "ccs_amount_hmx", precision = 15, scale = 2)
-    private BigDecimal ccsAmountHmx;
+    @Column(name = "ccs_amount", precision = 15, scale = 2)
+    private BigDecimal ccsAmount;
 
     @Column(name = "description", length = 500)
     private String description;
@@ -55,8 +52,11 @@ public class Quote {
     @Column(name = "brt_quote_date")
     private LocalDate brtQuoteDate;
 
-    @Column(name = "brt_negotiated_amount", precision = 15, scale = 2)
-    private BigDecimal brtNegotiatedAmount;
+    @Column(name = "brt_amount", precision = 15, scale = 2)
+    private BigDecimal brtAmount;
+
+    @Column(name = "brt_negotiated_amount", length = 500)
+    private String brtNegotiatedAmount;
 
     @Column(name = "status")
     private String status;
@@ -64,18 +64,4 @@ public class Quote {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @Column(name = "status_date")
     private LocalDate statusDate;
-
-    @Column(name = "hmx_order_no")
-    private String hmxOrderNo;
-
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    @Column(name = "hmx_order_date")
-    private LocalDate hmxOrderDate;
-
-    @Column(name = "ccs_po_no")
-    private String ccsPoNo;
-
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    @Column(name = "ccs_po_date")
-    private LocalDate ccsPoDate;
 }

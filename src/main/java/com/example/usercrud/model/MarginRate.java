@@ -1,11 +1,11 @@
 package com.example.usercrud.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.PrePersist;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +13,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.HashMap;
 import java.util.Map;
 
 @Entity
@@ -51,10 +52,11 @@ public class MarginRate {
         return numerator.divide(rate.marginRate, 2, RoundingMode.HALF_UP);
     };
 
-    private static final Map<String, UnitPriceCalculator> CALCULATORS_BY_NAME = Map.of(
-            "BRT", BRT_CALCULATOR,
-            "HMX", HMX_CALCULATOR
-    );
+    private static final Map<String, UnitPriceCalculator> CALCULATORS_BY_NAME = new HashMap<>();
+        static {
+            CALCULATORS_BY_NAME.put("BRT", BRT_CALCULATOR);
+            CALCULATORS_BY_NAME.put("HMX", HMX_CALCULATOR);
+        }
 
     @Id
     @Column(name = "name", nullable = false, length = 100)

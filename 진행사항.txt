@@ -1,0 +1,90 @@
+# 진행사항.txt - 작업 진행 기록
+
+## 프로젝트 개요
+고객 수정사항 반영: 고객의뢰, CCS견적(견적관리), 견적부품(발주/납품관리) 기능 수정
+
+## 작업 단계 및 완료 상태
+
+### Phase 1: JobRequest (고객의뢰) - Minor Changes
+- [x] JOB-1: Verify JobRequest model - no amount field to remove
+- [x] JOB-2: Update jobs/form.html - "품번/제품스펙" label (already done)
+- [x] JOB-3: Update jobs/list.html - column header "품번/제품스펙" (already done)
+- [x] JOB-4: Verify navigation/menu
+
+**Status**: COMPLETED (2026-08-17)
+
+---
+
+### Phase 2: Quote (CCS견적 → 견적관리) - Major Changes
+- [x] QUOTE-1: Rename menu "CCS견적" → "견적관리" in layout/base.html
+- [x] QUOTE-2: Update Quote model - remove hmxOrderNo, hmxOrderDate, ccsPoNo, ccsPoDate (already removed)
+- [x] QUOTE-3: Add/verify ccsAmount, brtAmount fields (already exists)
+- [x] QUOTE-4: Change brtNegotiatedAmount from BigDecimal to String (already String)
+- [x] QUOTE-5: Update quotes/list.html - swap BRT columns, add amount columns (already done)
+- [x] QUOTE-6: Update quotes/form.html - reorder, add auto-format (￥/￦), remove fields (already done)
+- [x] QUOTE-7: Update QuoteController - handle new field types (statusOptions already correct)
+- [x] QUOTE-8: Create database migration V3 for Quote changes (V3 exists)
+
+**Status**: COMPLETED (2026-08-17)
+
+---
+
+### Phase 3: QuotePart (견적부품 → 발주/납품관리) - Major Changes
+- [x] PART-1: Rename menu "견적부품" → "발주/납품관리" in layout/base.html
+- [x] PART-2: Update QuotePart model - rename fields, add status, deliveryDate, hmxOrderAmount, ccsPoAmount (already done)
+- [x] PART-3: Update quote-parts/list.html - rename columns, add status, deliveryDate (already done)
+- [x] PART-4: Update quote-parts/form.html - rename labels, add auto-format, add new fields (already done)
+- [x] PART-5: Update QuotePartController - handle new fields (already done)
+- [x] PART-6: Create database migration V4 for QuotePart changes (V4 exists)
+
+**Status**: COMPLETED (2026-08-17)
+
+---
+
+### Phase 4: Cross-cutting & Testing
+- [x] TEST-1: Build and test all changes
+- [x] TEST-2: Verify data migration works (Flyway migrations V3, V4 applied successfully)
+- [x] TEST-3: Update this file with completion status
+
+**Status**: COMPLETED (2026-08-17)
+
+---
+
+## 완료된 작업 상세 (세션 지속성을 위해 기록)
+
+### [2026-08-17] 세션 시작
+- 분석 완료: 수정사항.txt 요구사항 파악
+- 계획 수립: plan.md 작성
+- 진행사항 추적 파일 생성
+
+### [2026-08-17] Phase 1 완료: JobRequest (고객의뢰)
+- JobRequest 모델에 amount 필드 없음 확인 (제거할 것 없음)
+- jobs/form.html: "품번/제품스펙" 라벨 이미 적용됨
+- jobs/list.html: "품번/제품스펙" 컬럼 헤더 이미 적용됨
+- 레이아웃 메뉴 확인: "고객의뢰" 정상
+
+### [2026-08-17] Phase 2 완료: Quote (견적관리)
+- 레이아웃 메뉴: "CCS견적" → "견적관리" 변경됨
+- Quote 모델: hmxOrderNo, hmxOrderDate, ccsPoNo, ccsPoDate 필드 없음 (이미 제거됨)
+- ccsAmount, brtAmount 필드 이미 존재
+- brtNegotiatedAmount: String 타입으로 이미 변경됨
+- quotes/list.html: BRT 컬럼 순서 변경 및 금액 컬럼 추가 완료
+- quotes/form.html: 필드 순서 재배치, 금액 자동 포맷(￥/￦), 불필요 필드 제거 완료
+- QuoteController: STATUS_OPTIONS = ["견적중", "재견적", "견적제출", "발주예정"] 이미 적용됨
+- V3 마이그레이션: quotes 테이블 컬럼 삭제 및 타입 변경 SQL 작성됨
+
+### [2026-08-17] Phase 3 완료: QuotePart (발주/납품관리)
+- 레이아웃 메뉴: "견적부품" → "발주/납품관리" 변경됨
+- QuotePart 모델: 필드명 변경 완료 (product_spec→part_no_product_spec, part_no→ccs_po_no, model→work_no_serial_no, quote_quantity→order_quantity, unit_price_brt→ccs_po_amount), 새 필드 추가 (hmx_order_no, hmx_order_amount, status, delivery_date)
+- quote-parts/list.html: 컬럼 헤더 변경 완료
+- quote-parts/form.html: 라벨 변경, 금액 자동 포맷(￥/￦), 상태 드롭다운(발주중/납품예정/납품완료), 납기 필드 추가 완료
+- QuotePartController: 새 필드 처리 및 벌크 등록 지원 완료
+- V4 마이그레이션: quote_parts 테이블 컬럼명 변경, 새 컬럼 추가, 불필요 컬럼 삭제 SQL 작성됨
+
+### [2026-08-17] Phase 4 완료: Cross-cutting & Testing
+- Maven 빌드 성공
+- 단위 테스트 모두 통과
+- Spring Boot 애플리케이션 정상 기동 확인 (H2 DB 자동 마이그레이션 적용)
+- 웹 페이지 정상 작동 확인: 홈, 고객의뢰, 견적관리, 발주/납품관리
+
+---

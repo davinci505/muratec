@@ -4,6 +4,7 @@ import com.example.usercrud.model.Quote;
 import com.example.usercrud.repository.QuoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +24,7 @@ public class QuoteService {
     }
 
     public Optional<Quote> findByCcsQuoteNo(String ccsQuoteNo) {
-        if (ccsQuoteNo == null || ccsQuoteNo.isBlank()) {
+        if (ccsQuoteNo == null || !StringUtils.hasText(ccsQuoteNo)) {
             return Optional.empty();
         }
         return quoteRepository.findByCcsQuoteNo(ccsQuoteNo.trim());
@@ -43,8 +44,8 @@ public class QuoteService {
 
     public List<Quote> getByFilters(Long jobRequestId, String status, String ccsQuoteNo) {
         boolean hasJob = jobRequestId != null;
-        boolean hasStatus = status != null && !status.isBlank();
-        String keyword = (ccsQuoteNo != null && !ccsQuoteNo.isBlank()) ? ccsQuoteNo.trim() : null;
+        boolean hasStatus = status != null && StringUtils.hasText(status);
+        String keyword = (ccsQuoteNo != null && StringUtils.hasText(ccsQuoteNo)) ? ccsQuoteNo.trim() : null;
         boolean hasCcsQuoteNo = keyword != null;
 
         if (hasJob && hasStatus && hasCcsQuoteNo) {
@@ -87,15 +88,13 @@ public class QuoteService {
         quote.setJobRequest(details.getJobRequest());
         quote.setCcsQuoteDate(details.getCcsQuoteDate());
         quote.setCcsQuoteNo(details.getCcsQuoteNo());
+        quote.setCcsAmount(details.getCcsAmount());
         quote.setDescription(details.getDescription());
         quote.setBrtQuoteNo(details.getBrtQuoteNo());
         quote.setBrtQuoteDate(details.getBrtQuoteDate());
+        quote.setBrtAmount(details.getBrtAmount());
         quote.setBrtNegotiatedAmount(details.getBrtNegotiatedAmount());
         quote.setStatus(details.getStatus());
-        quote.setHmxOrderNo(details.getHmxOrderNo());
-        quote.setHmxOrderDate(details.getHmxOrderDate());
-        quote.setCcsPoNo(details.getCcsPoNo());
-        quote.setCcsPoDate(details.getCcsPoDate());
 
         return quoteRepository.save(quote);
     }

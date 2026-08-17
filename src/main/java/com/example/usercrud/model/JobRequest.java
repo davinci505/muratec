@@ -1,17 +1,16 @@
 package com.example.usercrud.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -47,12 +46,6 @@ public class JobRequest {
     @Column(name = "product_name")
     private String productName;
 
-    @Column(name = "product_spec")
-    private String productSpec;
-
-    @Column(name = "part_no")
-    private String partNo;
-
-    @Column(name = "amount")
-    private BigDecimal amount;
+    @Column(name = "part_no_product_spec")
+    private String partNoProductSpec;
 }

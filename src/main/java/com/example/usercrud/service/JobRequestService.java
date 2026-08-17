@@ -4,6 +4,7 @@ import com.example.usercrud.model.JobRequest;
 import com.example.usercrud.repository.JobRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +20,7 @@ public class JobRequestService {
     }
 
     public List<JobRequest> searchByJobNoOrRequester(String query) {
-        if (query == null || query.isBlank()) {
+        if (query == null || !StringUtils.hasText(query)) {
             return getAllJobRequests();
         }
         String keyword = query.trim();
@@ -31,7 +32,7 @@ public class JobRequestService {
     }
 
     public Optional<JobRequest> findByJobNo(String jobNo) {
-        if (jobNo == null || jobNo.isBlank()) {
+        if (jobNo == null || !StringUtils.hasText(jobNo)) {
             return Optional.empty();
         }
         return jobRequestRepository.findByJobNo(jobNo.trim());
@@ -56,9 +57,7 @@ public class JobRequestService {
         jobRequest.setCustomerName(details.getCustomerName());
         jobRequest.setFactoryName(details.getFactoryName());
         jobRequest.setProductName(details.getProductName());
-        jobRequest.setProductSpec(details.getProductSpec());
-        jobRequest.setPartNo(details.getPartNo());
-        jobRequest.setAmount(details.getAmount());
+        jobRequest.setPartNoProductSpec(details.getPartNoProductSpec());
 
         return jobRequestRepository.save(jobRequest);
     }

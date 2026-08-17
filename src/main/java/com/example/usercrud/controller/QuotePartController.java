@@ -1,9 +1,7 @@
 package com.example.usercrud.controller;
 
-import com.example.usercrud.model.MarginRate;
 import com.example.usercrud.model.Quote;
 import com.example.usercrud.model.QuotePart;
-import com.example.usercrud.service.MarginRateService;
 import com.example.usercrud.service.QuotePartService;
 import com.example.usercrud.service.QuoteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,17 +30,12 @@ public class QuotePartController {
     @Autowired
     private QuoteService quoteService;
 
-    @Autowired
-    private MarginRateService marginRateService;
-
     @GetMapping
     public String listQuoteParts(@RequestParam(value = "quoteId", required = false) Long quoteId,
                                  @RequestParam(value = "q", required = false) String q,
                                  Model model) {
         List<QuotePart> quoteParts = quotePartService.search(quoteId, q);
-        List<MarginRate> marginRates = marginRateService.getAllMarginRates();
         model.addAttribute("quoteParts", quoteParts);
-        model.addAttribute("marginRates", marginRates);
         model.addAttribute("quoteId", quoteId);
         model.addAttribute("q", q);
         if (quoteId != null) {
@@ -60,8 +53,6 @@ public class QuotePartController {
         }
         model.addAttribute("quotePart", quotePart);
         model.addAttribute("quotes", quoteService.getAllQuotes());
-        model.addAttribute("marginValues", marginRateService.getMarginValues());
-        model.addAttribute("expenseRates", marginRateService.getExpenseRates());
         return "quote-parts/form";
     }
 
@@ -87,26 +78,22 @@ public class QuotePartController {
         int saved = 0;
         for (QuotePartBulkRequest req : quoteParts) {
             Optional<Quote> quote = quoteService.findByCcsQuoteNo(req.ccsQuoteNo);
-            if (quote.isEmpty()) {
+            if (!quote.isPresent()) {
                 continue;
             }
             QuotePart quotePart = new QuotePart();
             quotePart.setQuote(quote.get());
             quotePart.setFactoryName(quote.get().getJobRequest() != null ? quote.get().getJobRequest().getFactoryName() : null);
             quotePart.setProductName(req.productName);
-            quotePart.setProductSpec(req.productSpec);
-            quotePart.setPartNo(req.partNo);
-            quotePart.setNewPartsNo(req.newPartsNo);
-            quotePart.setModel(req.model);
-            quotePart.setMachineName(req.machineName);
-            quotePart.setType(req.type);
-            quotePart.setUnitName(req.unitName);
-            quotePart.setDescription(req.description);
-            quotePart.setMaker(req.maker);
-            quotePart.setMurataPartsNo(req.murataPartsNo);
-            quotePart.setPartQuantity(req.partQuantity);
-            quotePart.setQuoteQuantity(req.quoteQuantity);
-            quotePart.setUnitPriceBrt(req.unitPriceBrt);
+            quotePart.setPartNoProductSpec(req.partNoProductSpec);
+            quotePart.setCcsPoNo(req.ccsPoNo);
+            quotePart.setWorkNoSerialNo(req.workNoSerialNo);
+            quotePart.setOrderQuantity(req.orderQuantity);
+            quotePart.setCcsPoAmount(req.ccsPoAmount);
+            quotePart.setHmxOrderNo(req.hmxOrderNo);
+            quotePart.setHmxOrderAmount(req.hmxOrderAmount);
+            quotePart.setStatus(req.status);
+            quotePart.setDeliveryDate(req.deliveryDate);
             quotePart.setRemark(req.remark);
             quotePartService.saveQuotePart(quotePart);
             saved++;
@@ -120,8 +107,6 @@ public class QuotePartController {
                 .orElseThrow(() -> new RuntimeException("QuotePart not found"));
         model.addAttribute("quotePart", quotePart);
         model.addAttribute("quotes", quoteService.getAllQuotes());
-        model.addAttribute("marginValues", marginRateService.getMarginValues());
-        model.addAttribute("expenseRates", marginRateService.getExpenseRates());
         return "quote-parts/form";
     }
 
@@ -146,19 +131,15 @@ public class QuotePartController {
     public static class QuotePartBulkRequest {
         public String ccsQuoteNo;
         public String productName;
-        public String productSpec;
-        public String partNo;
-        public String newPartsNo;
-        public String model;
-        public String machineName;
-        public String type;
-        public String unitName;
-        public String description;
-        public String maker;
-        public String murataPartsNo;
-        public Integer partQuantity;
-        public Integer quoteQuantity;
-        public BigDecimal unitPriceBrt;
+        public String partNoProductSpec;
+        public String ccsPoNo;
+        public String workNoSerialNo;
+        public Integer orderQuantity;
+        public BigDecimal ccsPoAmount;
+        public String hmxOrderNo;
+        public BigDecimal hmxOrderAmount;
+        public String status;
+        public String deliveryDate;
         public String remark;
     }
 }

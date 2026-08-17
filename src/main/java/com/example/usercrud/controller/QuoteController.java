@@ -16,9 +16,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,13 +28,11 @@ import java.util.Optional;
 @RequestMapping("/quotes")
 public class QuoteController {
 
-    private static final List<String> STATUS_OPTIONS = List.of(
+    private static final List<String> STATUS_OPTIONS = Arrays.asList(
             "견적중",
             "재견적",
-            "견적재출",
-            "발주전",
-            "납품예정",
-            "납품완료"
+            "견적제출",
+            "발주예정"
     );
 
     @Autowired
@@ -71,6 +71,7 @@ public class QuoteController {
         model.addAttribute("quote", quote);
         model.addAttribute("jobs", jobRequestService.getAllJobRequests());
         model.addAttribute("statusOptions", STATUS_OPTIONS);
+        model.addAttribute("pageTitle", "새 견적 추가 - BARATEC");
         return "quotes/form";
     }
 
@@ -117,22 +118,20 @@ public class QuoteController {
         int saved = 0;
         for (QuoteBulkRequest req : quotes) {
             Optional<JobRequest> jobRequest = jobRequestService.findByJobNo(req.jobNo);
-            if (jobRequest.isEmpty()) {
+            if (!jobRequest.isPresent()) {
                 continue;
             }
             Quote quote = new Quote();
             quote.setJobRequest(jobRequest.get());
             quote.setCcsQuoteDate(req.ccsQuoteDate);
             quote.setCcsQuoteNo(req.ccsQuoteNo);
+            quote.setCcsAmount(req.ccsAmount);
             quote.setDescription(req.description);
-            quote.setBrtQuoteNo(req.brtQuoteNo);
             quote.setBrtQuoteDate(req.brtQuoteDate);
+            quote.setBrtQuoteNo(req.brtQuoteNo);
+            quote.setBrtAmount(req.brtAmount);
             quote.setBrtNegotiatedAmount(req.brtNegotiatedAmount);
             quote.setStatus(req.status);
-            quote.setHmxOrderNo(req.hmxOrderNo);
-            quote.setHmxOrderDate(req.hmxOrderDate);
-            quote.setCcsPoNo(req.ccsPoNo);
-            quote.setCcsPoDate(req.ccsPoDate);
             quoteService.saveQuote(quote);
             saved++;
         }
@@ -188,21 +187,19 @@ public class QuoteController {
     }
 
     private boolean isStatusMissing(Quote quote) {
-        return quote == null || quote.getStatus() == null || quote.getStatus().isBlank();
+        return quote == null || quote.getStatus() == null || !StringUtils.hasText(quote.getStatus());
     }
 
     public static class QuoteBulkRequest {
         public String jobNo;
         public LocalDate ccsQuoteDate;
         public String ccsQuoteNo;
+        public BigDecimal ccsAmount;
         public String description;
-        public String brtQuoteNo;
         public LocalDate brtQuoteDate;
-        public BigDecimal brtNegotiatedAmount;
+        public String brtQuoteNo;
+        public BigDecimal brtAmount;
+        public String brtNegotiatedAmount;
         public String status;
-        public String hmxOrderNo;
-        public LocalDate hmxOrderDate;
-        public String ccsPoNo;
-        public LocalDate ccsPoDate;
     }
 }

@@ -3,12 +3,12 @@
     th:with="activePage='quotes'">
 
 <head>
-    <title>CCS 견적 관리 - BARATEC</title>
+    <title>견적 관리 - BARATEC</title>
 </head>
 
 <body>
     <div class="content">
-        <h1 class="mb-4 text-center">CCS 견적 관리</h1>
+        <h1 class="mb-4 text-center">견적 관리</h1>
 
         <div th:if="${jobRequest != null}" class="alert alert-secondary">
             <strong>구분:</strong> <span th:text="${jobRequest.division}"></span>
@@ -51,15 +51,13 @@
                         <th class="col-medium">의뢰날짜</th>
                         <th class="col-medium">CCS견적날짜</th>
                         <th class="col-medium">CCS견적번호</th>
+                        <th class="col-medium">CCS견적금액</th>
                         <th class="col-long">내역</th>
-                        <th class="col-medium">BRT견적번호</th>
-                        <th class="col-medium">BRT견적날짜</th>
+                                        <th class="col-medium">BRT견적번호</th>
+                                        <th class="col-medium">BRT견적금액</th>
+                                        <th class="col-medium">BRT견적날짜</th>
                         <th class="col-medium">BRT네고금액</th>
                         <th class="col-medium">상태</th>
-                        <th class="col-medium">HMX발주번호</th>
-                        <th class="col-medium">HMX발주날짜</th>
-                        <th class="col-medium">CCSPO번호</th>
-                        <th class="col-medium">CCSPO날짜</th>
                         <th class="col-short">관리</th>
                     </tr>
                 </thead>
@@ -74,15 +72,13 @@
                         <td>
                             <a th:href="@{/quote-parts(quoteId=${quote.id})}" th:text="${quote.ccsQuoteNo}"></a>
                         </td>
+                        <td th:text="${quote.ccsAmount}"></td>
                         <td th:text="${quote.description}"></td>
-                        <td th:text="${quote.brtQuoteNo}"></td>
-                        <td th:text="${quote.brtQuoteDate}"></td>
+                                        <td th:text="${quote.brtQuoteNo}"></td>
+                                        <td th:text="${quote.brtAmount}"></td>
+                                        <td th:text="${quote.brtQuoteDate}"></td>
                         <td th:text="${quote.brtNegotiatedAmount}"></td>
                         <td th:text="${quote.status}"></td>
-                        <td th:text="${quote.hmxOrderNo}"></td>
-                        <td th:text="${quote.hmxOrderDate}"></td>
-                        <td th:text="${quote.ccsPoNo}"></td>
-                        <td th:text="${quote.ccsPoDate}"></td>
                         <td>
                             <div class="d-flex gap-1 justify-content-center">
                                 <a th:href="@{/quotes/edit/{id}(id=${quote.id})}"

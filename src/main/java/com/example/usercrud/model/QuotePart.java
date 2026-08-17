@@ -1,15 +1,15 @@
 package com.example.usercrud.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,43 +39,50 @@ public class QuotePart {
     @Column(name = "product_name")
     private String productName;
 
-    @Column(name = "product_spec")
+    @Column(name = "part_no_product_spec")
+    private String partNoProductSpec;
+
+    @Column(name = "ccs_po_no")
+    private String ccsPoNo;
+
+    @Column(name = "work_no_serial_no")
+    private String workNoSerialNo;
+
+    @Column(name = "order_quantity")
+    private Integer orderQuantity;
+
+    @Column(name = "ccs_po_amount", precision = 15, scale = 2)
+    private BigDecimal ccsPoAmount;
+
+    @Column(name = "hmx_order_no")
+    private String hmxOrderNo;
+
+    @Column(name = "hmx_order_amount", precision = 15, scale = 2)
+    private BigDecimal hmxOrderAmount;
+
+    @Column(name = "status")
+    private String status;
+
+    @Column(name = "delivery_date")
+    private String deliveryDate;
+
+    @Column(name = "remark", length = 500)
+    private String remark;
+
+    // Keep old fields for backward compatibility / margin calculation display
+    @Transient
     private String productSpec;
 
-    @Column(name = "part_no")
+    @Transient
     private String partNo;
 
-    @Column(name = "new_parts_no")
-    private String newPartsNo;
-
-    @Column(name = "model")
+    @Transient
     private String model;
 
-    @Column(name = "machine_name")
-    private String machineName;
-
-    @Column(name = "type")
-    private String type;
-
-    @Column(name = "unit_name")
-    private String unitName;
-
-    @Column(name = "description", length = 500)
-    private String description;
-
-    @Column(name = "maker")
-    private String maker;
-
-    @Column(name = "murata_parts_no")
-    private String murataPartsNo;
-
-    @Column(name = "part_quantity")
-    private Integer partQuantity;
-
-    @Column(name = "quote_quantity")
+    @Transient
     private Integer quoteQuantity;
 
-    @Column(name = "unit_price_brt", precision = 15, scale = 2)
+    @Transient
     private BigDecimal unitPriceBrt;
 
     @Transient
@@ -83,15 +90,12 @@ public class QuotePart {
 
     private static final BigDecimal HMX_MULTIPLIER = new BigDecimal("1.65");
 
-    @Column(name = "remark", length = 500)
-    private String remark;
-
     @Transient
     public BigDecimal getUnitPriceHmx() {
-        if (unitPriceBrt == null) {
+        if (ccsPoAmount == null) {
             return null;
         }
-        return unitPriceBrt.multiply(HMX_MULTIPLIER).setScale(2, RoundingMode.HALF_UP);
+        return ccsPoAmount.multiply(HMX_MULTIPLIER).setScale(2, RoundingMode.HALF_UP);
     }
 
     @Transient
@@ -115,7 +119,7 @@ public class QuotePart {
         if (rate == null) {
             return null;
         }
-        BigDecimal basePrice = rate.isHmxType() ? getUnitPriceHmx() : unitPriceBrt;
+        BigDecimal basePrice = rate.isHmxType() ? getUnitPriceHmx() : ccsPoAmount;
         return rate.calculateUnitPriceWithMargin(basePrice);
     }
 }

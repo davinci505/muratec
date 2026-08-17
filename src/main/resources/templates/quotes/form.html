@@ -32,74 +32,59 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="ccsQuoteDate" class="form-label">CCS견적날짜</label>
-                                     <input type="text" class="form-control" id="ccsQuoteDate" th:field="*{ccsQuoteDate}" placeholder="YYYYMMDD" maxlength="10" pattern="\d{4}-\d{2}-\d{2}" inputmode="numeric"
-                                         th:classappend="${#fields.hasErrors('ccsQuoteDate')} ? ' is-invalid' : ''">
-                                    <div class="invalid-feedback">YYYY-MM-DD 형식으로 입력하세요.</div>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="ccsQuoteNo" class="form-label">CCS견적번호</label>
-                                    <input type="text" class="form-control" id="ccsQuoteNo" th:field="*{ccsQuoteNo}">
-                                </div>
-                            </div>
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="ccsQuoteDate" class="form-label">CCS견적날짜</label>
+                                                                 <input type="text" class="form-control" id="ccsQuoteDate" th:field="*{ccsQuoteDate}" placeholder="YYYYMMDD" maxlength="10" pattern="\d{4}-\d{2}-\d{2}" inputmode="numeric"
+                                                                     th:classappend="${#fields.hasErrors('ccsQuoteDate')} ? ' is-invalid' : ''">
+                                                                <div class="invalid-feedback">YYYY-MM-DD 형식으로 입력하세요.</div>
+                                                            </div>
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="ccsQuoteNo" class="form-label">CCS견적번호</label>
+                                                                <input type="text" class="form-control" id="ccsQuoteNo" th:field="*{ccsQuoteNo}">
+                                                            </div>
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="ccsAmount" class="form-label">CCS견적금액 (￥)</label>
+                                                                <input type="text" class="form-control" id="ccsAmount" th:field="*{ccsAmount}" placeholder="금액 입력 시 ￥ 자동생성">
+                                                            </div>
+                                                        </div>
 
-                            <div class="mb-3">
-                                <label for="description" class="form-label">내역</label>
-                                <textarea class="form-control" id="description" th:field="*{description}" rows="2"></textarea>
-                            </div>
+                                                        <div class="mb-3">
+                                                            <label for="description" class="form-label">내역</label>
+                                                            <textarea class="form-control" id="description" th:field="*{description}" rows="2"></textarea>
+                                                        </div>
 
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label for="brtQuoteNo" class="form-label">BRT견적번호</label>
-                                    <input type="text" class="form-control" id="brtQuoteNo" th:field="*{brtQuoteNo}">
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label for="brtQuoteDate" class="form-label">BRT견적날짜</label>
-                                     <input type="text" class="form-control" id="brtQuoteDate" th:field="*{brtQuoteDate}" placeholder="YYYYMMDD" maxlength="10" pattern="\d{4}-\d{2}-\d{2}" inputmode="numeric"
-                                         th:classappend="${#fields.hasErrors('brtQuoteDate')} ? ' is-invalid' : ''">
-                                    <div class="invalid-feedback">YYYY-MM-DD 형식으로 입력하세요.</div>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label for="brtNegotiatedAmount" class="form-label">BRT네고금액</label>
-                                    <input type="number" step="0.01" class="form-control" id="brtNegotiatedAmount" th:field="*{brtNegotiatedAmount}">
-                                </div>
-                            </div>
+                                                        <div class="row">
+                                                            <div class="col-md-3 mb-3">
+                                                                <label for="brtQuoteNo" class="form-label">BRT견적번호</label>
+                                                                <input type="text" class="form-control" id="brtQuoteNo" th:field="*{brtQuoteNo}">
+                                                            </div>
+                                                            <div class="col-md-3 mb-3">
+                                                                <label for="brtAmount" class="form-label">BRT견적금액 (￦)</label>
+                                                                <input type="text" class="form-control" id="brtAmount" th:field="*{brtAmount}" placeholder="금액 입력 시 ￦ 자동생성">
+                                                            </div>
+                                                            <div class="col-md-3 mb-3">
+                                                                <label for="brtQuoteDate" class="form-label">BRT견적날짜</label>
+                                                                 <input type="text" class="form-control" id="brtQuoteDate" th:field="*{brtQuoteDate}" placeholder="YYYYMMDD" maxlength="10" pattern="\d{4}-\d{2}-\d{2}" inputmode="numeric"
+                                                                     th:classappend="${#fields.hasErrors('brtQuoteDate')} ? ' is-invalid' : ''">
+                                                                <div class="invalid-feedback">YYYY-MM-DD 형식으로 입력하세요.</div>
+                                                            </div>
+                                                            <div class="col-md-3 mb-3">
+                                                                <label for="brtNegotiatedAmount" class="form-label">BRT네고금액</label>
+                                                                <input type="text" class="form-control" id="brtNegotiatedAmount" th:field="*{brtNegotiatedAmount}" placeholder="텍스트 입력">
+                                                            </div>
+                                                        </div>
 
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="status" class="form-label">상태</label>
-                                    <select id="status" class="form-select" th:field="*{status}"
-                                            th:classappend="${statusError} ? ' is-invalid' : ''" required>
-                                        <option value="">선택하세요</option>
-                                        <option th:each="s : ${statusOptions}" th:value="${s}" th:text="${s}"></option>
-                                    </select>
-                                    <div class="invalid-feedback">상태를 선택하세요.</div>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="hmxOrderNo" class="form-label">HMX발주번호</label>
-                                    <input type="text" class="form-control" id="hmxOrderNo" th:field="*{hmxOrderNo}">
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label for="hmxOrderDate" class="form-label">HMX발주날짜</label>
-                                     <input type="text" class="form-control" id="hmxOrderDate" th:field="*{hmxOrderDate}" placeholder="YYYYMMDD" maxlength="10" pattern="\d{4}-\d{2}-\d{2}" inputmode="numeric"
-                                         th:classappend="${#fields.hasErrors('hmxOrderDate')} ? ' is-invalid' : ''">
-                                    <div class="invalid-feedback">YYYY-MM-DD 형식으로 입력하세요.</div>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label for="ccsPoNo" class="form-label">CCSPO번호</label>
-                                    <input type="text" class="form-control" id="ccsPoNo" th:field="*{ccsPoNo}">
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label for="ccsPoDate" class="form-label">CCSPO날짜</label>
-                                     <input type="text" class="form-control" id="ccsPoDate" th:field="*{ccsPoDate}" placeholder="YYYYMMDD" maxlength="10" pattern="\d{4}-\d{2}-\d{2}" inputmode="numeric"
-                                         th:classappend="${#fields.hasErrors('ccsPoDate')} ? ' is-invalid' : ''">
-                                    <div class="invalid-feedback">YYYY-MM-DD 형식으로 입력하세요.</div>
-                                </div>
-                            </div>
+                                                        <div class="row">
+                                                            <div class="col-md-6 mb-3">
+                                                                <label for="status" class="form-label">상태</label>
+                                                                <select id="status" class="form-select" th:field="*{status}"
+                                                                        th:classappend="${statusError} ? ' is-invalid' : ''" required>
+                                                                    <option value="">선택하세요</option>
+                                                                    <option th:each="s : ${statusOptions}" th:value="${s}" th:text="${s}"></option>
+                                                                </select>
+                                                                <div class="invalid-feedback">상태를 선택하세요.</div>
+                                                            </div>
+                                                        </div>
 
                             <div class="d-flex gap-2">
                                 <button type="submit" class="btn btn-primary">
@@ -175,12 +160,40 @@
         }
     }
 
+    // Auto-format currency fields
+    function formatCcsAmount(input) {
+        let value = input.value.replace(/[^0-9.]/g, '');
+        if (value) {
+            input.value = '￥' + Number(value).toLocaleString();
+        }
+    }
+
+    function formatBrtAmount(input) {
+        let value = input.value.replace(/[^0-9.]/g, '');
+        if (value) {
+            input.value = '￦' + Number(value).toLocaleString();
+        }
+    }
+
+    function bindCurrencyInput(input, prefix) {
+        if (!input) return;
+        input.addEventListener('blur', () => {
+            let value = input.value.replace(/[^0-9.]/g, '');
+            if (value) {
+                input.value = prefix + Number(value).toLocaleString();
+            }
+        });
+        input.addEventListener('focus', () => {
+            // Remove prefix when editing
+            let value = input.value.replace(/[^0-9.]/g, '');
+            input.value = value;
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         const dateInputs = [
             document.getElementById('ccsQuoteDate'),
-            document.getElementById('brtQuoteDate'),
-            document.getElementById('hmxOrderDate'),
-            document.getElementById('ccsPoDate')
+            document.getElementById('brtQuoteDate')
         ];
 
         dateInputs.forEach(input => {
@@ -188,6 +201,12 @@
             bindDateInput(input);
             validateDateInput(input);
         });
+
+        // Bind currency inputs
+        const ccsAmountInput = document.getElementById('ccsAmount');
+        const brtAmountInput = document.getElementById('brtAmount');
+        if (ccsAmountInput) bindCurrencyInput(ccsAmountInput, '￥');
+        if (brtAmountInput) bindCurrencyInput(brtAmountInput, '￦');
 
         const form = document.querySelector('form');
         if (form) {
