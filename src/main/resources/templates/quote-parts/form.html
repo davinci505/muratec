@@ -112,29 +112,50 @@
     </div>
 
     <script>
-        // Auto-format currency fields
-        function bindCurrencyInput(input, prefix) {
-            if (!input) return;
-            input.addEventListener('blur', () => {
-                let value = input.value.replace(/[^0-9.]/g, '');
-                if (value) {
-                    input.value = prefix + Number(value).toLocaleString();
-                }
-            });
-            input.addEventListener('focus', () => {
-                // Remove prefix when editing
-                let value = input.value.replace(/[^0-9.]/g, '');
-                input.value = value;
-            });
+    // Auto-format currency fields
+    function bindCurrencyInput(input, prefix) {
+        if (!input) return;
+
+        // 초기 화면 진입 시 기존 값이 있다면 포맷팅 처리
+        let initVal = input.value.replace(/[^0-9.]/g, '');
+        if (initVal) {
+            input.value = prefix + Number(initVal).toLocaleString();
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // Bind currency inputs
-            const ccsPoAmountInput = document.getElementById('ccsPoAmount');
-            const hmxOrderAmountInput = document.getElementById('hmxOrderAmount');
-            if (ccsPoAmountInput) bindCurrencyInput(ccsPoAmountInput, '￥');
-            if (hmxOrderAmountInput) bindCurrencyInput(hmxOrderAmountInput, '￦');
+        input.addEventListener('blur', () => {
+            let value = input.value.replace(/[^0-9.]/g, '');
+            if (value) {
+                input.value = prefix + Number(value).toLocaleString();
+            }
         });
-    </script>
+        
+        input.addEventListener('focus', () => {
+            // 수정 시 기호 및 쉼표 제거
+            let value = input.value.replace(/[^0-9.]/g, '');
+            input.value = value;
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Bind currency inputs
+        const ccsPoAmountInput = document.getElementById('ccsPoAmount');
+        const hmxOrderAmountInput = document.getElementById('hmxOrderAmount');
+        
+        if (ccsPoAmountInput) bindCurrencyInput(ccsPoAmountInput, '￥');
+        if (hmxOrderAmountInput) bindCurrencyInput(hmxOrderAmountInput, '￦');
+
+        // Form Submit 전처리: 통화 기호 및 쉼표(,) 제거 후 순수 숫자만 서버로 전송
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', () => {
+                [ccsPoAmountInput, hmxOrderAmountInput].forEach(input => {
+                    if (input && input.value) {
+                        input.value = input.value.replace(/[^0-9.]/g, '');
+                    }
+                });
+            });
+        }
+    });
+</script>
 </body>
 </html>

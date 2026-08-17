@@ -105,15 +105,21 @@
         alert(errorMessage);
     }
 </script>
+<script th:inline="javascript">
+    const errorMessage = /*[[${errorMessage}]]*/ null;
+    if (errorMessage) {
+        alert(errorMessage);
+    }
+</script>
 <script>
     const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 
+    // YYYYMMDD 또는 YYYY-MM-DD 입력 형태를 YYYY-MM-DD로 정규화
     function formatDateInput(input) {
+        if (!input) return;
         const raw = (input.value || '').replace(/\D/g, '').slice(0, 8);
         if (raw.length === 8) {
             input.value = raw.slice(0, 4) + '-' + raw.slice(4, 6) + '-' + raw.slice(6);
-        } else {
-            input.value = raw;
         }
     }
 
@@ -147,44 +153,30 @@
 
     function bindDateInput(input) {
         if (!input) return;
-        input.addEventListener('input', () => {
-            input.value = input.value.replace(/\D/g, '').slice(0, 8);
-        });
+        // Blur 시점에 자동 하이픈 생성 및 유효성 검사
         input.addEventListener('blur', () => {
             formatDateInput(input);
             validateDateInput(input);
         });
-
-        if (input.value) {
-            formatDateInput(input);
-        }
-    }
-
-    // Auto-format currency fields
-    function formatCcsAmount(input) {
-        let value = input.value.replace(/[^0-9.]/g, '');
-        if (value) {
-            input.value = '￥' + Number(value).toLocaleString();
-        }
-    }
-
-    function formatBrtAmount(input) {
-        let value = input.value.replace(/[^0-9.]/g, '');
-        if (value) {
-            input.value = '￦' + Number(value).toLocaleString();
-        }
     }
 
     function bindCurrencyInput(input, prefix) {
         if (!input) return;
+        
+        // 초기 로드 시 값 포맷팅
+        let initVal = input.value.replace(/[^0-9.]/g, '');
+        if (initVal) {
+            input.value = prefix + Number(initVal).toLocaleString();
+        }
+
         input.addEventListener('blur', () => {
             let value = input.value.replace(/[^0-9.]/g, '');
             if (value) {
                 input.value = prefix + Number(value).toLocaleString();
             }
         });
+
         input.addEventListener('focus', () => {
-            // Remove prefix when editing
             let value = input.value.replace(/[^0-9.]/g, '');
             input.value = value;
         });
@@ -202,7 +194,6 @@
             validateDateInput(input);
         });
 
-        // Bind currency inputs
         const ccsAmountInput = document.getElementById('ccsAmount');
         const brtAmountInput = document.getElementById('brtAmount');
         if (ccsAmountInput) bindCurrencyInput(ccsAmountInput, '￥');
@@ -212,6 +203,8 @@
         if (form) {
             form.addEventListener('submit', (event) => {
                 let isValid = true;
+
+                // 1. 날짜 데이터 최종 포맷팅 및 검증
                 dateInputs.forEach(input => {
                     if (input) {
                         formatDateInput(input);
@@ -220,10 +213,19 @@
                         }
                     }
                 });
+
                 if (!isValid) {
                     alert('날짜 형식이 올바르지 않습니다. YYYY-MM-DD 형식으로 입력하세요.');
                     event.preventDefault();
+                    return;
                 }
+
+                // 2. 제출 전 통화 기호 및 쉼표(,) 제거 (숫자만 서버로 전달)
+                [ccsAmountInput, brtAmountInput].forEach(input => {
+                    if (input && input.value) {
+                        input.value = input.value.replace(/[^0-9.]/g, '');
+                    }
+                });
             });
         }
     });
