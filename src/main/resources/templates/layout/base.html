@@ -370,11 +370,17 @@
                 </a>
             </li>
             <li>
-                <a href="/margin-rates" th:classappend="${activePage == 'marginRates' or activePage == 'marginValues'} ? 'active' : ''">
-                    <i class="bi bi-percent"></i>
-                    <span>환율/제비용</span>
+                            <a href="/sales-parts" th:classappend="${activePage == 'salesParts'} ? 'active' : ''">
+                                <i class="bi bi-graph-up"></i>
+                                <span>판매부품 실적관리</span>
                 </a>
             </li>
+                        <li>
+                            <a href="/margin-rates" th:classappend="${activePage == 'marginRates' or activePage == 'marginValues'} ? 'active' : ''">
+                                <i class="bi bi-percent"></i>
+                                <span>환율/제비용</span>
+                            </a>
+                        </li>
             <li>
                 <a href="#" th:classappend="${activePage == 'report'} ? 'active' : ''">
                     <i class="bi bi-file-earmark-text"></i>
