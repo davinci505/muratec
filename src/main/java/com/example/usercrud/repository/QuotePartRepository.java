@@ -13,6 +13,7 @@ public interface QuotePartRepository extends JpaRepository<QuotePart, Long> {
     @Query("select qp from QuotePart qp where (:quoteId is null or qp.quote.id = :quoteId) and " +
             "(:q is null or lower(qp.ccsPoNo) like lower(concat('%', :q, '%')) " +
             "or lower(qp.productName) like lower(concat('%', :q, '%')) " +
-            "or lower(qp.partNoProductSpec) like lower(concat('%', :q, '%')))")
-    List<QuotePart> search(@Param("quoteId") Long quoteId, @Param("q") String q);
+                "or lower(qp.partNoProductSpec) like lower(concat('%', :q, '%'))) " +
+                "and (:status is null or qp.status = :status)")
+        List<QuotePart> search(@Param("quoteId") Long quoteId, @Param("q") String q, @Param("status") String status);
 }

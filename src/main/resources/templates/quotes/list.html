@@ -23,16 +23,14 @@
 
             <form method="get" action="/quotes" class="ms-auto d-flex flex-wrap gap-2 align-items-center">
                 <input type="hidden" name="jobId" th:value="${jobId}">
-                <label for="status" class="form-label mb-0">상태</label>
                 <select id="status" name="status" class="form-select form-select-sm" style="width: 140px;">
                     <option value="">전체</option>
                     <option th:each="s : ${statusOptions}" th:value="${s}" th:text="${s}" th:selected="${s == status}">
                     </option>
                 </select>
-                <label for="ccsQuoteNo" class="form-label mb-0">CCS견적번호</label>
                 <input id="ccsQuoteNo" name="ccsQuoteNo" type="text" class="form-control form-control-sm"
-                    style="width: 160px;" placeholder="번호 검색" th:value="${ccsQuoteNo}">
-                <button type="submit" class="btn btn-outline-secondary btn-sm">필터</button>
+                    style="width: 160px;" placeholder="CCS견적번호" th:value="${ccsQuoteNo}">
+                <button type="submit" class="btn btn-outline-secondary btn-sm">검색</button>
             </form>
         </div>
 

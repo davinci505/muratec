@@ -15,10 +15,11 @@ public class QuotePartService {
     @Autowired
     private QuotePartRepository quotePartRepository;
 
-    public List<QuotePart> search(Long quoteId, String q) {
+    public List<QuotePart> search(Long quoteId, String q, String status) {
         String query = (q == null || !StringUtils.hasText(q)) ? null : q.trim();
-        return quotePartRepository.search(quoteId, query);
-    }
+            String statusQuery = (status == null || !StringUtils.hasText(status)) ? null : status.trim();
+            return quotePartRepository.search(quoteId, query, statusQuery);
+        }
 
     public Optional<QuotePart> getQuotePartById(Long id) {
         return quotePartRepository.findById(id);

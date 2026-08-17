@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,19 +31,28 @@ public class QuotePartController {
     @Autowired
     private QuoteService quoteService;
 
-    @GetMapping
-    public String listQuoteParts(@RequestParam(value = "quoteId", required = false) Long quoteId,
-                                 @RequestParam(value = "q", required = false) String q,
-                                 Model model) {
-        List<QuotePart> quoteParts = quotePartService.search(quoteId, q);
-        model.addAttribute("quoteParts", quoteParts);
-        model.addAttribute("quoteId", quoteId);
-        model.addAttribute("q", q);
-        if (quoteId != null) {
-            model.addAttribute("quote", quoteService.getQuoteById(quoteId).orElse(null));
+    private static final List<String> STATUS_OPTIONS = Arrays.asList(
+                "발주중",
+                "납품예정",
+                "납품완료"
+        );
+
+        @GetMapping
+        public String listQuoteParts(@RequestParam(value = "quoteId", required = false) Long quoteId,
+                                     @RequestParam(value = "q", required = false) String q,
+                                     @RequestParam(value = "status", required = false) String status,
+                                     Model model) {
+            List<QuotePart> quoteParts = quotePartService.search(quoteId, q, status);
+            model.addAttribute("quoteParts", quoteParts);
+            model.addAttribute("quoteId", quoteId);
+            model.addAttribute("q", q);
+            model.addAttribute("status", status);
+            model.addAttribute("statusOptions", STATUS_OPTIONS);
+            if (quoteId != null) {
+                model.addAttribute("quote", quoteService.getQuoteById(quoteId).orElse(null));
+            }
+            return "quote-parts/list";
         }
-        return "quote-parts/list";
-    }
 
     @GetMapping("/new")
     public String showCreateForm(@RequestParam(value = "quoteId", required = false) Long quoteId,
