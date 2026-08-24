@@ -73,7 +73,8 @@
         layout: "fitColumns",
         pagination:true, //enable pagination
         paginationMode:"remote", //enable remote pagination
-        paginationSize: 20,
+        sortMode: "remote", // enable remote sorting
+        paginationSize: 10,
         paginationSizeSelector: [10, 20, 50, 100],
         ajaxURL: "/api/parts",
         ajaxParams: {
@@ -81,7 +82,7 @@
             description: ""
         },
         ajaxResponse: function(url, params, response) {
-            // Tabulator expects { last_page: N, data: [...] }
+            // For remote pagination, Tabulator expects response with last_page and data
             return response;
         },
         ajaxURLGenerator: function(url, config, params) {

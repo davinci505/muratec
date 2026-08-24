@@ -5,6 +5,8 @@ import com.example.usercrud.repository.PartRepository;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -50,6 +52,26 @@ public class PartService {
             return repository.findByDescriptionContainingIgnoreCase(desc);
         }
         return repository.findAll();
+    }
+
+    // Pagination support
+    public Page<Part> getByFilters(String partNumber, String description, Pageable pageable) {
+        boolean hasPartNumber = partNumber != null && StringUtils.hasText(partNumber);
+        boolean hasDescription = description != null && StringUtils.hasText(description);
+
+        String pn = hasPartNumber ? partNumber.trim() : null;
+        String desc = hasDescription ? description.trim() : null;
+
+        if (hasPartNumber && hasDescription) {
+            return repository.findByPartNumberContainingIgnoreCaseAndDescriptionContainingIgnoreCase(pn, desc, pageable);
+        }
+        if (hasPartNumber) {
+            return repository.findByPartNumberContainingIgnoreCase(pn, pageable);
+        }
+        if (hasDescription) {
+            return repository.findByDescriptionContainingIgnoreCase(desc, pageable);
+        }
+        return repository.findAll(pageable);
     }
 
     public Part save(Part entity) {

@@ -6,14 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -35,20 +34,16 @@ public class PartRestController {
 
         // Tabulator uses 1-based page, Spring uses 0-based
         int springPage = Math.max(0, page - 1);
-        
-        List<Part> parts = service.getByFilters(partNumber, description);
-        
-        // Manual pagination since service returns List
-        int start = springPage * size;
-        int end = Math.min(start + size, parts.size());
-        List<Part> pageContent = (start < parts.size()) ? parts.subList(start, end) : List.of();
+        Pageable pageable = PageRequest.of(springPage, size, 
+            "asc".equalsIgnoreCase(order) ? 
+                org.springframework.data.domain.Sort.by(sort).ascending() : 
+                org.springframework.data.domain.Sort.by(sort).descending());
 
-        long totalElements = parts.size();
-        int totalPages = (int) Math.ceil((double) totalElements / size);
+        Page<Part> partPage = service.getByFilters(partNumber, description, pageable);
 
         Map<String, Object> response = new HashMap<>();
-        response.put("last_page", totalPages);
-        response.put("data", pageContent.stream().map(this::toMap).collect(Collectors.toList()));
+        response.put("last_page", partPage.getTotalPages());
+        response.put("data", partPage.getContent().stream().map(this::toMap).collect(Collectors.toList()));
         
         return response;
     }
