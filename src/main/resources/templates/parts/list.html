@@ -84,13 +84,43 @@
             return response.data;
         },
         ajaxURLGenerator: function(url, config, params) {
-            // Build URL with all params
+            // Build URL with all params including pagination
             const searchParams = new URLSearchParams();
+            
+            // Add filter params from ajaxParams
             Object.keys(params).forEach(key => {
                 if (params[key] !== "" && params[key] !== null && params[key] !== undefined) {
                     searchParams.append(key, params[key]);
                 }
             });
+            
+            // Add pagination params from config (Tabulator manages these)
+            // Tabulator v5 uses different property names for pagination config
+            const page = config.page || config.paginationPage || (config.pagination && config.pagination.page);
+            const size = config.size || config.paginationSize || (config.pagination && config.pagination.size);
+            const sort = config.sort || config.paginationSort || (config.pagination && config.pagination.sort);
+            const order = config.order || config.paginationOrder || (config.pagination && config.pagination.order);
+            
+            if (page) {
+                searchParams.append("page", page);
+            }
+            if (size) {
+                searchParams.append("size", size);
+            }
+            if (sort) {
+                searchParams.append("sort", sort);
+            }
+            if (order) {
+                searchParams.append("order", order);
+            }
+            
+            // Debug: log the config object to console
+            console.log('=== ajaxURLGenerator DEBUG ===');
+            console.log('config:', JSON.stringify(config, null, 2));
+            console.log('params:', JSON.stringify(params, null, 2));
+            console.log('page:', page, 'size:', size, 'sort:', sort, 'order:', order);
+            console.log('URL:', url + "?" + searchParams.toString());
+            
             return url + "?" + searchParams.toString();
         },
         columns: [
