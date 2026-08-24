@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{::script})}"
     th:with="activePage='parts'">
 
@@ -67,8 +68,8 @@
                   return (page - 1) * pageSize + rowIndex;
               }
             },
-            { title: "품번", field: "partNumber", headerFilter: "input", headerFilterPlaceholder: "검색...", width: 150 },
-            { title: "부품설명", field: "description", headerFilter: "input", headerFilterPlaceholder: "검색...", width: 200 },
+                    { title: "품번", field: "partNumber", width: 150 },
+                    { title: "부품설명", field: "description", width: 200 },
             { title: "스펙", field: "spec", width: 250 },
             { title: "가격(엔화)", field: "priceJpy", width: 150, hozAlign: "right",
               formatter: function(cell) {
@@ -112,8 +113,7 @@
     });
 
             console.log("Tabulator initialized successfully");
-            // Set Korean locale
-            table.setLocale("ko");
+            // Locale is configured in table options (locale: true, langs: {...})
     
             // Debug: check if data loads
             table.on("dataLoaded", function(data) {
@@ -124,34 +124,37 @@
                 console.error("Data loading error:", error);
             });
 
-    // External search button - trigger Tabulator header filters
-    document.getElementById('btn-search').addEventListener('click', function() {
-        const partNumber = document.getElementById('filter-partNumber').value;
-        const description = document.getElementById('filter-description').value;
+    // External search button - trigger Tabulator AJAX with filters
+                document.getElementById('btn-search').addEventListener('click', function() {
+            const partNumber = document.getElementById('filter-partNumber').value;
+            const description = document.getElementById('filter-description').value;
         
-        table.setData("/api/parts", {
-            partNumber: partNumber,
-            description: description
-        });
-    });
+            // Reload data with filters using setData(url, params)
+            table.setData("/api/parts", {
+                partNumber: partNumber,
+                description: description
+            });
+                });
 
-    // Reset filters
-    document.getElementById('btn-reset').addEventListener('click', function() {
-        document.getElementById('filter-partNumber').value = '';
-        document.getElementById('filter-description').value = '';
-        table.setData("/api/parts", {
-            partNumber: "",
-            description: ""
-        });
-    });
+                // Reset filters
+                document.getElementById('btn-reset').addEventListener('click', function() {
+            document.getElementById('filter-partNumber').value = '';
+            document.getElementById('filter-description').value = '';
+        
+            table.setData("/api/parts", {
+                partNumber: "",
+                description: ""
+            });
+                });
 
     // Enter key support for filter inputs
-    ['filter-partNumber', 'filter-description'].forEach(id => {
-        document.getElementById(id).addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                document.getElementById('btn-search').click();
-            }
+        ['filter-partNumber', 'filter-description'].forEach(id => {
+            document.getElementById(id).addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('btn-search').click();
+                }
+            });
         });
-    });
-</script>
+    </script>
+
 </html>
