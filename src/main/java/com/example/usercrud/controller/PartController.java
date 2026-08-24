@@ -28,20 +28,13 @@ public class PartController {
     private PartService service;
 
     @GetMapping
-    public String list(@RequestParam(value = "partNumber", required = false) String partNumber,
-                       @RequestParam(value = "description", required = false) String description,
-                       Model model) {
-        List<Part> list = service.getByFilters(partNumber, description);
-        model.addAttribute("list", list);
-        model.addAttribute("partNumber", partNumber);
-        model.addAttribute("description", description);
+    public String list() {
         return "parts/list";
     }
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         model.addAttribute("entity", new Part());
-        model.addAttribute("pageTitle", "새 부품 등록 - BARATEC");
         return "parts/form";
     }
 
@@ -119,4 +112,7 @@ public class PartController {
         service.delete(id);
         return "redirect:/parts";
     }
+
+
+    
 }

@@ -36,9 +36,6 @@ public class PartRestController {
         // Tabulator uses 1-based page, Spring uses 0-based
         int springPage = Math.max(0, page - 1);
         
-        Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Pageable pageable = PageRequest.of(springPage, size, Sort.by(direction, sort));
-
         List<Part> parts = service.getByFilters(partNumber, description);
         
         // Manual pagination since service returns List
