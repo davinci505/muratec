@@ -1,12 +1,47 @@
 <!DOCTYPE html>
 
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{::script})}"
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{::style}, ~{::script})}"
     th:with="activePage='parts'">
 
 <head>
     <title>부품등록 관리 - BARATEC</title>
+    <style>
+        /* Center pagination in Tabulator footer */
+        .tabulator-footer-contents {
+            justify-content: center !important;
+        }
+        .tabulator-paginator {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            width: 100% !important;
+            text-align: center !important;
+        }
+        .tabulator-paginator label {
+            display: inline-flex !important;
+            align-items: center !important;
+            margin-right: 8px !important;
+            margin-bottom: 0 !important;
+        }
+        .tabulator-page-size {
+            display: inline-flex !important;
+            align-items: center !important;
+            margin: 0 8px !important;
+            vertical-align: middle !important;
+        }
+        .tabulator-paginator .tabulator-page {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            margin: 0 2px !important;
+        }
+        .tabulator-pages {
+            display: inline-flex !important;
+            align-items: center !important;
+            margin: 0 8px !important;
+        }
+    </style>
 </head>
-
 <body>
     <div class="content">
         <h1 class="mb-4 text-center">부품등록 관리</h1>
@@ -68,9 +103,9 @@
                   return (page - 1) * pageSize + rowIndex;
               }
             },
-                    { title: "품번", field: "partNumber", width: 150 },
-                    { title: "부품설명", field: "description", width: 200 },
-            { title: "스펙", field: "spec", width: 250 },
+                    { title: "품번", field: "partNumber" },
+                    { title: "부품설명", field: "description" },
+            { title: "스펙", field: "spec" },
             { title: "가격(엔화)", field: "priceJpy", width: 150, hozAlign: "right",
               formatter: function(cell) {
                   const val = cell.getValue();
