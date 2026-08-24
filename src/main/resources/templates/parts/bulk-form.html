@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{::script})}"
+      th:with="activePage='parts'">
+<head>
+    <title>부품 대량 등록 (Excel) - BARATEC</title>
+</head>
+<body>
+    <div class="content">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h2 class="mb-0"><i class="bi bi-file-earmark-spreadsheet"></i> 부품 대량 등록 (Excel)</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <h5>엑셀 파일 형식 안내</h5>
+                            <ul class="mb-0">
+                                <li>첫 번째 행은 헤더로 사용됩니다 (무시됨)</li>
+                                <li>열 순서: <strong>품번, 부품설명, 스펙, 가격(엔화)</strong></li>
+                                <li>이미 존재하는 품번인 경우 업데이트됩니다</li>
+                                <li>가격은 숫자만 입력 (예: 15000)</li>
+                            </ul>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <strong>샘플 데이터:</strong>
+                            <pre class="mb-0 mt-2" style="font-size: 0.75rem;">
+품번        부품설명              스펙              가격(엔화)
+PRT-001    볼트 M6x20           스테인리스 304      150
+PRT-002    너트 M6              스테인리스 304      80
+PRT-003    와셔 M6              스테인리스 304      30
+                            </pre>
+                        </div>
+
+                        <form id="bulkForm" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="excelFile" class="form-label">엑셀 파일 선택 (.xlsx)</label>
+                                <input type="file" class="form-control" id="excelFile" name="file" accept=".xlsx,.xls" required>
+                                <div class="form-text">최대 10MB, .xlsx 형식 권장</div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-success" id="submitBtn">
+                                    <i class="bi bi-upload"></i> 업로드 및 등록
+                                </button>
+                                <a href="/parts" class="btn btn-secondary">취소</a>
+                            </div>
+                        </form>
+
+                        <div id="resultArea" class="mt-4" style="display: none;">
+                            <div class="alert" id="resultAlert"></div>
+                            <div id="resultDetails"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('bulkForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const resultArea = document.getElementById('resultArea');
+        const resultAlert = document.getElementById('resultAlert');
+        const resultDetails = document.getElementById('resultDetails');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('excelFile');
+            if (!fileInput.files.length) {
+                alert('파일을 선택해주세요.');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+                alert('엑셀 파일(.xlsx, .xls)만 업로드 가능합니다.');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> 처리 중...';
+            resultArea.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/parts/bulk', {
+                    method: 'POST',
+                    body: formData
+                });
+                const text = await response.text();
+                
+                if (text.startsWith('success:')) {
+                    const count = text.split(':')[1];
+                    resultAlert.className = 'alert alert-success';
+                    resultAlert.innerHTML = `<strong>성공!</strong> ${count}개 부품이 등록/업데이트되었습니다.`;
+                    resultDetails.innerHTML = '<a href="/parts" class="btn btn-primary btn-sm">부품 목록으로 이동</a>';
+                } else if (text.startsWith('error:')) {
+                    const msg = text.split(':')[1];
+                    resultAlert.className = 'alert alert-danger';
+                    resultAlert.innerHTML = `<strong>실패:</strong> ${msg}`;
+                } else {
+                    resultAlert.className = 'alert alert-warning';
+                    resultAlert.innerHTML = `<strong>알 수 없는 응답:</strong> ${text}`;
+                }
+            } catch (error) {
+                resultAlert.className = 'alert alert-danger';
+                resultAlert.innerHTML = `<strong>오류:</strong> ${error.message}`;
+            } finally {
+                resultArea.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-upload"></i> 업로드 및 등록';
+            }
+        });
+    });
+</script>
+</html>
