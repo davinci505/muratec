@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{::script})}"
+    th:with="activePage='parts'">
+
+<head>
+    <title>부품등록 관리 - BARATEC</title>
+</head>
+
+<body>
+    <div class="content">
+        <h1 class="mb-4 text-center">부품등록 관리</h1>
+
+        <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+            <a href="/parts/new" class="btn btn-primary">새 부품 추가</a>
+            <a href="/parts/bulk" class="btn btn-success">📊 엑셀 대량 등록</a>
+
+            <div class="ms-auto d-flex flex-wrap gap-2 align-items-center">
+                <label for="filter-partNumber" class="form-label mb-0">품번</label>
+                <input id="filter-partNumber" type="text" class="form-control form-control-sm"
+                    style="width: 160px;" placeholder="품번 검색">
+                <label for="filter-description" class="form-label mb-0">부품설명</label>
+                <input id="filter-description" type="text" class="form-control form-control-sm"
+                    style="width: 180px;" placeholder="부품설명 검색">
+                <button id="btn-search" type="button" class="btn btn-outline-secondary btn-sm">검색</button>
+                <button id="btn-reset" type="button" class="btn btn-outline-secondary btn-sm">초기화</button>
+            </div>
+        </div>
+
+        <!-- Tabulator Container -->
+                <div id="parts-table"></div>
+            </div>
+        </body>
+        <script>
+            // Tabulator 테이블 초기화 - using global Tabulator
+            console.log("Tabulator global:", typeof Tabulator);
+            const table = new Tabulator("#parts-table", {
+        layout: "fitColumns",
+        pagination: "remote",
+        paginationSize: 20,
+        paginationSizeSelector: [10, 20, 50, 100],
+        ajaxURL: "/api/parts",
+        ajaxParams: {
+            partNumber: "",
+            description: ""
+        },
+        ajaxResponse: function(url, params, response) {
+            // Tabulator expects { last_page: N, data: [...] }
+            return response.data;
+        },
+        ajaxURLGenerator: function(url, config, params) {
+            // Build URL with all params
+            const searchParams = new URLSearchParams();
+            Object.keys(params).forEach(key => {
+                if (params[key] !== "" && params[key] !== null && params[key] !== undefined) {
+                    searchParams.append(key, params[key]);
+                }
+            });
+            return url + "?" + searchParams.toString();
+        },
+        columns: [
+            { title: "No.", field: "id", width: 60, hozAlign: "center", 
+              formatter: function(cell) {
+                  // Calculate row number based on pagination
+                  const page = table.getPage();
+                  const pageSize = table.getPageSize();
+                  const rowIndex = cell.getRow().getPosition(true); // 1-based position in current page
+                  return (page - 1) * pageSize + rowIndex;
+              }
+            },
+            { title: "품번", field: "partNumber", headerFilter: "input", headerFilterPlaceholder: "검색...", width: 150 },
+            { title: "부품설명", field: "description", headerFilter: "input", headerFilterPlaceholder: "검색...", width: 200 },
+            { title: "스펙", field: "spec", width: 250 },
+            { title: "가격(엔화)", field: "priceJpy", width: 150, hozAlign: "right",
+              formatter: function(cell) {
+                  const val = cell.getValue();
+                  return val ? '￥' + Number(val).toLocaleString() : '';
+              }
+            },
+            { title: "관리", field: "actions", width: 100, hozAlign: "center",
+              formatter: function(cell) {
+                  const id = cell.getRow().getData().id;
+                  return `
+                    <div class="d-flex gap-1 justify-content-center">
+                        <a href="/parts/edit/${id}" class="btn btn-sm btn-outline-primary px-2" title="수정">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <a href="/parts/delete/${id}" class="btn btn-sm btn-outline-danger px-2" title="삭제" onclick="return confirm('삭제하시겠습니까?');">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                  `;
+              }
+            }
+        ],
+        initialSort: [{ column: "id", dir: "asc" }],
+        locale: true,
+        langs: {
+            "ko": {
+                "pagination": {
+                    "first": "처음",
+                    "first_title": "첫 페이지",
+                    "last": "마지막",
+                    "last_title": "마지막 페이지",
+                    "prev": "이전",
+                    "prev_title": "이전 페이지",
+                    "next": "다음",
+                    "next_title": "다음 페이지",
+                    "all": "전체"
+                }
+            }
+        }
+    });
+
+            console.log("Tabulator initialized successfully");
+            // Set Korean locale
+            table.setLocale("ko");
+    
+            // Debug: check if data loads
+            table.on("dataLoaded", function(data) {
+                console.log("Data loaded:", data.length, "rows");
+            });
+    
+            table.on("dataLoadingError", function(error) {
+                console.error("Data loading error:", error);
+            });
+
+    // External search button - trigger Tabulator header filters
+    document.getElementById('btn-search').addEventListener('click', function() {
+        const partNumber = document.getElementById('filter-partNumber').value;
+        const description = document.getElementById('filter-description').value;
+        
+        table.setData("/api/parts", {
+            partNumber: partNumber,
+            description: description
+        });
+    });
+
+    // Reset filters
+    document.getElementById('btn-reset').addEventListener('click', function() {
+        document.getElementById('filter-partNumber').value = '';
+        document.getElementById('filter-description').value = '';
+        table.setData("/api/parts", {
+            partNumber: "",
+            description: ""
+        });
+    });
+
+    // Enter key support for filter inputs
+    ['filter-partNumber', 'filter-description'].forEach(id => {
+        document.getElementById(id).addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('btn-search').click();
+            }
+        });
+    });
+</script>
+</html>

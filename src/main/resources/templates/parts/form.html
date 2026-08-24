@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{::script})}"
+      th:with="activePage='parts'">
+<head>
+    <title th:text="${entity.id != null ? '부품 정보 수정 - BARATEC' : '새 부품 등록 - BARATEC'}">Part Form</title>
+</head>
+<body>
+    <div class="content">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="mb-0" th:text="${entity.id != null ? '부품 정보 수정' : '새 부품 등록'}"></h2>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+                        <form th:action="${entity.id != null ? '/parts/' + entity.id : '/parts'}"
+                              th:object="${entity}"
+                              method="post">
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="partNumber" class="form-label">품번 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="partNumber" th:field="*{partNumber}" required>
+                                    <div class="form-text">부품 고유 번호 (중복 불가)</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="priceJpy" class="form-label">가격(엔화) <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="priceJpy" th:field="*{priceJpy}" placeholder="예: 15000" required>
+                                    <div class="form-text">엔화 금액 (숫자만 입력)</div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="description" class="form-label">부품설명</label>
+                                <textarea class="form-control" id="description" th:field="*{description}" rows="3" placeholder="부품에 대한 설명"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="spec" class="form-label">스펙</label>
+                                <textarea class="form-control" id="spec" th:field="*{spec}" rows="3" placeholder="부품 사양/규격"></textarea>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <span th:text="${entity.id != null ? '수정' : '등록'}"></span>
+                                </button>
+                                <a href="/parts" class="btn btn-secondary">취소</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script th:inline="javascript">
+    const errorMessage = /*[[${errorMessage}]]*/ null;
+    if (errorMessage) {
+        alert(errorMessage);
+    }
+</script>
+<script>
+    function bindCurrencyInput(input, prefix) {
+        if (!input) return;
+        
+        let initVal = input.value.replace(/[^0-9.]/g, '');
+        if (initVal) {
+            input.value = (prefix || '') + Number(initVal).toLocaleString();
+        }
+
+        input.addEventListener('blur', () => {
+            let value = input.value.replace(/[^0-9.]/g, '');
+            if (value) {
+                input.value = (prefix || '') + Number(value).toLocaleString();
+            }
+        });
+
+        input.addEventListener('focus', () => {
+            let value = input.value.replace(/[^0-9.]/g, '');
+            input.value = value;
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const priceInput = document.getElementById('priceJpy');
+        if (priceInput) {
+            bindCurrencyInput(priceInput, '￥');
+        }
+
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', (event) => {
+                const priceInput = document.getElementById('priceJpy');
+                if (priceInput && priceInput.value) {
+                    priceInput.value = priceInput.value.replace(/[^0-9.]/g, '');
+                }
+            });
+        }
+    });
+</script>
+</html>
