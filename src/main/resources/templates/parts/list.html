@@ -54,9 +54,9 @@
                 <label for="filter-partNumber" class="form-label mb-0">품번</label>
                 <input id="filter-partNumber" type="text" class="form-control form-control-sm"
                     style="width: 160px;" placeholder="품번 검색">
-                <label for="filter-description" class="form-label mb-0">부품설명</label>
-                <input id="filter-description" type="text" class="form-control form-control-sm"
-                    style="width: 180px;" placeholder="부품설명 검색">
+                <label for="filter-partName" class="form-label mb-0">부품명</label>
+                <input id="filter-partName" type="text" class="form-control form-control-sm"
+                    style="width: 180px;" placeholder="부품명 검색">
                 <button id="btn-search" type="button" class="btn btn-outline-secondary btn-sm">검색</button>
                 <button id="btn-reset" type="button" class="btn btn-outline-secondary btn-sm">초기화</button>
             </div>
@@ -79,7 +79,7 @@
         ajaxURL: "/api/parts",
         ajaxParams: {
             partNumber: "",
-            description: ""
+            partName: ""
         },
         ajaxResponse: function(url, params, response) {
             // For remote pagination, Tabulator expects response with last_page and data
@@ -89,7 +89,7 @@
     const searchParams = new URLSearchParams();
 
     if (params.partNumber) searchParams.append("partNumber", params.partNumber);
-    if (params.description) searchParams.append("description", params.description);
+    if (params.partName) searchParams.append("partName", params.partName);
     if (params.page) searchParams.append("page", params.page);
     if (params.size) searchParams.append("size", params.size);
 
@@ -111,7 +111,7 @@
               }
             },
                     { title: "품번", field: "partNumber" },
-                    { title: "부품설명", field: "description" },
+                    { title: "부품명", field: "partName" },
             { title: "스펙", field: "spec" },
             { title: "가격(엔화)", field: "priceJpy", width: 150, hozAlign: "right",
               formatter: function(cell) {
@@ -169,28 +169,28 @@
     // External search button - trigger Tabulator AJAX with filters
                 document.getElementById('btn-search').addEventListener('click', function() {
             const partNumber = document.getElementById('filter-partNumber').value;
-            const description = document.getElementById('filter-description').value;
+            const partName = document.getElementById('filter-partName').value;
         
             // Reload data with filters using setData(url, params)
             table.setData("/api/parts", {
                 partNumber: partNumber,
-                description: description
+                partName: partName
             });
                 });
 
                 // Reset filters
                 document.getElementById('btn-reset').addEventListener('click', function() {
             document.getElementById('filter-partNumber').value = '';
-            document.getElementById('filter-description').value = '';
+            document.getElementById('filter-partName').value = '';
         
             table.setData("/api/parts", {
                 partNumber: "",
-                description: ""
+                partName: ""
             });
                 });
 
     // Enter key support for filter inputs
-        ['filter-partNumber', 'filter-description'].forEach(id => {
+        ['filter-partNumber', 'filter-partName'].forEach(id => {
             document.getElementById(id).addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     document.getElementById('btn-search').click();

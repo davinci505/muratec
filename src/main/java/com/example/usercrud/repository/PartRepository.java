@@ -16,14 +16,14 @@ public interface PartRepository extends JpaRepository<Part, Long> {
 
     List<Part> findByPartNumberContainingIgnoreCase(String partNumber);
 
-    List<Part> findByDescriptionContainingIgnoreCase(String description);
+    List<Part> findByPartNameContainingIgnoreCase(String partName);
 
-    List<Part> findByPartNumberContainingIgnoreCaseAndDescriptionContainingIgnoreCase(String partNumber, String description);
+    List<Part> findByPartNumberContainingIgnoreCaseAndPartNameContainingIgnoreCase(String partNumber, String partName);
 
     // Pagination support
     Page<Part> findByPartNumberContainingIgnoreCase(String partNumber, Pageable pageable);
 
-    Page<Part> findByDescriptionContainingIgnoreCase(String description, Pageable pageable);
+    Page<Part> findByPartNameContainingIgnoreCase(String partName, Pageable pageable);
 
-    Page<Part> findByPartNumberContainingIgnoreCaseAndDescriptionContainingIgnoreCase(String partNumber, String description, Pageable pageable);
+    Page<Part> findByPartNumberContainingIgnoreCaseAndPartNameContainingIgnoreCase(String partNumber, String partName, Pageable pageable);
 }

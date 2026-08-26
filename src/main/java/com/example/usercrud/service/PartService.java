@@ -35,41 +35,41 @@ public class PartService {
         return repository.findByPartNumber(partNumber);
     }
 
-    public List<Part> getByFilters(String partNumber, String description) {
+    public List<Part> getByFilters(String partNumber, String partName) {
         boolean hasPartNumber = partNumber != null && StringUtils.hasText(partNumber);
-        boolean hasDescription = description != null && StringUtils.hasText(description);
+        boolean hasPartName = partName != null && StringUtils.hasText(partName);
 
         String pn = hasPartNumber ? partNumber.trim() : null;
-        String desc = hasDescription ? description.trim() : null;
+        String pnName = hasPartName ? partName.trim() : null;
 
-        if (hasPartNumber && hasDescription) {
-            return repository.findByPartNumberContainingIgnoreCaseAndDescriptionContainingIgnoreCase(pn, desc);
+        if (hasPartNumber && hasPartName) {
+            return repository.findByPartNumberContainingIgnoreCaseAndPartNameContainingIgnoreCase(pn, pnName);
         }
         if (hasPartNumber) {
             return repository.findByPartNumberContainingIgnoreCase(pn);
         }
-        if (hasDescription) {
-            return repository.findByDescriptionContainingIgnoreCase(desc);
+        if (hasPartName) {
+            return repository.findByPartNameContainingIgnoreCase(pnName);
         }
         return repository.findAll();
     }
 
     // Pagination support
-    public Page<Part> getByFilters(String partNumber, String description, Pageable pageable) {
+    public Page<Part> getByFilters(String partNumber, String partName, Pageable pageable) {
         boolean hasPartNumber = partNumber != null && StringUtils.hasText(partNumber);
-        boolean hasDescription = description != null && StringUtils.hasText(description);
+        boolean hasPartName = partName != null && StringUtils.hasText(partName);
 
         String pn = hasPartNumber ? partNumber.trim() : null;
-        String desc = hasDescription ? description.trim() : null;
+        String pnName = hasPartName ? partName.trim() : null;
 
-        if (hasPartNumber && hasDescription) {
-            return repository.findByPartNumberContainingIgnoreCaseAndDescriptionContainingIgnoreCase(pn, desc, pageable);
+        if (hasPartNumber && hasPartName) {
+            return repository.findByPartNumberContainingIgnoreCaseAndPartNameContainingIgnoreCase(pn, pnName, pageable);
         }
         if (hasPartNumber) {
             return repository.findByPartNumberContainingIgnoreCase(pn, pageable);
         }
-        if (hasDescription) {
-            return repository.findByDescriptionContainingIgnoreCase(desc, pageable);
+        if (hasPartName) {
+            return repository.findByPartNameContainingIgnoreCase(pnName, pageable);
         }
         return repository.findAll(pageable);
     }
@@ -87,7 +87,7 @@ public class PartService {
                 .orElseThrow(() -> new RuntimeException("Part not found with id: " + id));
 
         entity.setPartNumber(details.getPartNumber());
-        entity.setDescription(details.getDescription());
+        entity.setPartName(details.getPartName());
         entity.setSpec(details.getSpec());
         entity.setPriceJpy(details.getPriceJpy());
 
@@ -105,7 +105,7 @@ public class PartService {
 
                 Part part = new Part();
                 part.setPartNumber(getCellValueAsString(row.getCell(0)));
-                part.setDescription(getCellValueAsString(row.getCell(1)));
+                part.setPartName(getCellValueAsString(row.getCell(1)));
                 part.setSpec(getCellValueAsString(row.getCell(2)));
                 part.setPriceJpy(getCellValueAsBigDecimal(row.getCell(3)));
 
@@ -115,7 +115,7 @@ public class PartService {
                     if (existing.isPresent()) {
                         // Update existing
                         Part existingPart = existing.get();
-                        existingPart.setDescription(part.getDescription());
+                        existingPart.setPartName(part.getPartName());
                         existingPart.setSpec(part.getSpec());
                         existingPart.setPriceJpy(part.getPriceJpy());
                         repository.save(existingPart);

@@ -26,8 +26,8 @@ public class Part {
     @Column(name = "part_number", length = 50, nullable = false, unique = true)
     private String partNumber;
 
-    @Column(name = "description", length = 200)
-    private String description;
+    @Column(name = "part_name", length = 200)
+    private String partName;
 
     @Column(name = "spec", length = 500)
     private String spec;

@@ -1,9 +1,22 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-    th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{::script})}"
+    th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{::style}, ~{::script})}"
       th:with="activePage='jobs'">
 <head>
     <title th:text="${job.id != null ? '의뢰 수정 - BARATEC' : '새 의뢰 추가 - BARATEC'}">Job Form</title>
+    <style>
+        /* Tabulator custom styles for parts table */
+        #job-parts-table {
+            min-height: 200px;
+        }
+        .tabulator-row .tabulator-cell {
+            vertical-align: middle;
+        }
+        .btn-delete-part {
+            padding: 0.15rem 0.4rem;
+            font-size: 0.75rem;
+        }
+    </style>
 </head>
 <body>
     <div class="content">
@@ -17,7 +30,8 @@
                         <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
                         <form th:action="${job.id != null ? '/jobs/' + job.id : '/jobs'}"
                               th:object="${job}"
-                              method="post">
+                              method="post"
+                              id="jobForm">
 
                             <div class="row">
                                 <div class="col-md-6 mb-3">
@@ -59,19 +73,21 @@
                                 </div>
                             </div>
 
-                            <div class="row">
-                                                            <div class="col-md-6 mb-3">
-                                                                <label for="productName" class="form-label">제품명</label>
-                                                                <input type="text" class="form-control" id="productName" th:field="*{productName}">
-                                                            </div>
-                                                            <div class="col-md-6 mb-3">
-                                                                <label for="partNoProductSpec" class="form-label">품번/제품스펙</label>
-                                                                <input type="text" class="form-control" id="partNoProductSpec" th:field="*{partNoProductSpec}">
-                                                            </div>
-                                                        </div>
+                            <!-- Parts Management Section -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label class="form-label mb-0">의뢰 부품 목록</label>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" id="btn-add-part" data-bs-toggle="modal" data-bs-target="#partSelectModal">
+                                        <i class="bi bi-plus-circle"></i> 부품 추가
+                                    </button>
+                                </div>
+                                <div id="job-parts-table"></div>
+                                <!-- Hidden input to store parts data as JSON -->
+                                <input type="hidden" name="partsJson" id="partsJson" value="">
+                            </div>
 
                             <div class="d-flex gap-2">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" id="btn-submit">
                                     <span th:text="${job.id != null ? '수정' : '등록'}"></span>
                                 </button>
                                 <a href="/jobs" class="btn btn-secondary">취소</a>
@@ -82,12 +98,45 @@
             </div>
         </div>
     </div>
+
+    <!-- Part Selection Modal -->
+    <div class="modal fade" id="partSelectModal" tabindex="-1" aria-labelledby="partSelectModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="partSelectModalLabel"><i class="bi bi-box-seam"></i> 부품 선택</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="modal-filter-partNumber" class="form-label">품번</label>
+                            <input type="text" class="form-control form-control-sm" id="modal-filter-partNumber" placeholder="품번 검색">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="modal-filter-partName" class="form-label">부품명</label>
+                            <input type="text" class="form-control form-control-sm" id="modal-filter-partName" placeholder="부품명 검색">
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="modal-btn-search">검색</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm ms-2" id="modal-btn-reset">초기화</button>
+                        </div>
+                    </div>
+                    <div id="modal-parts-table"></div>
+                    <div class="form-text mt-2">테이블에서 행을 더블클릭하면 부품이 추가되고 모달이 닫힙니다.</div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 <script th:inline="javascript">
     const errorMessage = /*[[${errorMessage}]]*/ null;
     if (errorMessage) {
         alert(errorMessage);
     }
+    
+    // Initialize parts data from server-side model
+    const initialParts = /*[[${job.parts}]]*/ [];
 </script>
 <script>
     const datePattern = /^\d{4}-\d{2}-\d{2}$/;
@@ -129,6 +178,11 @@
         return isValid;
     }
 
+    // Tabulator table for job parts
+    let partsTable;
+    let partSelectTable;
+    let selectedPartId = null;
+
     document.addEventListener('DOMContentLoaded', () => {
         const requestDate = document.getElementById('requestDate');
         if (!requestDate) return;
@@ -148,6 +202,18 @@
                 if (!validateDateInput(requestDate)) {
                     alert('날짜 형식이 올바르지 않습니다. YYYY-MM-DD 형식으로 입력하세요.');
                     event.preventDefault();
+                    return;
+                }
+                // Serialize parts table data to hidden input before submit
+                if (partsTable) {
+                    const partsData = partsTable.getData().map(row => ({
+                        partName: row.partName,
+                        partNumber: row.partNumber,
+                        spec: row.spec,
+                        quantity: row.quantity,
+                        sortOrder: row.sortOrder
+                    }));
+                    document.getElementById('partsJson').value = JSON.stringify(partsData);
                 }
             });
         }
@@ -157,6 +223,218 @@
             formatDateInput(requestDate);
             validateDateInput(requestDate);
         }
+
+        // Initialize parts Tabulator
+        initPartsTable();
+        
+        // Initialize part selection modal Tabulator
+        initPartSelectModal();
     });
+
+    function initPartsTable() {
+        partsTable = new Tabulator("#job-parts-table", {
+            layout: "fitColumns",
+            height: "300px",
+            placeholder: "추가된 부품이 없습니다. '부품 추가' 버튼을 클릭하세요.",
+            columns: [
+                { title: "No.", field: "sortOrder", width: 50, hozAlign: "center",
+                  formatter: function(cell) {
+                      return cell.getRow().getPosition(true);
+                  }
+                },
+                { title: "부품명", field: "partName", editor: false },
+                { title: "품번", field: "partNumber", editor: false },
+                { title: "스펙", field: "spec", editor: false },
+                { title: "수량", field: "quantity", width: 80, hozAlign: "center", 
+                  editor: "number",
+                  editorParams: { min: 1, step: 1 },
+                  validator: ["min:1", "integer"]
+                },
+                { title: "삭제", field: "delete", width: 60, hozAlign: "center",
+                  formatter: function(cell) {
+                      return '<button class="btn btn-sm btn-outline-danger btn-delete-part" onclick="deletePart(' + cell.getRow().getPosition(true) + ')"><i class="bi bi-trash"></i></button>';
+                  }
+                }
+            ],
+            initialSort: [{ column: "sortOrder", dir: "asc" }],
+            locale: true,
+            langs: {
+                "ko": {
+                    "pagination": {
+                        "first": "처음", "first_title": "첫 페이지",
+                        "last": "마지막", "last_title": "마지막 페이지",
+                        "prev": "이전", "prev_title": "이전 페이지",
+                        "next": "다음", "next_title": "다음 페이지",
+                        "all": "전체"
+                    }
+                }
+            }
+        });
+
+        // Load initial parts data
+        if (initialParts && initialParts.length > 0) {
+            const partsData = initialParts.map((part, index) => ({
+                partName: part.partName,
+                partNumber: part.partNumber,
+                spec: part.spec,
+                quantity: part.quantity || 1,
+                sortOrder: part.sortOrder !== undefined ? part.sortOrder : index
+            }));
+            partsTable.setData(partsData);
+        }
+
+        // Update sortOrder when rows are moved
+        partsTable.on("rowMoved", function(row) {
+            updateSortOrders();
+        });
+
+        // Update sortOrder when data changes
+        partsTable.on("dataEdited", function(cell) {
+            updateSortOrders();
+        });
+    }
+
+    function updateSortOrders() {
+        const rows = partsTable.getRows();
+        rows.forEach((row, index) => {
+            row.update({ sortOrder: index });
+        });
+    }
+
+    function deletePart(position) {
+        const row = partsTable.getRowFromPosition(position);
+        if (row) {
+            row.delete();
+            updateSortOrders();
+        }
+    }
+
+    function initPartSelectModal() {
+        partSelectTable = new Tabulator("#modal-parts-table", {
+            layout: "fitColumns",
+            height: "400px",
+            pagination: true,
+            paginationMode: "remote",
+            sortMode: "remote",
+            paginationSize: 10,
+            paginationSizeSelector: [10, 20, 50, 100],
+            ajaxURL: "/api/parts",
+            ajaxParams: {
+                partNumber: "",
+                description: ""
+            },
+            ajaxResponse: function(url, params, response) {
+                return response;
+            },
+            ajaxURLGenerator: function(url, config, params) {
+                const searchParams = new URLSearchParams();
+                if (params.partNumber) searchParams.append("partNumber", params.partNumber);
+                if (params.description) searchParams.append("description", params.description);
+                if (params.page) searchParams.append("page", params.page);
+                if (params.size) searchParams.append("size", params.size);
+                if (Array.isArray(params.sort) && params.sort.length > 0) {
+                    searchParams.append("sort", params.sort[0].field);
+                    searchParams.append("order", params.sort[0].dir);
+                }
+                return url + "?" + searchParams.toString();
+            },
+            columns: [
+                { title: "No.", field: "id", width: 60, hozAlign: "center",
+                  formatter: function(cell) {
+                      const page = partSelectTable.getPage();
+                      const pageSize = partSelectTable.getPageSize();
+                      const rowIndex = cell.getRow().getPosition(true);
+                      return (page - 1) * pageSize + rowIndex;
+                  }
+                },
+                { title: "품번", field: "partNumber" },
+                { title: "부품명", field: "partName" },
+                { title: "스펙", field: "spec" }
+            ],
+            initialSort: [{ column: "id", dir: "asc" }],
+            locale: true,
+            langs: {
+                "ko": {
+                    "pagination": {
+                        "first": "처음", "first_title": "첫 페이지",
+                        "last": "마지막", "last_title": "마지막 페이지",
+                        "prev": "이전", "prev_title": "이전 페이지",
+                        "next": "다음", "next_title": "다음 페이지",
+                        "all": "전체"
+                    }
+                }
+            }
+        });
+
+        // Double-click to select part
+        partSelectTable.on("rowDblClick", function(e, row) {
+            const partData = row.getData();
+            addPartToTable(partData);
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('partSelectModal'));
+            if (modal) modal.hide();
+        });
+
+        // Search button
+        document.getElementById('modal-btn-search').addEventListener('click', function() {
+            const partNumber = document.getElementById('modal-filter-partNumber').value;
+            const partName = document.getElementById('modal-filter-partName').value;
+            partSelectTable.setData("/api/parts", {
+                partNumber: partNumber,
+                partName: partName
+            });
+        });
+
+        // Reset button
+        document.getElementById('modal-btn-reset').addEventListener('click', function() {
+            document.getElementById('modal-filter-partNumber').value = '';
+            document.getElementById('modal-filter-partName').value = '';
+            partSelectTable.setData("/api/parts", {
+                partNumber: "",
+                partName: ""
+            });
+        });
+
+        // Enter key support
+        ['modal-filter-partNumber', 'modal-filter-partName'].forEach(id => {
+            document.getElementById(id).addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('modal-btn-search').click();
+                }
+            });
+        });
+
+        // Reset modal filters when modal is hidden
+        document.getElementById('partSelectModal').addEventListener('hidden.bs.modal', function() {
+            document.getElementById('modal-filter-partNumber').value = '';
+            document.getElementById('modal-filter-partName').value = '';
+            partSelectTable.setData("/api/parts", {
+                partNumber: "",
+                partName: ""
+            });
+        });
+    }
+
+    function addPartToTable(partData) {
+        // Check if part already exists in table
+        const existingRows = partsTable.getRows();
+        for (const row of existingRows) {
+            if (row.getData().partNumber === partData.partNumber) {
+                alert('이미 추가된 부품입니다: ' + partData.partNumber);
+                return;
+            }
+        }
+
+        const newSortOrder = partsTable.getDataCount();
+        partsTable.addRow({
+            partName: partData.partName,  // Part's partName becomes partName
+            partNumber: partData.partNumber,
+            spec: partData.spec || '',
+            quantity: 1,
+            sortOrder: newSortOrder
+        }, true); // true = add to top, false = add to bottom
+        
+        updateSortOrders();
+    }
 </script>
 </html>

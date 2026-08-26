@@ -29,3 +29,7 @@ This is a Spring Boot + Thymeleaf CRUD application for user management.
 - **CRUD & Editing**:
   - Enable inline cell editing where appropriate using Tabulator native editors.
   - Implement standard actions (Edit/Delete) using custom column formatters or event listeners.
+  
+## Test Rules
+- 테스트한 다음에는 반드시 어플리케이션 종료할 것.
+- 테스트시, 인코딩은 UTF8로 할 것.

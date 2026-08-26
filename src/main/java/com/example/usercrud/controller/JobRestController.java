@@ -58,8 +58,7 @@ public class JobRestController {
         map.put("requestDate", job.getRequestDate() != null ? job.getRequestDate().toString() : "");
         map.put("customerName", job.getCustomerName());
         map.put("factoryName", job.getFactoryName());
-        map.put("productName", job.getProductName());
-        map.put("partNoProductSpec", job.getPartNoProductSpec());
+        map.put("partsCount", job.getParts() != null ? job.getParts().size() : 0);
         return map;
     }
 }

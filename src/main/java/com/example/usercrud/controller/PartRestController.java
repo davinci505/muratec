@@ -26,7 +26,7 @@ public class PartRestController {
     @GetMapping
     public Map<String, Object> getParts(
             @RequestParam(value = "partNumber", required = false) String partNumber,
-            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "partName", required = false) String partName,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "20") int size,
             @RequestParam(value = "sort", defaultValue = "id") String sort,
@@ -39,7 +39,7 @@ public class PartRestController {
                 org.springframework.data.domain.Sort.by(sort).ascending() : 
                 org.springframework.data.domain.Sort.by(sort).descending());
 
-        Page<Part> partPage = service.getByFilters(partNumber, description, pageable);
+        Page<Part> partPage = service.getByFilters(partNumber, partName, pageable);
 
         Map<String, Object> response = new HashMap<>();
         response.put("last_page", partPage.getTotalPages());
@@ -52,7 +52,7 @@ public class PartRestController {
         Map<String, Object> map = new HashMap<>();
         map.put("id", part.getId());
         map.put("partNumber", part.getPartNumber());
-        map.put("description", part.getDescription());
+        map.put("partName", part.getPartName());
         map.put("spec", part.getSpec());
         map.put("priceJpy", part.getPriceJpy());
         return map;

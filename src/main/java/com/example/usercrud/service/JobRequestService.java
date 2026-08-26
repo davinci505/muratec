@@ -1,13 +1,17 @@
 package com.example.usercrud.service;
 
 import com.example.usercrud.model.JobRequest;
+import com.example.usercrud.model.JobRequestPart;
+import com.example.usercrud.model.Part;
 import com.example.usercrud.repository.JobRequestRepository;
+import com.example.usercrud.repository.PartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +20,12 @@ public class JobRequestService {
 
     @Autowired
     private JobRequestRepository jobRequestRepository;
+
+    @Autowired
+    private JobRequestPartService jobRequestPartService;
+
+    @Autowired
+    private PartRepository partRepository;
 
     public List<JobRequest> getAllJobRequests() {
         return jobRequestRepository.findAll();
@@ -41,7 +51,24 @@ public class JobRequestService {
     }
 
     public JobRequest saveJobRequest(JobRequest jobRequest) {
-        return jobRequestRepository.save(jobRequest);
+        JobRequest saved = jobRequestRepository.save(jobRequest);
+        // Save parts if any
+        if (jobRequest.getParts() != null && !jobRequest.getParts().isEmpty()) {
+            for (int i = 0; i < jobRequest.getParts().size(); i++) {
+                JobRequestPart part = jobRequest.getParts().get(i);
+                part.setSortOrder(i);
+                part.setJobRequest(saved);
+                // Set Part reference from partNumber
+                if (part.getPartNumber() != null) {
+                    Part partEntity = partRepository.findByPartNumber(part.getPartNumber()).orElse(null);
+                    if (partEntity != null) {
+                        part.setPart(partEntity);
+                    }
+                }
+            }
+            jobRequestPartService.saveAll(jobRequest.getParts());
+        }
+        return saved;
     }
 
     public void deleteJobRequest(Long id) {
@@ -58,10 +85,29 @@ public class JobRequestService {
         jobRequest.setRequestDate(details.getRequestDate());
         jobRequest.setCustomerName(details.getCustomerName());
         jobRequest.setFactoryName(details.getFactoryName());
-        jobRequest.setProductName(details.getProductName());
-        jobRequest.setPartNoProductSpec(details.getPartNoProductSpec());
+
+        // Handle parts - clear existing and add new
+        jobRequest.clearParts();
+        if (details.getParts() != null && !details.getParts().isEmpty()) {
+            for (int i = 0; i < details.getParts().size(); i++) {
+                JobRequestPart part = details.getParts().get(i);
+                part.setSortOrder(i);
+                jobRequest.addPart(part);
+                // Set Part reference from partNumber
+                if (part.getPartNumber() != null) {
+                    Part partEntity = partRepository.findByPartNumber(part.getPartNumber()).orElse(null);
+                    if (partEntity != null) {
+                        part.setPart(partEntity);
+                    }
+                }
+            }
+        }
 
         return jobRequestRepository.save(jobRequest);
+    }
+
+    public List<JobRequestPart> getPartsByJobRequestId(Long jobRequestId) {
+        return jobRequestPartService.findByJobRequestId(jobRequestId);
     }
 
     // Pagination support for Tabulator
