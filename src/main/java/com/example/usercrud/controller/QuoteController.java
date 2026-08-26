@@ -1,6 +1,7 @@
 package com.example.usercrud.controller;
 
 import com.example.usercrud.model.JobRequest;
+import com.example.usercrud.model.JobRequestPart;
 import com.example.usercrud.model.Quote;
 import com.example.usercrud.service.JobRequestService;
 import com.example.usercrud.service.QuoteService;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.util.StringUtils;
+
+import java.util.List;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -188,6 +191,12 @@ public class QuoteController {
 
     private boolean isStatusMissing(Quote quote) {
         return quote == null || quote.getStatus() == null || !StringUtils.hasText(quote.getStatus());
+    }
+
+    @GetMapping("/api/job-request-parts")
+    @ResponseBody
+    public List<JobRequestPart> getJobRequestParts(@RequestParam("jobRequestId") Long jobRequestId) {
+        return jobRequestService.getPartsByJobRequestId(jobRequestId);
     }
 
     public static class QuoteBulkRequest {

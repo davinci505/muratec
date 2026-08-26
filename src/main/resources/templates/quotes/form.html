@@ -1,9 +1,22 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-    th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{::script})}"
+    th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{::style}, ~{::script})}"
       th:with="activePage='quotes'">
 <head>
     <title th:text="${quote.id != null ? '견적 수정 - BARATEC' : '새 견적 추가 - BARATEC'}">Quote Form</title>
+    <style>
+        /* Tabulator custom styles for parts table */
+        #jobRequestPartsTable {
+            min-height: 200px;
+        }
+        .tabulator-row .tabulator-cell {
+            vertical-align: middle;
+        }
+        .btn-delete-part {
+            padding: 0.15rem 0.4rem;
+            font-size: 0.75rem;
+        }
+    </style>
 </head>
 <body>
     <div class="content">
@@ -21,7 +34,7 @@
 
                             <div class="row">
                                 <div class="col-md-12 mb-3">
-                                    <label for="jobRequestId" class="form-label">구분/작번/고객명/의뢰인/의뢰날짜 선택</label>
+                                    <label for="jobRequestId" class="form-label">고객의뢰 선택</label>
                                     <select id="jobRequestId" name="jobRequestId" class="form-select">
                                         <option value="">선택하세요</option>
                                         <option th:each="job : ${jobs}" th:value="${job.id}"
@@ -86,6 +99,23 @@
                                                             </div>
                                                         </div>
 
+                            <!-- 의뢰부품목록 표시 영역 (Tabulator) -->
+                            <div id="jobRequestPartsSection" class="mb-4" style="display: none;">
+                                <div class="card">
+                                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">의뢰부품목록</h5>
+                                        <button type="button" class="btn btn-outline-primary btn-sm" id="btn-add-part" onclick="openPartPopup()">
+                                            <i class="bi bi-plus-circle"></i> 부품 추가
+                                        </button>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <div id="jobRequestPartsTable"></div>
+                                        <!-- Hidden input to store parts data as JSON -->
+                                        <input type="hidden" name="partsJson" id="partsJson" value="">
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="d-flex gap-2">
                                 <button type="submit" class="btn btn-primary">
                                     <span th:text="${quote.id != null ? '수정' : '등록'}"></span>
@@ -104,6 +134,14 @@
     if (errorMessage) {
         alert(errorMessage);
     }
+    
+    // Initialize parts data from server-side model
+    /*[# th:if="${quote.jobRequest != null}"]*/
+    const initialParts = /*[[${quote.jobRequest.parts}]]*/;
+    /*[/]*/
+    /*[# th:if="${quote.jobRequest == null}"]*/
+    const initialParts = [];
+    /*[/]*/
 </script>
 <script>
     const datePattern = /^\d{4}-\d{2}-\d{2}$/;
@@ -176,6 +214,10 @@
         });
     }
 
+    // Tabulator table for job request parts
+    let partsTable;
+    let partPopupWindow = null;
+
     document.addEventListener('DOMContentLoaded', () => {
         const dateInputs = [
             document.getElementById('ccsQuoteDate'),
@@ -192,6 +234,73 @@
         const brtAmountInput = document.getElementById('brtAmount');
         if (ccsAmountInput) bindCurrencyInput(ccsAmountInput, '￥');
         if (brtAmountInput) bindCurrencyInput(brtAmountInput, '￦');
+
+        // Initialize parts Tabulator
+        initPartsTable();
+
+        // Job Request Parts loading functionality
+        const jobRequestSelect = document.getElementById('jobRequestId');
+        const partsSection = document.getElementById('jobRequestPartsSection');
+
+        async function loadJobRequestParts(jobRequestId) {
+            if (!jobRequestId) {
+                partsSection.style.display = 'none';
+                if (partsTable) {
+                    partsTable.setData([]);
+                }
+                return;
+            }
+
+            // Show loading state
+            partsSection.style.display = 'block';
+            
+            // Show loading in Tabulator
+            if (partsTable) {
+                partsTable.setData([]); // Clear existing data
+            }
+
+            try {
+                const response = await fetch(`/quotes/api/job-request-parts?jobRequestId=${jobRequestId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch parts');
+                }
+                const parts = await response.json();
+
+                if (parts && parts.length > 0) {
+                    const partsData = parts.map((part, index) => ({
+                        partName: part.partName,
+                        partNumber: part.partNumber,
+                        spec: part.spec,
+                        quantity: part.quantity || 1,
+                        sortOrder: part.sortOrder !== undefined ? part.sortOrder : index
+                    }));
+                    if (partsTable) {
+                        partsTable.setData(partsData);
+                    }
+                } else {
+                    if (partsTable) {
+                        partsTable.setData([]);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading job request parts:', error);
+                if (partsTable) {
+                    partsTable.setData([]);
+                }
+            }
+        }
+
+        if (jobRequestSelect) {
+            jobRequestSelect.addEventListener('change', (event) => {
+                const jobRequestId = event.target.value;
+                loadJobRequestParts(jobRequestId ? parseInt(jobRequestId) : null);
+            });
+
+            // Load parts on page load if job request is already selected
+            if (jobRequestSelect.value) {
+                loadJobRequestParts(parseInt(jobRequestSelect.value));
+            }
+        }
 
         const form = document.querySelector('form');
         if (form) {
@@ -220,7 +329,153 @@
                         input.value = input.value.replace(/[^0-9.]/g, '');
                     }
                 });
+
+                // 3. Serialize parts table data to hidden input before submit
+                if (partsTable) {
+                    const partsData = partsTable.getData().map(row => ({
+                        partName: row.getData().partName,
+                        partNumber: row.getData().partNumber,
+                        spec: row.getData().spec,
+                        quantity: row.getData().quantity,
+                        sortOrder: row.getData().sortOrder
+                    }));
+                    document.getElementById('partsJson').value = JSON.stringify(partsData);
+                }
             });
+        }
+    });
+
+    function initPartsTable() {
+        partsTable = new Tabulator("#jobRequestPartsTable", {
+            layout: "fitColumns",
+            height: "300px",
+            placeholder: "추가된 부품이 없습니다. '부품 추가' 버튼을 클릭하세요.",
+            columns: [
+                { title: "No.", field: "sortOrder", width: 50, hozAlign: "center",
+                  formatter: function(cell) {
+                      return cell.getRow().getPosition(true);
+                  }
+                },
+                { title: "부품명", field: "partName", editor: false },
+                { title: "품번", field: "partNumber", editor: false },
+                { title: "스펙", field: "spec", editor: false },
+                { title: "수량", field: "quantity", width: 80, hozAlign: "center", 
+                  editor: "number",
+                  editorParams: { min: 1, step: 1 },
+                  validator: ["min:1", "integer"]
+                },
+                { title: "삭제", field: "delete", width: 60, hozAlign: "center",
+                  formatter: function(cell) {
+                      return '<button class="btn btn-sm btn-outline-danger btn-delete-part" onclick="deletePart(' + cell.getRow().getPosition(true) + ')"><i class="bi bi-trash"></i></button>';
+                  }
+                }
+            ],
+            initialSort: [{ column: "sortOrder", dir: "asc" }],
+            locale: true,
+            langs: {
+                "ko": {
+                    "pagination": {
+                        "first": "처음", "first_title": "첫 페이지",
+                        "last": "마지막", "last_title": "마지막 페이지",
+                        "prev": "이전", "prev_title": "이전 페이지",
+                        "next": "다음", "next_title": "다음 페이지",
+                        "all": "전체"
+                    }
+                }
+            }
+        });
+
+        // Load initial parts data after table is built
+        partsTable.on("tableBuilt", function() {
+            if (initialParts && initialParts.length > 0) {
+                const partsData = initialParts.map((part, index) => ({
+                    partName: part.partName,
+                    partNumber: part.partNumber,
+                    spec: part.spec,
+                    quantity: part.quantity || 1,
+                    sortOrder: part.sortOrder !== undefined ? part.sortOrder : index
+                }));
+                partsTable.setData(partsData);
+            }
+        });
+
+        // Update sortOrder when rows are moved
+        partsTable.on("rowMoved", function(row) {
+            updateSortOrders();
+        });
+
+        // Update sortOrder when data changes
+        partsTable.on("dataEdited", function(cell) {
+            updateSortOrders();
+        });
+    }
+
+    function updateSortOrders() {
+        const rows = partsTable.getRows();
+        rows.forEach((row, index) => {
+            row.update({ sortOrder: index });
+        });
+    }
+
+    function deletePart(position) {
+        const row = partsTable.getRowFromPosition(position);
+        if (row) {
+            row.delete();
+            updateSortOrders();
+        }
+    }
+
+    function addPartToTable(partData) {
+        // Check if part already exists in table
+        const existingRows = partsTable.getRows();
+        for (const row of existingRows) {
+            if (row.getData().partNumber === partData.partNumber) {
+                alert('이미 추가된 부품입니다: ' + partData.partNumber);
+                return;
+            }
+        }
+
+        const newSortOrder = partsTable.getDataCount();
+        partsTable.addRow({
+            partName: partData.partName,  // Part's partName becomes partName
+            partNumber: partData.partNumber,
+            spec: partData.spec || '',
+            quantity: 1,
+            sortOrder: newSortOrder
+        }, true); // true = add to top, false = add to bottom
+        
+        updateSortOrders();
+    }
+
+    // Open parts management popup
+    function openPartPopup() {
+        const popupUrl = '/parts?popup=true';
+        const popupFeatures = 'width=1000,height=700,scrollbars=yes,resizable=yes,menubar=no,toolbar=no,location=no,status=no';
+        
+        partPopupWindow = window.open(popupUrl, 'partSelectPopup', popupFeatures);
+        
+        if (!partPopupWindow || partPopupWindow.closed || typeof partPopupWindow.closed === 'undefined') {
+            // Popup blocked - fallback to alert
+            alert('팝업이 차단되었습니다. 브라우저 설정에서 팝업을 허용해주세요.');
+            return;
+        }
+        
+        // Focus the popup
+        partPopupWindow.focus();
+    }
+
+    // Listen for messages from popup window
+    window.addEventListener('message', function(event) {
+        // Verify the message is from our popup
+        if (event.data && event.data.type === 'PART_SELECTED') {
+            const partData = event.data.part;
+            addPartToTable(partData);
+            
+            // Close popup if still open
+            if (partPopupWindow && !partPopupWindow.closed) {
+                partPopupWindow.close();
+            }
+            partPopupWindow = null;
         }
     });
 </script>
