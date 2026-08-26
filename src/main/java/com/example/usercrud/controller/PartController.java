@@ -28,7 +28,8 @@ public class PartController {
     private PartService service;
 
     @GetMapping
-    public String list() {
+    public String list(@RequestParam(value = "popup", required = false) boolean popup, Model model) {
+        model.addAttribute("popup", popup);
         return "parts/list";
     }
 

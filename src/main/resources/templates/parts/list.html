@@ -44,9 +44,9 @@
 </head>
 <body>
     <div class="content">
-        <h1 class="mb-4 text-center">부품등록 관리</h1>
+        <h1 class="mb-4 text-center" th:text="${popup ? '부품 선택 (팝업)' : '부품등록 관리'}">부품등록 관리</h1>
 
-        <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+        <div class="mb-3 d-flex flex-wrap gap-2 align-items-center" th:unless="${popup}">
             <a href="/parts/new" class="btn btn-primary">새 부품 추가</a>
             <a href="/parts/bulk" class="btn btn-success">📊 엑셀 대량 등록</a>
 
@@ -62,11 +62,25 @@
             </div>
         </div>
 
-        <!-- Tabulator Container -->
-                <div id="parts-table"></div>
+        <div class="mb-3 d-flex flex-wrap gap-2 align-items-center" th:if="${popup}">
+            <div class="ms-auto d-flex flex-wrap gap-2 align-items-center">
+                <label for="filter-partNumber" class="form-label mb-0">품번</label>
+                <input id="filter-partNumber" type="text" class="form-control form-control-sm"
+                    style="width: 160px;" placeholder="품번 검색">
+                <label for="filter-partName" class="form-label mb-0">부품명</label>
+                <input id="filter-partName" type="text" class="form-control form-control-sm"
+                    style="width: 180px;" placeholder="부품명 검색">
+                <button id="btn-search" type="button" class="btn btn-outline-secondary btn-sm">검색</button>
+                <button id="btn-reset" type="button" class="btn btn-outline-secondary btn-sm">초기화</button>
             </div>
-        </body>
-        <script>
+            <div class="form-text ms-auto">행 더블클릭 시 선택되어 부모창에 추가되고 팝업이 닫힙니다.</div>
+        </div>
+
+        <!-- Tabulator Container -->
+        <div id="parts-table"></div>
+    </div>
+</body>
+        <script th:inline="javascript">
             // Tabulator 테이블 초기화 - using global Tabulator
             console.log("Tabulator global:", typeof Tabulator);
             const table = new Tabulator("#parts-table", {
@@ -166,6 +180,34 @@
                 console.error("Data loading error:", error);
             });
 
+    // Popup mode: double-click to select part and send to parent window
+    const isPopup = /*[[${popup}]]*/ false;
+    if (isPopup) {
+        table.on("rowDblClick", function(e, row) {
+            const partData = row.getData();
+            // Send part data to parent window
+            if (window.opener && !window.opener.closed) {
+                window.opener.postMessage({
+                    type: 'PART_SELECTED',
+                    part: {
+                        id: partData.id,
+                        partNumber: partData.partNumber,
+                        partName: partData.partName,
+                        spec: partData.spec,
+                        priceJpy: partData.priceJpy
+                    }
+                }, '*');
+            }
+            // Close popup
+            window.close();
+        });
+        
+        // Hide action column in popup mode - wait for table to be built
+        table.on("tableBuilt", function() {
+            table.hideColumn("actions");
+        });
+    }
+
     // External search button - trigger Tabulator AJAX with filters
                 document.getElementById('btn-search').addEventListener('click', function() {
             const partNumber = document.getElementById('filter-partNumber').value;
@@ -198,5 +240,9 @@
             });
         });
     </script>
-
+<script th:inline="javascript">
+    // This script block ensures Thymeleaf processes the popup variable
+    const isPopupCheck = /*[[${popup}]]*/ false;
+    console.log("Popup mode check:", isPopupCheck);
+</script>
 </html>
