@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{::style}, ~{::script})}"
+<html xmlns:th="http://www.thymeleaf.org" 
+    th:replace="${popup} ? ~{layout/popup :: layout(~{::title}, ~{::.content}, ~{::style}, ~{::script})} : ~{layout/base :: layout(~{::title}, ~{::.content}, ~{::style}, ~{::script})}"
     th:with="activePage='parts'">
 
 <head>
@@ -44,7 +45,7 @@
 </head>
 <body>
     <div class="content">
-        <h1 class="mb-4 text-center" th:text="${popup ? '부품 선택 (팝업)' : '부품등록 관리'}">부품등록 관리</h1>
+        <h1 class="mb-4 text-center" th:unless="${popup}" th:text="'부품등록 관리'">부품등록 관리</h1>
 
         <div class="mb-3 d-flex flex-wrap gap-2 align-items-center" th:unless="${popup}">
             <a href="/parts/new" class="btn btn-primary">새 부품 추가</a>
