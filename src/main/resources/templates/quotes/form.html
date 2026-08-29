@@ -366,9 +366,10 @@
                 },
                 { title: "삭제", field: "delete", width: 60, hozAlign: "center",
                   formatter: function(cell) {
-                      return '<button class="btn btn-sm btn-outline-danger btn-delete-part" onclick="deletePart(' + cell.getRow().getPosition(true) + ')"><i class="bi bi-trash"></i></button>';
-                  }
-                }
+                                      const partNumber = cell.getRow().getData().partNumber;
+                                      return '<button class="btn btn-sm btn-outline-danger btn-delete-part" onclick="deletePartByPartNumber(\'' + partNumber + '\')"><i class="bi bi-trash"></i></button>';
+                                  }
+                                }
             ],
             initialSort: [{ column: "sortOrder", dir: "asc" }],
             locale: true,
@@ -417,8 +418,8 @@
         });
     }
 
-    function deletePart(position) {
-        const row = partsTable.getRowFromPosition(position);
+    function deletePartByPartNumber(partNumber) {
+            const row = partsTable.getRows().find(row => row.getData().partNumber === partNumber);
         if (row) {
             row.delete();
             updateSortOrders();

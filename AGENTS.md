@@ -33,3 +33,5 @@ This is a Spring Boot + Thymeleaf CRUD application for user management.
 ## Test Rules
 - 테스트한 다음에는 반드시 어플리케이션 종료할 것.
 - 테스트시, 인코딩은 UTF8로 할 것.
+- Test the "add todo" flow on https://demo.playwright.dev/todomvc using playwright-cli.
+Check playwright-cli --help for available commands.
