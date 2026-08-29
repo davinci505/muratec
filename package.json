@@ -1,0 +1,25 @@
+{
+  "name": "mura2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "test-quote-parts.spec.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davinci505/muratec.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/davinci505/muratec/issues"
+  },
+  "homepage": "https://github.com/davinci505/muratec#readme",
+  "dependencies": {
+    "@playwright/test": "^1.62.1"
+  }
+}

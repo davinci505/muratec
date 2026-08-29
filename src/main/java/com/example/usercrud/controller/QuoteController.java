@@ -3,8 +3,11 @@ package com.example.usercrud.controller;
 import com.example.usercrud.model.JobRequest;
 import com.example.usercrud.model.JobRequestPart;
 import com.example.usercrud.model.Quote;
+import com.example.usercrud.model.QuotePart;
 import com.example.usercrud.service.JobRequestService;
+import com.example.usercrud.service.QuotePartService;
 import com.example.usercrud.service.QuoteService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Map;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -43,6 +47,12 @@ public class QuoteController {
 
     @Autowired
     private JobRequestService jobRequestService;
+
+    @Autowired
+    private QuotePartService quotePartService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @GetMapping
     public String listQuotes(@RequestParam(value = "jobId", required = false) Long jobId,
@@ -88,6 +98,7 @@ public class QuoteController {
     public String createQuote(@ModelAttribute Quote quote,
                               BindingResult bindingResult,
                               @RequestParam("jobRequestId") Long jobRequestId,
+                              @RequestParam(value = "partsJson", required = false) String partsJson,
                               Model model) {
         if (isStatusMissing(quote)) {
             if (jobRequestId != null) {
@@ -111,7 +122,13 @@ public class QuoteController {
         JobRequest jobRequest = jobRequestService.getJobRequestById(jobRequestId)
                 .orElseThrow(() -> new RuntimeException("JobRequest not found"));
         quote.setJobRequest(jobRequest);
-        quoteService.saveQuote(quote);
+        Quote savedQuote = quoteService.saveQuote(quote);
+        
+        // Save QuoteParts from partsJson
+        if (partsJson != null && !partsJson.isEmpty()) {
+            saveQuoteParts(savedQuote, jobRequest, partsJson);
+        }
+        
         return "redirect:/quotes";
     }
 
@@ -145,10 +162,15 @@ public class QuoteController {
     public String showEditForm(@PathVariable Long id, Model model) {
         Quote quote = quoteService.getQuoteById(id)
                 .orElseThrow(() -> new RuntimeException("Quote not found"));
+        
+        // Load QuoteParts for this quote
+        List<QuotePart> quoteParts = quotePartService.search(id, null);
+        model.addAttribute("quoteParts", quoteParts);
+        
         model.addAttribute("quote", quote);
         model.addAttribute("jobs", jobRequestService.getAllJobRequests());
         model.addAttribute("statusOptions", STATUS_OPTIONS);
-        return "quotes/form";
+        return "quotes/form";   
     }
 
     @PostMapping("/{id}")
@@ -156,6 +178,7 @@ public class QuoteController {
                               @ModelAttribute Quote quote,
                               BindingResult bindingResult,
                               @RequestParam("jobRequestId") Long jobRequestId,
+                              @RequestParam(value = "partsJson", required = false) String partsJson,
                               Model model) {
         if (isStatusMissing(quote)) {
             if (jobRequestId != null) {
@@ -180,6 +203,15 @@ public class QuoteController {
                 .orElseThrow(() -> new RuntimeException("JobRequest not found"));
         quote.setJobRequest(jobRequest);
         quoteService.updateQuote(id, quote);
+        
+        // Save QuoteParts from partsJson (replace existing)
+        if (partsJson != null && !partsJson.isEmpty()) {
+            saveQuoteParts(quote, jobRequest, partsJson);
+        } else {
+            // If no partsJson, delete all existing QuoteParts for this quote
+            quotePartService.deleteByQuoteId(id);
+        }
+        
         return "redirect:/quotes";
     }
 
@@ -197,6 +229,71 @@ public class QuoteController {
     @ResponseBody
     public List<JobRequestPart> getJobRequestParts(@RequestParam("jobRequestId") Long jobRequestId) {
         return jobRequestService.getPartsByJobRequestId(jobRequestId);
+    }
+
+    /**
+     * Save QuoteParts from partsJson data.
+     * Deletes existing QuoteParts for the quote and creates new ones from the JSON data.
+     */
+    private void saveQuoteParts(Quote quote, JobRequest jobRequest, String partsJson) {
+        try {
+            // Parse partsJson as list of maps (from frontend Tabulator)
+            List<Map<String, Object>> partsData = objectMapper.readValue(partsJson,
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, Map.class));
+            
+            // Delete existing QuoteParts for this quote
+            quotePartService.deleteByQuoteId(quote.getId());
+            
+            // Create QuotePart for each part
+            for (int i = 0; i < partsData.size(); i++) {
+                Map<String, Object> partData = partsData.get(i);
+                QuotePart quotePart = new QuotePart();
+                quotePart.setQuote(quote);
+                quotePart.setPartName((String) partData.get("partName"));
+                quotePart.setPartNumber((String) partData.get("partNumber"));
+                quotePart.setSpec((String) partData.get("spec"));
+                
+                Object qtyObj = partData.get("quantity");
+                if (qtyObj instanceof Number) {
+                    quotePart.setQuantity(((Number) qtyObj).intValue());
+                } else if (qtyObj instanceof String) {
+                    try {
+                        quotePart.setQuantity(Integer.parseInt((String) qtyObj));
+                    } catch (NumberFormatException e) {
+                        quotePart.setQuantity(1);
+                    }
+                } else {
+                    quotePart.setQuantity(1);
+                }
+                
+                Object sortObj = partData.get("sortOrder");
+                if (sortObj instanceof Number) {
+                    quotePart.setSortOrder(((Number) sortObj).intValue());
+                } else if (sortObj instanceof String) {
+                    try {
+                        quotePart.setSortOrder(Integer.parseInt((String) sortObj));
+                    } catch (NumberFormatException e) {
+                        quotePart.setSortOrder(i);
+                    }
+                } else {
+                    quotePart.setSortOrder(i);
+                }
+                
+                // Try to find and link Part entity by partNumber
+                String partNumber = quotePart.getPartNumber();
+                if (partNumber != null && !partNumber.isEmpty()) {
+                    // We need PartRepository - for now skip linking
+                    // Part partEntity = partRepository.findByPartNumber(partNumber).orElse(null);
+                    // if (partEntity != null) {
+                    //     quotePart.setPart(partEntity);
+                    // }
+                }
+                
+                quotePartService.saveQuotePart(quotePart);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error parsing parts JSON: " + e.getMessage(), e);
+        }
     }
 
     public static class QuoteBulkRequest {

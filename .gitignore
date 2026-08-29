@@ -99,3 +99,6 @@ spring-boot-devtools.log
 # Application specific
 application-local.properties
 application-local.yml
+
+#nodejs
+node_modules/

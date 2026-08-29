@@ -15,10 +15,9 @@ public class QuotePartService {
     @Autowired
     private QuotePartRepository quotePartRepository;
 
-    public List<QuotePart> search(Long quoteId, String q, String status) {
+    public List<QuotePart> search(Long quoteId, String q) {
         String query = (q == null || !StringUtils.hasText(q)) ? null : q.trim();
-            String statusQuery = (status == null || !StringUtils.hasText(status)) ? null : status.trim();
-            return quotePartRepository.search(quoteId, query, statusQuery);
+            return quotePartRepository.search(quoteId, query);
         }
 
     public Optional<QuotePart> getQuotePartById(Long id) {
@@ -33,23 +32,19 @@ public class QuotePartService {
         quotePartRepository.deleteById(id);
     }
 
+    public void deleteByQuoteId(Long quoteId) {
+        quotePartRepository.deleteByQuoteId(quoteId);
+    }
+
     public QuotePart updateQuotePart(Long id, QuotePart details) {
         QuotePart quotePart = quotePartRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("QuotePart not found"));
 
-        quotePart.setQuote(details.getQuote());
-        quotePart.setFactoryName(details.getFactoryName());
-        quotePart.setProductName(details.getProductName());
-        quotePart.setPartNoProductSpec(details.getPartNoProductSpec());
-        quotePart.setCcsPoNo(details.getCcsPoNo());
-        quotePart.setWorkNoSerialNo(details.getWorkNoSerialNo());
-        quotePart.setOrderQuantity(details.getOrderQuantity());
-        quotePart.setCcsPoAmount(details.getCcsPoAmount());
-        quotePart.setHmxOrderNo(details.getHmxOrderNo());
-        quotePart.setHmxOrderAmount(details.getHmxOrderAmount());
-        quotePart.setStatus(details.getStatus());
-        quotePart.setDeliveryDate(details.getDeliveryDate());
-        quotePart.setRemark(details.getRemark());
+        quotePart.setPartName(details.getPartName());
+        quotePart.setPartNumber(details.getPartNumber());
+        quotePart.setSpec(details.getSpec());
+        quotePart.setQuantity(details.getQuantity());
+        quotePart.setSortOrder(details.getSortOrder());
 
         return quotePartRepository.save(quotePart);
     }

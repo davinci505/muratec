@@ -135,12 +135,20 @@
         alert(errorMessage);
     }
     
-    // Initialize parts data from server-side model
+    // Initialize parts data from server-side model (JobRequest parts for new quotes)
     /*[# th:if="${quote.jobRequest != null}"]*/
-    const initialParts = /*[[${quote.jobRequest.parts}]]*/;
+    const initialParts = /*[[${quote.jobRequest.parts}]]*/ [];
     /*[/]*/
     /*[# th:if="${quote.jobRequest == null}"]*/
     const initialParts = [];
+    /*[/]*/
+    
+    // Load existing QuoteParts when editing a quote
+    /*[# th:if="${quote.id != null and quoteParts != null and not #lists.isEmpty(quoteParts)}"]*/
+    const existingQuoteParts = /*[[${quoteParts}]]*/ [];
+    /*[/]*/
+    /*[# th:if="${quote.id == null or quoteParts == null or #lists.isEmpty(quoteParts)}"]*/
+    const existingQuoteParts = [];
     /*[/]*/
 </script>
 <script>
@@ -241,8 +249,17 @@
         // Job Request Parts loading functionality
         const jobRequestSelect = document.getElementById('jobRequestId');
         const partsSection = document.getElementById('jobRequestPartsSection');
+        
+        // Check if we're editing an existing quote (quoteId will be set in the form action)
+        const isEditing = /*[[${quote.id != null}]]*/ false;
 
         async function loadJobRequestParts(jobRequestId) {
+            // Don't auto-load JobRequest parts when editing a quote - 
+            // existingQuoteParts are already loaded in tableBuilt
+            if (isEditing) {
+                return;
+            }
+            
             if (!jobRequestId) {
                 partsSection.style.display = 'none';
                 if (partsTable) {
@@ -296,8 +313,8 @@
                 loadJobRequestParts(jobRequestId ? parseInt(jobRequestId) : null);
             });
 
-            // Load parts on page load if job request is already selected
-            if (jobRequestSelect.value) {
+            // Load parts on page load if job request is already selected (only for new quotes)
+            if (!isEditing && jobRequestSelect.value) {
                 loadJobRequestParts(parseInt(jobRequestSelect.value));
             }
         }
@@ -333,11 +350,11 @@
                 // 3. Serialize parts table data to hidden input before submit
                 if (partsTable) {
                     const partsData = partsTable.getData().map(row => ({
-                        partName: row.getData().partName,
-                        partNumber: row.getData().partNumber,
-                        spec: row.getData().spec,
-                        quantity: row.getData().quantity,
-                        sortOrder: row.getData().sortOrder
+                        partName: row.partName,
+                        partNumber: row.partNumber,
+                        spec: row.spec,
+                        quantity: row.quantity,
+                        sortOrder: row.sortOrder
                     }));
                     document.getElementById('partsJson').value = JSON.stringify(partsData);
                 }
@@ -388,15 +405,30 @@
 
         // Load initial parts data after table is built
         partsTable.on("tableBuilt", function() {
-            if (initialParts && initialParts.length > 0) {
-                const partsData = initialParts.map((part, index) => ({
+            // Priority: existingQuoteParts (editing quote) > initialParts (new quote from JobRequest)
+            let partsToLoad = [];
+            
+            if (existingQuoteParts && existingQuoteParts.length > 0) {
+                // Convert QuotePart to table format (new entity fields)
+                partsToLoad = existingQuoteParts.map((part, index) => ({
                     partName: part.partName,
                     partNumber: part.partNumber,
                     spec: part.spec,
                     quantity: part.quantity || 1,
                     sortOrder: part.sortOrder !== undefined ? part.sortOrder : index
                 }));
-                partsTable.setData(partsData);
+            } else if (initialParts && initialParts.length > 0) {
+                partsToLoad = initialParts.map((part, index) => ({
+                    partName: part.partName,
+                    partNumber: part.partNumber,
+                    spec: part.spec,
+                    quantity: part.quantity || 1,
+                    sortOrder: part.sortOrder !== undefined ? part.sortOrder : index
+                }));
+            }
+            
+            if (partsToLoad.length > 0) {
+                partsTable.setData(partsToLoad);
             }
         });
 

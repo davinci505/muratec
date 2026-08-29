@@ -13,10 +13,13 @@ import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "quote_parts")
@@ -29,97 +32,41 @@ public class QuotePart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "quote_id")
+    @ManyToOne
+    @JoinColumn(name = "quote_id", nullable = false)
+    @ToString.Exclude
+    @JsonIgnore
     private Quote quote;
 
-    @Column(name = "factory_name")
-    private String factoryName;
+    @ManyToOne
+    @JoinColumn(name = "part_id", nullable = true)
+    @ToString.Exclude
+    @JsonIgnore
+    private Part part;
 
-    @Column(name = "product_name")
-    private String productName;
+    @Column(name = "part_name", length = 200)
+    private String partName;
 
-    @Column(name = "part_no_product_spec")
-    private String partNoProductSpec;
+    @Column(name = "part_number", length = 50)
+    private String partNumber;
 
-    @Column(name = "ccs_po_no")
-    private String ccsPoNo;
+    @Column(name = "spec", length = 500)
+    private String spec;
 
-    @Column(name = "work_no_serial_no")
-    private String workNoSerialNo;
+    @Column(name = "quantity")
+    private Integer quantity = 1;
 
-    @Column(name = "order_quantity")
-    private Integer orderQuantity;
+    @Column(name = "sort_order")
+    private Integer sortOrder = 0;
 
-    @Column(name = "ccs_po_amount", precision = 15, scale = 2)
-    private BigDecimal ccsPoAmount;
-
-    @Column(name = "hmx_order_no")
-    private String hmxOrderNo;
-
-    @Column(name = "hmx_order_amount", precision = 15, scale = 2)
-    private BigDecimal hmxOrderAmount;
-
-    @Column(name = "status")
-    private String status;
-
-    @Column(name = "delivery_date")
-    private String deliveryDate;
-
-    @Column(name = "remark", length = 500)
-    private String remark;
-
-    // Keep old fields for backward compatibility / margin calculation display
-    @Transient
-    private String productSpec;
-
-    @Transient
-    private String partNo;
-
-    @Transient
-    private String model;
-
-    @Transient
-    private Integer quoteQuantity;
-
-    @Transient
-    private BigDecimal unitPriceBrt;
-
-    @Transient
-    private BigDecimal unitPriceHmx;
-
-    private static final BigDecimal HMX_MULTIPLIER = new BigDecimal("1.65");
-
-    @Transient
-    public BigDecimal getUnitPriceHmx() {
-        if (ccsPoAmount == null) {
-            return null;
-        }
-        return ccsPoAmount.multiply(HMX_MULTIPLIER).setScale(2, RoundingMode.HALF_UP);
-    }
-
-    @Transient
-    private List<MarginRate> marginRatesForDisplay;
-
-    public BigDecimal getDisplayRateValue(MarginRate rate) {
-        if (rate == null) {
-            return null;
-        }
-        return rate.getDisplayRateValue();
-    }
-
-    public BigDecimal getDisplayExchangeRate(MarginRate rate) {
-        if (rate == null) {
-            return null;
-        }
-        return rate.getYenExchangeRate();
-    }
-
-    public BigDecimal getDisplayUnitPriceWithMargin(MarginRate rate) {
-        if (rate == null) {
-            return null;
-        }
-        BigDecimal basePrice = rate.isHmxType() ? getUnitPriceHmx() : ccsPoAmount;
-        return rate.calculateUnitPriceWithMargin(basePrice);
+    // Convenience constructor for creating from Part
+    public QuotePart(Quote quote, Part part, int sortOrder) {
+        this.quote = quote;
+        this.part = part;
+        this.partName = part.getPartName(); // Part's partName becomes partName
+        this.partNumber = part.getPartNumber();
+        this.spec = part.getSpec();
+        this.quantity = 1;
+        this.sortOrder = sortOrder;
     }
 }
