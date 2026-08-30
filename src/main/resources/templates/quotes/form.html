@@ -143,13 +143,11 @@
     const initialParts = [];
     /*[/]*/
     
-    // Load existing QuoteParts when editing a quote
-    /*[# th:if="${quote.id != null and quoteParts != null and not #lists.isEmpty(quoteParts)}"]*/
-    const existingQuoteParts = /*[[${quoteParts}]]*/ [];
-    /*[/]*/
-    /*[# th:if="${quote.id == null or quoteParts == null or #lists.isEmpty(quoteParts)}"]*/
-    const existingQuoteParts = [];
-    /*[/]*/
+    // Check if we're editing an existing quote
+    const isEditing = /*[[${quote.id != null}]]*/ false;
+    
+    // Get quote ID for edit mode
+    const quoteId = /*[[${quote.id}]]*/ null;
 </script>
 <script>
     const datePattern = /^\d{4}-\d{2}-\d{2}$/;
@@ -249,13 +247,10 @@
         // Job Request Parts loading functionality
         const jobRequestSelect = document.getElementById('jobRequestId');
         const partsSection = document.getElementById('jobRequestPartsSection');
-        
-        // Check if we're editing an existing quote (quoteId will be set in the form action)
-        const isEditing = /*[[${quote.id != null}]]*/ false;
 
         async function loadJobRequestParts(jobRequestId) {
-            // Don't auto-load JobRequest parts when editing a quote - 
-            // existingQuoteParts are already loaded in tableBuilt
+            // In edit mode, don't fetch JobRequest parts via API (existingQuoteParts are already loaded in tableBuilt)
+            // But still handle section visibility for new mode
             if (isEditing) {
                 return;
             }
@@ -362,6 +357,41 @@
         }
     });
 
+    function loadQuoteParts() {
+            if (!isEditing) return;
+            
+            if (!quoteId) return;
+            
+            fetch(`/quotes/api/quote-parts/${quoteId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch quote parts');
+                    }
+                    return response.json();
+                })
+                .then(parts => {
+                    if (parts && parts.length > 0) {
+                        const partsToLoad = parts.map((part, index) => ({
+                            partName: part.partName,
+                            partNumber: part.partNumber,
+                            spec: part.spec,
+                            quantity: part.quantity || 1,
+                            sortOrder: part.sortOrder !== undefined ? part.sortOrder : index
+                        }));
+                        partsTable.setData(partsToLoad);
+                        
+                        // Show parts section
+                        const partsSection = document.getElementById('jobRequestPartsSection');
+                        if (partsSection) {
+                            partsSection.style.display = 'block';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading quote parts:', error);
+                });
+        }
+
     function initPartsTable() {
         partsTable = new Tabulator("#jobRequestPartsTable", {
             layout: "fitColumns",
@@ -403,34 +433,29 @@
             }
         });
 
-        // Load initial parts data after table is built
-        partsTable.on("tableBuilt", function() {
-            // Priority: existingQuoteParts (editing quote) > initialParts (new quote from JobRequest)
-            let partsToLoad = [];
-            
-            if (existingQuoteParts && existingQuoteParts.length > 0) {
-                // Convert QuotePart to table format (new entity fields)
-                partsToLoad = existingQuoteParts.map((part, index) => ({
+        // Load initial parts data
+        if (isEditing) {
+            // EDIT MODE: Fetch QuoteParts via AJAX endpoint
+            loadQuoteParts();
+        } else {
+            // NEW MODE: Use initialParts from JobRequest (if job request is selected)
+            if (initialParts && initialParts.length > 0) {
+                const partsToLoad = initialParts.map((part, index) => ({
                     partName: part.partName,
                     partNumber: part.partNumber,
                     spec: part.spec,
                     quantity: part.quantity || 1,
                     sortOrder: part.sortOrder !== undefined ? part.sortOrder : index
                 }));
-            } else if (initialParts && initialParts.length > 0) {
-                partsToLoad = initialParts.map((part, index) => ({
-                    partName: part.partName,
-                    partNumber: part.partNumber,
-                    spec: part.spec,
-                    quantity: part.quantity || 1,
-                    sortOrder: part.sortOrder !== undefined ? part.sortOrder : index
-                }));
-            }
-            
-            if (partsToLoad.length > 0) {
                 partsTable.setData(partsToLoad);
+                
+                // Show parts section
+                const partsSection = document.getElementById('jobRequestPartsSection');
+                if (partsSection) {
+                    partsSection.style.display = 'block';
+                }
             }
-        });
+        }
 
         // Update sortOrder when rows are moved
         partsTable.on("rowMoved", function(row) {

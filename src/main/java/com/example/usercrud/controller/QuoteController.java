@@ -24,6 +24,8 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.stream.Collectors;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -229,6 +231,21 @@ public class QuoteController {
     @ResponseBody
     public List<JobRequestPart> getJobRequestParts(@RequestParam("jobRequestId") Long jobRequestId) {
         return jobRequestService.getPartsByJobRequestId(jobRequestId);
+    }
+
+    @GetMapping("/api/quote-parts/{quoteId}")
+    @ResponseBody
+    public List<Map<String, Object>> getQuoteParts(@PathVariable Long quoteId) {
+        List<QuotePart> quoteParts = quotePartService.search(quoteId, null);
+        return quoteParts.stream().map(part -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("partName", part.getPartName());
+            map.put("partNumber", part.getPartNumber());
+            map.put("spec", part.getSpec());
+            map.put("quantity", part.getQuantity());
+            map.put("sortOrder", part.getSortOrder());
+            return map;
+        }).collect(Collectors.toList());
     }
 
     /**
