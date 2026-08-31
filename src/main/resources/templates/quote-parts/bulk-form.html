@@ -116,7 +116,7 @@
 
             row.innerHTML = `
                 <td class="row-number">${rowCount}</td>
-                <td><input type="text" class="form-control" name="ccsQuoteNo"></td>
+                <td><input type="text" class="form-control" name="jobRequestNo"></td>
                 <td><input type="text" class="form-control" name="productName"></td>
                 <td><input type="text" class="form-control" name="productSpec"></td>
                 <td><input type="text" class="form-control" name="partNo"></td>
@@ -164,7 +164,7 @@
                 if (isEmpty) continue;
 
                 const item = {
-                    ccsQuoteNo: inputs[0].value,
+                    jobRequestNo: inputs[0].value,
                     productName: inputs[1].value,
                     productSpec: inputs[2].value,
                     partNo: inputs[3].value,

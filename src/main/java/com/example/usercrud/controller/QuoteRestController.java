@@ -28,7 +28,7 @@ public class QuoteRestController {
     public Map<String, Object> getQuotes(
             @RequestParam(value = "jobId", required = false) Long jobId,
             @RequestParam(value = "status", required = false) String status,
-            @RequestParam(value = "ccsQuoteNo", required = false) String ccsQuoteNo,
+            @RequestParam(value = "jobRequestNo", required = false) String jobRequestNo,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "sort", defaultValue = "id") String sort,
@@ -41,7 +41,7 @@ public class QuoteRestController {
                 Sort.by(sort).ascending() :
                 Sort.by(sort).descending());
 
-        Page<Quote> quotePage = quoteService.getByFilters(jobId, status, ccsQuoteNo, pageable);
+        Page<Quote> quotePage = quoteService.getByFilters(jobId, status, jobRequestNo, pageable);
 
         Map<String, Object> response = new HashMap<>();
         response.put("last_page", quotePage.getTotalPages());
@@ -55,13 +55,13 @@ public class QuoteRestController {
         map.put("id", quote.getId());
         map.put("jobRequestId", quote.getJobRequest() != null ? quote.getJobRequest().getId() : null);
         map.put("division", quote.getJobRequest() != null ? quote.getJobRequest().getDivision() : "");
-        map.put("jobNo", quote.getJobRequest() != null ? quote.getJobRequest().getJobNo() : "");
+        map.put("requestNo", quote.getJobRequest() != null ? quote.getJobRequest().getRequestNo() : "");
         map.put("customerName", quote.getJobRequest() != null ? quote.getJobRequest().getCustomerName() : "");
         map.put("requester", quote.getJobRequest() != null ? quote.getJobRequest().getRequester() : "");
         map.put("requestDate", quote.getJobRequest() != null && quote.getJobRequest().getRequestDate() != null
                 ? quote.getJobRequest().getRequestDate().toString() : "");
-        map.put("ccsQuoteDate", quote.getCcsQuoteDate() != null ? quote.getCcsQuoteDate().toString() : "");
-        map.put("ccsQuoteNo", quote.getCcsQuoteNo());
+        map.put("jobrequestDate", quote.getJobrequestDate() != null ? quote.getJobrequestDate().toString() : "");
+        map.put("jobRequestNo", quote.getJobRequestNo());
         map.put("ccsAmount", formatAmount(quote.getCcsAmount()));
         map.put("description", quote.getDescription());
         map.put("brtQuoteNo", quote.getBrtQuoteNo());

@@ -50,7 +50,7 @@
         <div th:if="${jobRequest != null}" class="alert alert-secondary">
             <strong>구분:</strong> <span th:text="${jobRequest.division}"></span>
             <span class="ms-3"><strong>의뢰인:</strong> <span th:text="${jobRequest.requester}"></span></span>
-            <span class="ms-3"><strong>작번:</strong> <span th:text="${jobRequest.jobNo}"></span></span>
+            <span class="ms-3"><strong>작번:</strong> <span th:text="${jobRequest.requestNo}"></span></span>
             <span class="ms-3"><strong>의뢰날짜:</strong> <span th:text="${jobRequest.requestDate}"></span></span>
         </div>
 
@@ -65,9 +65,9 @@
                     <option th:each="s : ${statusOptions}" th:value="${s}" th:text="${s}"
                         th:selected="${s == status}"></option>
                 </select>
-                <label for="filter-ccsQuoteNo" class="form-label mb-0">CCS견적번호</label>
-                <input id="filter-ccsQuoteNo" type="text" class="form-control form-control-sm"
-                    style="width: 180px;" placeholder="CCS견적번호 검색" th:value="${ccsQuoteNo}">
+                <label for="filter-jobRequestNo" class="form-label mb-0">Muratec견적번호</label>
+                <input id="filter-jobRequestNo" type="text" class="form-control form-control-sm"
+                    style="width: 180px;" placeholder="Muratec견적번호 검색" th:value="${jobRequestNo}">
                 <button id="btn-search" type="button" class="btn btn-outline-secondary btn-sm">검색</button>
                 <button id="btn-reset" type="button" class="btn btn-outline-secondary btn-sm">초기화</button>
             </div>
@@ -97,7 +97,7 @@
             ajaxParams: {
                 jobId: initialJobId,
                 status: "",
-                ccsQuoteNo: ""
+                jobRequestNo: ""
             },
             ajaxResponse: function(url, params, response) {
                 // For remote pagination, Tabulator expects response with last_page and data
@@ -108,7 +108,7 @@
 
                 if (params.jobId) searchParams.append("jobId", params.jobId);
                 if (params.status) searchParams.append("status", params.status);
-                if (params.ccsQuoteNo) searchParams.append("ccsQuoteNo", params.ccsQuoteNo);
+                if (params.jobRequestNo) searchParams.append("jobRequestNo", params.jobRequestNo);
                 if (params.page) searchParams.append("page", params.page);
                 if (params.size) searchParams.append("size", params.size);
 
@@ -129,19 +129,19 @@
                   }
                 },
                 { title: "구분", field: "division" },
-                { title: "작번", field: "jobNo" },
+                { title: "작번", field: "requestNo" },
                 { title: "고객명", field: "customerName" },
                 { title: "의뢰인", field: "requester" },
                 { title: "의뢰날짜", field: "requestDate", width: 110, hozAlign: "center" },
-                { title: "CCS견적날짜", field: "ccsQuoteDate", width: 110, hozAlign: "center" },
-                { title: "CCS견적번호", field: "ccsQuoteNo", width: 130,
+                { title: "Muratec견적날짜", field: "jobrequestDate", width: 110, hozAlign: "center" },
+                { title: "Muratec견적번호", field: "jobRequestNo", width: 130,
                   formatter: function(cell) {
                       const data = cell.getRow().getData();
                       const val = cell.getValue() || "";
                       return `<a href="/quote-parts?quoteId=${data.id}">${val}</a>`;
                   }
                 },
-                { title: "CCS견적금액(￥)", field: "ccsAmount", width: 130, hozAlign: "right",
+                { title: "Muratec견적금액(￥)", field: "ccsAmount", width: 130, hozAlign: "right",
                   formatter: function(cell) {
                       const v = cell.getValue();
                       if (v === null || v === undefined || v === "") return "";
@@ -210,29 +210,29 @@
         // External search button - trigger Tabulator AJAX with filters
         document.getElementById('btn-search').addEventListener('click', function() {
             const status = document.getElementById('filter-status').value;
-            const ccsQuoteNo = document.getElementById('filter-ccsQuoteNo').value;
+            const jobRequestNo = document.getElementById('filter-jobRequestNo').value;
 
             table.setData("/api/quotes", {
                 jobId: initialJobId,
                 status: status,
-                ccsQuoteNo: ccsQuoteNo
+                jobRequestNo: jobRequestNo
             });
         });
 
         // Reset filters
         document.getElementById('btn-reset').addEventListener('click', function() {
             document.getElementById('filter-status').value = '';
-            document.getElementById('filter-ccsQuoteNo').value = '';
+            document.getElementById('filter-jobRequestNo').value = '';
 
             table.setData("/api/quotes", {
                 jobId: initialJobId,
                 status: "",
-                ccsQuoteNo: ""
+                jobRequestNo: ""
             });
         });
 
         // Enter key support for filter inputs
-        ['filter-ccsQuoteNo'].forEach(id => {
+        ['filter-jobRequestNo'].forEach(id => {
             document.getElementById(id).addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     document.getElementById('btn-search').click();

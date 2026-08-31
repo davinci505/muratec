@@ -27,11 +27,11 @@ public class QuoteService {
         return quoteRepository.findById(id);
     }
 
-    public Optional<Quote> findByCcsQuoteNo(String ccsQuoteNo) {
-        if (ccsQuoteNo == null || !StringUtils.hasText(ccsQuoteNo)) {
+    public Optional<Quote> findByJobRequestNo(String jobRequestNo) {
+        if (jobRequestNo == null || !StringUtils.hasText(jobRequestNo)) {
             return Optional.empty();
         }
-        return quoteRepository.findByCcsQuoteNo(ccsQuoteNo.trim());
+        return quoteRepository.findByJobRequestNo(jobRequestNo.trim());
     }
 
     public List<Quote> getByJobRequest(Long jobRequestId) {
@@ -46,24 +46,24 @@ public class QuoteService {
         return quoteRepository.findByJobRequestIdAndStatus(jobRequestId, status);
     }
 
-    public List<Quote> getByFilters(Long jobRequestId, String status, String ccsQuoteNo) {
+    public List<Quote> getByFilters(Long jobRequestId, String status, String jobRequestNo) {
         boolean hasJob = jobRequestId != null;
         boolean hasStatus = status != null && StringUtils.hasText(status);
-        String keyword = (ccsQuoteNo != null && StringUtils.hasText(ccsQuoteNo)) ? ccsQuoteNo.trim() : null;
-        boolean hasCcsQuoteNo = keyword != null;
+        String keyword = (jobRequestNo != null && StringUtils.hasText(jobRequestNo)) ? jobRequestNo.trim() : null;
+        boolean hasJobRequestNo = keyword != null;
 
-        if (hasJob && hasStatus && hasCcsQuoteNo) {
-            return quoteRepository.findByJobRequestIdAndStatusAndCcsQuoteNoContainingIgnoreCase(jobRequestId, status,
+        if (hasJob && hasStatus && hasJobRequestNo) {
+            return quoteRepository.findByJobRequestIdAndStatusAndJobRequestNoContainingIgnoreCase(jobRequestId, status,
                     keyword);
         }
         if (hasJob && hasStatus) {
             return quoteRepository.findByJobRequestIdAndStatus(jobRequestId, status);
         }
-        if (hasJob && hasCcsQuoteNo) {
-            return quoteRepository.findByJobRequestIdAndCcsQuoteNoContainingIgnoreCase(jobRequestId, keyword);
+        if (hasJob && hasJobRequestNo) {
+            return quoteRepository.findByJobRequestIdAndJobRequestNoContainingIgnoreCase(jobRequestId, keyword);
         }
-        if (hasStatus && hasCcsQuoteNo) {
-            return quoteRepository.findByStatusAndCcsQuoteNoContainingIgnoreCase(status, keyword);
+        if (hasStatus && hasJobRequestNo) {
+            return quoteRepository.findByStatusAndJobRequestNoContainingIgnoreCase(status, keyword);
         }
         if (hasJob) {
             return quoteRepository.findByJobRequestId(jobRequestId);
@@ -71,8 +71,8 @@ public class QuoteService {
         if (hasStatus) {
             return quoteRepository.findByStatus(status);
         }
-        if (hasCcsQuoteNo) {
-            return quoteRepository.findByCcsQuoteNoContainingIgnoreCase(keyword);
+        if (hasJobRequestNo) {
+            return quoteRepository.findByJobRequestNoContainingIgnoreCase(keyword);
         }
         return quoteRepository.findAll();
     }
@@ -85,25 +85,25 @@ public class QuoteService {
      * Pageable variant of getByFilters for Tabulator remote pagination.
      * Mirrors the same conditional logic as the non-paged version.
      */
-    public Page<Quote> getByFilters(Long jobRequestId, String status, String ccsQuoteNo, Pageable pageable) {
+    public Page<Quote> getByFilters(Long jobRequestId, String status, String jobRequestNo, Pageable pageable) {
         boolean hasJob = jobRequestId != null;
         boolean hasStatus = status != null && StringUtils.hasText(status);
-        String keyword = (ccsQuoteNo != null && StringUtils.hasText(ccsQuoteNo)) ? ccsQuoteNo.trim() : null;
-        boolean hasCcsQuoteNo = keyword != null;
+        String keyword = (jobRequestNo != null && StringUtils.hasText(jobRequestNo)) ? jobRequestNo.trim() : null;
+        boolean hasJobRequestNo = keyword != null;
 
-        if (hasJob && hasStatus && hasCcsQuoteNo) {
-            return quoteRepository.findByJobRequestIdAndStatusAndCcsQuoteNoContainingIgnoreCase(
+        if (hasJob && hasStatus && hasJobRequestNo) {
+            return quoteRepository.findByJobRequestIdAndStatusAndJobRequestNoContainingIgnoreCase(
                     jobRequestId, status, keyword, pageable);
         }
         if (hasJob && hasStatus) {
             return quoteRepository.findByJobRequestIdAndStatus(jobRequestId, status, pageable);
         }
-        if (hasJob && hasCcsQuoteNo) {
-            return quoteRepository.findByJobRequestIdAndCcsQuoteNoContainingIgnoreCase(
+        if (hasJob && hasJobRequestNo) {
+            return quoteRepository.findByJobRequestIdAndJobRequestNoContainingIgnoreCase(
                     jobRequestId, keyword, pageable);
         }
-        if (hasStatus && hasCcsQuoteNo) {
-            return quoteRepository.findByStatusAndCcsQuoteNoContainingIgnoreCase(status, keyword, pageable);
+        if (hasStatus && hasJobRequestNo) {
+            return quoteRepository.findByStatusAndJobRequestNoContainingIgnoreCase(status, keyword, pageable);
         }
         if (hasJob) {
             return quoteRepository.findByJobRequestId(jobRequestId, pageable);
@@ -111,8 +111,8 @@ public class QuoteService {
         if (hasStatus) {
             return quoteRepository.findByStatus(status, pageable);
         }
-        if (hasCcsQuoteNo) {
-            return quoteRepository.findByCcsQuoteNoContainingIgnoreCase(keyword, pageable);
+        if (hasJobRequestNo) {
+            return quoteRepository.findByJobRequestNoContainingIgnoreCase(keyword, pageable);
         }
         return quoteRepository.findAll(pageable);
     }
@@ -128,8 +128,8 @@ public class QuoteService {
                 .orElseThrow(() -> new RuntimeException("Quote not found"));
 
         quote.setJobRequest(details.getJobRequest());
-        quote.setCcsQuoteDate(details.getCcsQuoteDate());
-        quote.setCcsQuoteNo(details.getCcsQuoteNo());
+        quote.setJobrequestDate(details.getJobrequestDate());
+        quote.setJobRequestNo(details.getJobRequestNo());
         quote.setCcsAmount(details.getCcsAmount());
         quote.setDescription(details.getDescription());
         quote.setBrtQuoteNo(details.getBrtQuoteNo());

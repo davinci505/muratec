@@ -25,7 +25,7 @@ public class JobRestController {
 
     @GetMapping
     public Map<String, Object> getJobs(
-            @RequestParam(value = "jobNo", required = false) String jobNo,
+            @RequestParam(value = "requestNo", required = false) String requestNo,
             @RequestParam(value = "requester", required = false) String requester,
             @RequestParam(value = "customerName", required = false) String customerName,
             @RequestParam(value = "page", defaultValue = "1") int page,
@@ -40,7 +40,7 @@ public class JobRestController {
                 Sort.by(sort).ascending() :
                 Sort.by(sort).descending());
 
-        Page<JobRequest> jobPage = service.getByFilters(jobNo, requester, customerName, pageable);
+        Page<JobRequest> jobPage = service.getByFilters(requestNo, requester, customerName, pageable);
 
         Map<String, Object> response = new HashMap<>();
         response.put("last_page", jobPage.getTotalPages());
@@ -52,7 +52,7 @@ public class JobRestController {
     private Map<String, Object> toMap(JobRequest job) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", job.getId());
-        map.put("jobNo", job.getJobNo());
+        map.put("requestNo", job.getRequestNo());
         map.put("division", job.getDivision());
         map.put("requester", job.getRequester());
         map.put("requestDate", job.getRequestDate() != null ? job.getRequestDate().toString() : "");

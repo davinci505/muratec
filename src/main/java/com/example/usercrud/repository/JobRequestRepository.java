@@ -11,14 +11,14 @@ import java.util.Optional;
 
 @Repository
 public interface JobRequestRepository extends JpaRepository<JobRequest, Long> {
-    Optional<JobRequest> findByJobNo(String jobNo);
+    Optional<JobRequest> findByRequestNo(String requestNo);
 
-    List<JobRequest> findByJobNoContainingIgnoreCaseOrRequesterContainingIgnoreCase(String jobNo, String requester);
+    List<JobRequest> findByRequestNoContainingIgnoreCaseOrRequesterContainingIgnoreCase(String requestNo, String requester);
 
     // Pagination support for Tabulator
-    Page<JobRequest> findByJobNoContainingIgnoreCase(String jobNo, Pageable pageable);
+    Page<JobRequest> findByRequestNoContainingIgnoreCase(String requestNo, Pageable pageable);
     Page<JobRequest> findByRequesterContainingIgnoreCase(String requester, Pageable pageable);
     Page<JobRequest> findByCustomerNameContainingIgnoreCase(String customerName, Pageable pageable);
-    Page<JobRequest> findByJobNoContainingIgnoreCaseOrRequesterContainingIgnoreCase(String jobNo, String requester, Pageable pageable);
-    Page<JobRequest> findByJobNoContainingIgnoreCaseOrRequesterContainingIgnoreCaseOrCustomerNameContainingIgnoreCase(String jobNo, String requester, String customerName, Pageable pageable);
+    Page<JobRequest> findByRequestNoContainingIgnoreCaseOrRequesterContainingIgnoreCase(String requestNo, String requester, Pageable pageable);
+    Page<JobRequest> findByRequestNoContainingIgnoreCaseOrRequesterContainingIgnoreCaseOrCustomerNameContainingIgnoreCase(String requestNo, String requester, String customerName, Pageable pageable);
 }

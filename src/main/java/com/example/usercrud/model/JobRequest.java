@@ -30,8 +30,8 @@ public class JobRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "job_no")
-    private String jobNo;
+    @Column(name = "request_no")
+    private String requestNo;
 
     @Column(name = "division")
     private String division;

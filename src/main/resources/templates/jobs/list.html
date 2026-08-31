@@ -51,8 +51,8 @@
             <a href="/jobs/bulk" class="btn btn-success">📊 대량 등록</a>
 
             <div class="ms-auto d-flex flex-wrap gap-2 align-items-center">
-                <label for="filter-jobNo" class="form-label mb-0">작번</label>
-                <input id="filter-jobNo" type="text" class="form-control form-control-sm"
+                <label for="filter-requestNo" class="form-label mb-0">작번</label>
+                <input id="filter-requestNo" type="text" class="form-control form-control-sm"
                     style="width: 140px;" placeholder="작번 검색">
                 <label for="filter-requester" class="form-label mb-0">의뢰인</label>
                 <input id="filter-requester" type="text" class="form-control form-control-sm"
@@ -82,7 +82,7 @@
             paginationSizeSelector: [10, 20, 50, 100],
             ajaxURL: "/api/jobs",
             ajaxParams: {
-                jobNo: "",
+                requestNo: "",
                 requester: "",
                 customerName: ""
             },
@@ -93,7 +93,7 @@
             ajaxURLGenerator: function(url, config, params) {
                 const searchParams = new URLSearchParams();
 
-                if (params.jobNo) searchParams.append("jobNo", params.jobNo);
+                if (params.requestNo) searchParams.append("requestNo", params.requestNo);
                 if (params.requester) searchParams.append("requester", params.requester);
                 if (params.customerName) searchParams.append("customerName", params.customerName);
                 if (params.page) searchParams.append("page", params.page);
@@ -117,7 +117,7 @@
                   }
                 },
                 { title: "구분", field: "division" },
-                { title: "작번", field: "jobNo" },
+                { title: "작번", field: "requestNo" },
                 { title: "고객명", field: "customerName" },
                 { title: "공장명", field: "factoryName" },
                 { title: "의뢰인", field: "requester" },
@@ -172,13 +172,13 @@
 
         // External search button - trigger Tabulator AJAX with filters
         document.getElementById('btn-search').addEventListener('click', function() {
-            const jobNo = document.getElementById('filter-jobNo').value;
+            const requestNo = document.getElementById('filter-requestNo').value;
             const requester = document.getElementById('filter-requester').value;
             const customerName = document.getElementById('filter-customerName').value;
 
             // Reload data with filters using setData(url, params)
             table.setData("/api/jobs", {
-                jobNo: jobNo,
+                requestNo: requestNo,
                 requester: requester,
                 customerName: customerName
             });
@@ -186,19 +186,19 @@
 
         // Reset filters
         document.getElementById('btn-reset').addEventListener('click', function() {
-            document.getElementById('filter-jobNo').value = '';
+            document.getElementById('filter-requestNo').value = '';
             document.getElementById('filter-requester').value = '';
             document.getElementById('filter-customerName').value = '';
 
             table.setData("/api/jobs", {
-                jobNo: "",
+                requestNo: "",
                 requester: "",
                 customerName: ""
             });
         });
 
         // Enter key support for filter inputs
-        ['filter-jobNo', 'filter-requester', 'filter-customerName'].forEach(id => {
+        ['filter-requestNo', 'filter-requester', 'filter-customerName'].forEach(id => {
             document.getElementById(id).addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     document.getElementById('btn-search').click();

@@ -74,7 +74,7 @@
                 <button class="btn btn-primary" onclick="saveAll()">전체 저장</button>
                 <a href="/quotes" class="btn btn-secondary">취소</a>
                 <div class="ms-auto">
-                    <small class="text-muted">💡 Tip: jobNo 기준으로 의뢰를 연결합니다</small>
+                    <small class="text-muted">💡 Tip: requestNo 기준으로 의뢰를 연결합니다</small>
                 </div>
             </div>
         </div>
@@ -133,9 +133,9 @@
 
             row.innerHTML = `
                 <td class="row-number">${rowCount}</td>
-                <td><input type="text" class="form-control" name="jobNo"></td>
-                <td><input type="text" class="form-control" name="ccsQuoteDate" placeholder="YYYYMMDD" maxlength="10" pattern="\\d{4}-\\d{2}-\\d{2}" inputmode="numeric" value="${getTodayString()}"></td>
-                <td><input type="text" class="form-control" name="ccsQuoteNo"></td>
+                <td><input type="text" class="form-control" name="requestNo"></td>
+                <td><input type="text" class="form-control" name="jobrequestDate" placeholder="YYYYMMDD" maxlength="10" pattern="\\d{4}-\\d{2}-\\d{2}" inputmode="numeric" value="${getTodayString()}"></td>
+                <td><input type="text" class="form-control" name="jobRequestNo"></td>
                 <td><input type="text" class="form-control" name="description"></td>
                 <td><input type="text" class="form-control" name="brtQuoteNo"></td>
                 <td><input type="text" class="form-control" name="brtQuoteDate" placeholder="YYYYMMDD" maxlength="10" pattern="\\d{4}-\\d{2}-\\d{2}" inputmode="numeric"></td>
@@ -163,7 +163,7 @@
         }
 
         const dateFieldNames = new Set([
-            'ccsQuoteDate',
+            'jobrequestDate',
             'brtQuoteDate',
             'hmxOrderDate',
             'ccsPoDate'
@@ -210,13 +210,13 @@
                 }
                 if (isEmpty) continue;
 
-                const ccsQuoteDate = formatDateValue(inputs[1].value) || null;
+                const jobrequestDate = formatDateValue(inputs[1].value) || null;
                 const brtQuoteDate = formatDateValue(inputs[5].value) || null;
                 const hmxOrderDate = formatDateValue(inputs[9].value) || null;
                 const ccsPoDate = formatDateValue(inputs[11].value) || null;
 
                 const dateValues = [
-                    { input: inputs[1], value: ccsQuoteDate },
+                    { input: inputs[1], value: jobrequestDate },
                     { input: inputs[5], value: brtQuoteDate },
                     { input: inputs[9], value: hmxOrderDate },
                     { input: inputs[11], value: ccsPoDate }
@@ -231,9 +231,9 @@
                 });
 
                 const quote = {
-                    jobNo: inputs[0].value,
-                    ccsQuoteDate: ccsQuoteDate,
-                    ccsQuoteNo: inputs[2].value,
+                    requestNo: inputs[0].value,
+                    jobrequestDate: jobrequestDate,
+                    jobRequestNo: inputs[2].value,
                     description: inputs[3].value,
                     brtQuoteNo: inputs[4].value,
                     brtQuoteDate: brtQuoteDate,

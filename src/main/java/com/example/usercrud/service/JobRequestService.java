@@ -31,23 +31,23 @@ public class JobRequestService {
         return jobRequestRepository.findAll();
     }
 
-    public List<JobRequest> searchByJobNoOrRequester(String query) {
+    public List<JobRequest> searchByRequestNoOrRequester(String query) {
         if (query == null || !StringUtils.hasText(query)) {
             return getAllJobRequests();
         }
         String keyword = query.trim();
-        return jobRequestRepository.findByJobNoContainingIgnoreCaseOrRequesterContainingIgnoreCase(keyword, keyword);
+        return jobRequestRepository.findByRequestNoContainingIgnoreCaseOrRequesterContainingIgnoreCase(keyword, keyword);
     }
 
     public Optional<JobRequest> getJobRequestById(Long id) {
         return jobRequestRepository.findById(id);
     }
 
-    public Optional<JobRequest> findByJobNo(String jobNo) {
-        if (jobNo == null || !StringUtils.hasText(jobNo)) {
+    public Optional<JobRequest> findByRequestNo(String requestNo) {
+        if (requestNo == null || !StringUtils.hasText(requestNo)) {
             return Optional.empty();
         }
-        return jobRequestRepository.findByJobNo(jobNo.trim());
+        return jobRequestRepository.findByRequestNo(requestNo.trim());
     }
 
     public JobRequest saveJobRequest(JobRequest jobRequest) {
@@ -80,7 +80,7 @@ public class JobRequestService {
                 .orElseThrow(() -> new RuntimeException("JobRequest not found"));
 
         jobRequest.setDivision(details.getDivision());
-        jobRequest.setJobNo(details.getJobNo());
+        jobRequest.setRequestNo(details.getRequestNo());
         jobRequest.setRequester(details.getRequester());
         jobRequest.setRequestDate(details.getRequestDate());
         jobRequest.setCustomerName(details.getCustomerName());
@@ -111,29 +111,29 @@ public class JobRequestService {
     }
 
     // Pagination support for Tabulator
-    public Page<JobRequest> getByFilters(String jobNo, String requester, String customerName, Pageable pageable) {
-        boolean hasJobNo = jobNo != null && StringUtils.hasText(jobNo);
+    public Page<JobRequest> getByFilters(String requestNo, String requester, String customerName, Pageable pageable) {
+        boolean hasRequestNo = requestNo != null && StringUtils.hasText(requestNo);
         boolean hasRequester = requester != null && StringUtils.hasText(requester);
         boolean hasCustomerName = customerName != null && StringUtils.hasText(customerName);
 
-        String jn = hasJobNo ? jobNo.trim() : null;
+        String rn = hasRequestNo ? requestNo.trim() : null;
         String req = hasRequester ? requester.trim() : null;
         String cn = hasCustomerName ? customerName.trim() : null;
 
-        if (hasJobNo && hasRequester && hasCustomerName) {
-            return jobRequestRepository.findByJobNoContainingIgnoreCaseOrRequesterContainingIgnoreCaseOrCustomerNameContainingIgnoreCase(jn, req, cn, pageable);
+        if (hasRequestNo && hasRequester && hasCustomerName) {
+            return jobRequestRepository.findByRequestNoContainingIgnoreCaseOrRequesterContainingIgnoreCaseOrCustomerNameContainingIgnoreCase(rn, req, cn, pageable);
         }
-        if (hasJobNo && hasRequester) {
-            return jobRequestRepository.findByJobNoContainingIgnoreCaseOrRequesterContainingIgnoreCase(jn, req, pageable);
+        if (hasRequestNo && hasRequester) {
+            return jobRequestRepository.findByRequestNoContainingIgnoreCaseOrRequesterContainingIgnoreCase(rn, req, pageable);
         }
-        if (hasJobNo && hasCustomerName) {
-            return jobRequestRepository.findByJobNoContainingIgnoreCaseOrRequesterContainingIgnoreCaseOrCustomerNameContainingIgnoreCase(jn, null, cn, pageable);
+        if (hasRequestNo && hasCustomerName) {
+            return jobRequestRepository.findByRequestNoContainingIgnoreCaseOrRequesterContainingIgnoreCaseOrCustomerNameContainingIgnoreCase(rn, null, cn, pageable);
         }
         if (hasRequester && hasCustomerName) {
-            return jobRequestRepository.findByJobNoContainingIgnoreCaseOrRequesterContainingIgnoreCaseOrCustomerNameContainingIgnoreCase(null, req, cn, pageable);
+            return jobRequestRepository.findByRequestNoContainingIgnoreCaseOrRequesterContainingIgnoreCaseOrCustomerNameContainingIgnoreCase(null, req, cn, pageable);
         }
-        if (hasJobNo) {
-            return jobRequestRepository.findByJobNoContainingIgnoreCase(jn, pageable);
+        if (hasRequestNo) {
+            return jobRequestRepository.findByRequestNoContainingIgnoreCase(rn, pageable);
         }
         if (hasRequester) {
             return jobRequestRepository.findByRequesterContainingIgnoreCase(req, pageable);

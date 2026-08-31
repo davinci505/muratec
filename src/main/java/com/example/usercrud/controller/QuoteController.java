@@ -59,9 +59,9 @@ public class QuoteController {
     @GetMapping
     public String listQuotes(@RequestParam(value = "jobId", required = false) Long jobId,
                              @RequestParam(value = "status", required = false) String status,
-                             @RequestParam(value = "ccsQuoteNo", required = false) String ccsQuoteNo,
+                             @RequestParam(value = "jobRequestNo", required = false) String jobRequestNo,
                              Model model) {
-        List<Quote> quotes = quoteService.getByFilters(jobId, status, ccsQuoteNo);
+        List<Quote> quotes = quoteService.getByFilters(jobId, status, jobRequestNo);
 
         if (jobId != null) {
             JobRequest jobRequest = jobRequestService.getJobRequestById(jobId).orElse(null);
@@ -72,7 +72,7 @@ public class QuoteController {
         model.addAttribute("statusOptions", STATUS_OPTIONS);
         model.addAttribute("status", status);
         model.addAttribute("jobId", jobId);
-        model.addAttribute("ccsQuoteNo", ccsQuoteNo);
+        model.addAttribute("jobRequestNo", jobRequestNo);
         return "quotes/list";
     }
 
@@ -139,14 +139,14 @@ public class QuoteController {
     public String createBulkQuotes(@RequestBody List<QuoteBulkRequest> quotes) {
         int saved = 0;
         for (QuoteBulkRequest req : quotes) {
-            Optional<JobRequest> jobRequest = jobRequestService.findByJobNo(req.jobNo);
+            Optional<JobRequest> jobRequest = jobRequestService.findByRequestNo(req.requestNo);
             if (!jobRequest.isPresent()) {
                 continue;
             }
             Quote quote = new Quote();
             quote.setJobRequest(jobRequest.get());
-            quote.setCcsQuoteDate(req.ccsQuoteDate);
-            quote.setCcsQuoteNo(req.ccsQuoteNo);
+            quote.setJobrequestDate(req.jobrequestDate);
+            quote.setJobRequestNo(req.jobRequestNo);
             quote.setCcsAmount(req.ccsAmount);
             quote.setDescription(req.description);
             quote.setBrtQuoteDate(req.brtQuoteDate);
@@ -261,11 +261,11 @@ public class QuoteController {
     @GetMapping("/api/job-request-parts")
     @ResponseBody
     public Map<String, Object> getJobRequestParts(@RequestParam("jobRequestId") Long jobRequestId) {
-        // Include JobRequest metadata (jobNo, requestDate) so the client can
+        // Include JobRequest metadata (requestNo, requestDate) so the client can
         // auto-populate the quote's CCS 견적날짜 / CCS 견적번호 fields when a
         // JobRequest is selected in the quote form.
         Optional<JobRequest> jobRequestOpt = jobRequestService.getJobRequestById(jobRequestId);
-        String jobNo = jobRequestOpt.map(JobRequest::getJobNo).orElse(null);
+        String requestNo = jobRequestOpt.map(JobRequest::getRequestNo).orElse(null);
         String requestDate = jobRequestOpt.map(JobRequest::getRequestDate)
                 .map(LocalDate::toString).orElse(null);
 
@@ -286,7 +286,7 @@ public class QuoteController {
         }).collect(Collectors.toList());
 
         Map<String, Object> response = new HashMap<>();
-        response.put("jobNo", jobNo);
+        response.put("requestNo", requestNo);
         response.put("requestDate", requestDate);
         response.put("parts", parts);
         return response;
@@ -392,9 +392,9 @@ public class QuoteController {
     }
 
     public static class QuoteBulkRequest {
-        public String jobNo;
-        public LocalDate ccsQuoteDate;
-        public String ccsQuoteNo;
+        public String requestNo;
+        public LocalDate jobrequestDate;
+        public String jobRequestNo;
         public BigDecimal ccsAmount;
         public String description;
         public LocalDate brtQuoteDate;

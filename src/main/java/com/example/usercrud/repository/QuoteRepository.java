@@ -17,15 +17,15 @@ public interface QuoteRepository extends JpaRepository<Quote, Long> {
 
     List<Quote> findByStatus(String status);
 
-    Optional<Quote> findByCcsQuoteNo(String ccsQuoteNo);
+    Optional<Quote> findByJobRequestNo(String jobRequestNo);
 
-    List<Quote> findByCcsQuoteNoContainingIgnoreCase(String ccsQuoteNo);
+    List<Quote> findByJobRequestNoContainingIgnoreCase(String jobRequestNo);
 
-    List<Quote> findByJobRequestIdAndCcsQuoteNoContainingIgnoreCase(Long jobRequestId, String ccsQuoteNo);
+    List<Quote> findByJobRequestIdAndJobRequestNoContainingIgnoreCase(Long jobRequestId, String jobRequestNo);
 
-    List<Quote> findByStatusAndCcsQuoteNoContainingIgnoreCase(String status, String ccsQuoteNo);
+    List<Quote> findByStatusAndJobRequestNoContainingIgnoreCase(String status, String jobRequestNo);
 
-    List<Quote> findByJobRequestIdAndStatusAndCcsQuoteNoContainingIgnoreCase(Long jobRequestId, String status, String ccsQuoteNo);
+    List<Quote> findByJobRequestIdAndStatusAndJobRequestNoContainingIgnoreCase(Long jobRequestId, String status, String jobRequestNo);
 
     // Pageable variants for Tabulator remote pagination
     Page<Quote> findByJobRequestId(Long jobRequestId, Pageable pageable);
@@ -34,11 +34,11 @@ public interface QuoteRepository extends JpaRepository<Quote, Long> {
 
     Page<Quote> findByStatus(String status, Pageable pageable);
 
-    Page<Quote> findByCcsQuoteNoContainingIgnoreCase(String ccsQuoteNo, Pageable pageable);
+    Page<Quote> findByJobRequestNoContainingIgnoreCase(String jobRequestNo, Pageable pageable);
 
-    Page<Quote> findByJobRequestIdAndCcsQuoteNoContainingIgnoreCase(Long jobRequestId, String ccsQuoteNo, Pageable pageable);
+    Page<Quote> findByJobRequestIdAndJobRequestNoContainingIgnoreCase(Long jobRequestId, String jobRequestNo, Pageable pageable);
 
-    Page<Quote> findByStatusAndCcsQuoteNoContainingIgnoreCase(String status, String ccsQuoteNo, Pageable pageable);
+    Page<Quote> findByStatusAndJobRequestNoContainingIgnoreCase(String status, String jobRequestNo, Pageable pageable);
 
-    Page<Quote> findByJobRequestIdAndStatusAndCcsQuoteNoContainingIgnoreCase(Long jobRequestId, String status, String ccsQuoteNo, Pageable pageable);
+    Page<Quote> findByJobRequestIdAndStatusAndJobRequestNoContainingIgnoreCase(Long jobRequestId, String status, String jobRequestNo, Pageable pageable);
 }

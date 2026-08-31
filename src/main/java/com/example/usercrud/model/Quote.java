@@ -45,11 +45,11 @@ public class Quote {
     private List<QuotePart> quoteParts = new ArrayList<>();
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    @Column(name = "ccs_quote_date")
-    private LocalDate ccsQuoteDate;
+    @Column(name = "jobrequest_date")
+    private LocalDate jobrequestDate;
 
-    @Column(name = "ccs_quote_no")
-    private String ccsQuoteNo;
+    @Column(name = "job_request_no")
+    private String jobRequestNo;
 
     @Column(name = "ccs_amount", precision = 15, scale = 2)
     private BigDecimal ccsAmount;

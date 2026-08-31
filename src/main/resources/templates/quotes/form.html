@@ -38,7 +38,7 @@
                                     <select id="jobRequestId" name="jobRequestId" class="form-select">
                                         <option value="">선택하세요</option>
                                         <option th:each="job : ${jobs}" th:value="${job.id}"
-                                                th:text="${job.division + ' / ' + job.jobNo + ' / ' + job.customerName + ' / ' + job.requester + ' / ' + job.requestDate}" 
+                                                th:text="${job.division + ' / ' + job.requestNo + ' / ' + job.customerName + ' / ' + job.requester + ' / ' + job.requestDate}" 
                                                 th:selected="${quote.jobRequest != null and quote.jobRequest.id == job.id}"></option>
                                     </select>
                                 </div>
@@ -46,17 +46,17 @@
 
                             <div class="row">
                                                             <div class="col-md-4 mb-3">
-                                                                <label for="ccsQuoteDate" class="form-label">CCS견적날짜</label>
-                                                                 <input type="text" class="form-control" id="ccsQuoteDate" th:field="*{ccsQuoteDate}" placeholder="YYYYMMDD" maxlength="10" pattern="\d{4}-\d{2}-\d{2}" inputmode="numeric"
-                                                                     th:classappend="${#fields.hasErrors('ccsQuoteDate')} ? ' is-invalid' : ''">
+                                                                <label for="jobrequestDate" class="form-label">Muratec 의뢰날짜</label>
+                                                                 <input type="text" class="form-control" id="jobrequestDate" th:field="*{jobrequestDate}" placeholder="YYYYMMDD" maxlength="10" pattern="\d{4}-\d{2}-\d{2}" inputmode="numeric"
+                                                                     th:classappend="${#fields.hasErrors('jobrequestDate')} ? ' is-invalid' : ''">
                                                                 <div class="invalid-feedback">YYYY-MM-DD 형식으로 입력하세요.</div>
                                                             </div>
                                                             <div class="col-md-4 mb-3">
-                                                                <label for="ccsQuoteNo" class="form-label">CCS견적번호</label>
-                                                                <input type="text" class="form-control" id="ccsQuoteNo" th:field="*{ccsQuoteNo}">
+                                                                <label for="jobRequestNo" class="form-label">Muratec작번</label>
+                                                                <input type="text" class="form-control" id="jobRequestNo" th:field="*{jobRequestNo}">
                                                             </div>
                                                             <div class="col-md-4 mb-3">
-                                                                <label for="ccsAmount" class="form-label">CCS견적금액 (￥)</label>
+                                                                <label for="ccsAmount" class="form-label">Muratec 견적금액 (￥)</label>
                                                                 <input type="text" class="form-control" id="ccsAmount" th:field="*{ccsAmount}" placeholder="금액 입력 시 ￥ 자동생성">
                                                             </div>
                                                         </div>
@@ -160,7 +160,7 @@
     // Initial JobRequest metadata (used on page load when a JobRequest is
     // already pre-selected, e.g. /quotes/new?jobId=...). These feed the
     // auto-population of CCS 견적날짜 / CCS 견적번호.
-    const initialJobRequestNo = /*[[${quote.jobRequest?.jobNo}]]*/ null;
+    const initialJobRequestNo = /*[[${quote.jobRequest?.requestNo}]]*/ null;
     const initialJobRequestDate = /*[[${quote.jobRequest?.requestDate}]]*/ null;
 </script>
 <script>
@@ -210,26 +210,26 @@
      * - requestDate (YYYY-MM-DD) is taken from JobRequest.requestDate and is
      *   already in the expected format, so we set the value directly.
      */
-    function applyCcsFromJobRequestData(jobNo, requestDate) {
+    function applyCcsFromJobRequestData(requestNo, requestDate) {
         if (isEditing) return;
 
-        const ccsQuoteDateInput = document.getElementById('ccsQuoteDate');
-        const ccsQuoteNoInput = document.getElementById('ccsQuoteNo');
-        if (!ccsQuoteDateInput || !ccsQuoteNoInput) return;
+        const jobrequestDateInput = document.getElementById('jobrequestDate');
+        const jobRequestNoInput = document.getElementById('jobRequestNo');
+        if (!jobrequestDateInput || !jobRequestNoInput) return;
 
-        const ccsQuoteDateEmpty = !ccsQuoteDateInput.value || !ccsQuoteDateInput.value.trim();
-        const ccsQuoteNoEmpty = !ccsQuoteNoInput.value || !ccsQuoteNoInput.value.trim();
+        const jobrequestDateEmpty = !jobrequestDateInput.value || !jobrequestDateInput.value.trim();
+        const jobRequestNoEmpty = !jobRequestNoInput.value || !jobRequestNoInput.value.trim();
 
-        if (ccsQuoteDateEmpty ) {
+        if (jobrequestDateEmpty ) {
             if (requestDate) {
-                ccsQuoteDateInput.value = requestDate;
-                validateDateInput(ccsQuoteDateInput);
+                jobrequestDateInput.value = requestDate;
+                validateDateInput(jobrequestDateInput);
             }
         }
 
-        if ( ccsQuoteNoEmpty){
-            if (jobNo) {
-                ccsQuoteNoInput.value = jobNo;
+        if ( jobRequestNoEmpty){
+            if (requestNo) {
+                jobRequestNoInput.value = requestNo;
             }
         }
     }
@@ -275,7 +275,7 @@
         setTodayIfEmpty(document.getElementById('brtQuoteDate'));
 
         const dateInputs = [
-            document.getElementById('ccsQuoteDate'),
+            document.getElementById('jobrequestDate'),
             document.getElementById('brtQuoteDate')
         ];
 
@@ -328,7 +328,7 @@
 
                 // Auto-populate CCS 견적날짜 / CCS 견적번호 from JobRequest metadata
                 if (data) {
-                    applyCcsFromJobRequestData(data.jobNo, data.requestDate);
+                    applyCcsFromJobRequestData(data.requestNo, data.requestDate);
                 }
 
                 const parts = data && data.parts ? data.parts : [];

@@ -36,7 +36,7 @@ public class JobRequestController {
 
     @GetMapping
     public String listJobs(@RequestParam(value = "q", required = false) String query, Model model) {
-        model.addAttribute("jobs", jobRequestService.searchByJobNoOrRequester(query));
+        model.addAttribute("jobs", jobRequestService.searchByRequestNoOrRequester(query));
         model.addAttribute("q", query);
         return "jobs/list";
     }

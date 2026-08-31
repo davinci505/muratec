@@ -125,7 +125,7 @@
                         <option value="기타">기타</option>
                     </select>
                 </td>
-                <td><input type="text" class="form-control" name="jobNo"></td>
+                <td><input type="text" class="form-control" name="requestNo"></td>
                 <td><input type="text" class="form-control" name="customerName"></td>
                 <td><input type="text" class="form-control" name="factoryName"></td>
                 <td><input type="text" class="form-control" name="requester"></td>
@@ -166,7 +166,7 @@
                 const row = rows[i];
 
                 const division = (row.querySelector('[name="division"]')?.value || '').trim();
-                const jobNo = (row.querySelector('[name="jobNo"]')?.value || '').trim();
+                const requestNo = (row.querySelector('[name="requestNo"]')?.value || '').trim();
                 const customerName = (row.querySelector('[name="customerName"]')?.value || '').trim();
                 const factoryName = (row.querySelector('[name="factoryName"]')?.value || '').trim();
                 const requester = (row.querySelector('[name="requester"]')?.value || '').trim();
@@ -176,13 +176,13 @@
                 const partNo = (row.querySelector('[name="partNo"]')?.value || '').trim();
                 const amount = (row.querySelector('[name="amount"]')?.value || '').trim();
 
-                const isEmpty = !division && !jobNo && !customerName && !factoryName && !requester && !requestDate
+                const isEmpty = !division && !requestNo && !customerName && !factoryName && !requester && !requestDate
                     && !productName && !productSpec && !partNo && !amount;
                 if (isEmpty) continue;
 
                 const job = {
                     division: division,
-                    jobNo: jobNo,
+                    requestNo: requestNo,
                     customerName: customerName,
                     factoryName: factoryName,
                     requester: requester,

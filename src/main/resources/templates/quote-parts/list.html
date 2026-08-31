@@ -10,7 +10,7 @@
         <h1 class="mb-4 text-center">발주/납품 관리</h1>
 
         <div th:if="${quote != null}" class="alert alert-secondary">
-            <strong>CCS견적번호:</strong> <span th:text="${quote.ccsQuoteNo}"></span>
+            <strong>CCS견적번호:</strong> <span th:text="${quote.jobRequestNo}"></span>
         </div>
 
         <div class="mb-3 d-flex gap-2 align-items-center">
@@ -58,8 +58,8 @@
                                 </thead>
                 <tbody>
                                     <tr th:each="item : ${quoteParts}">
-                                        <td th:text="${item.quote != null ? item.quote.ccsQuoteNo : ''}"></td>
-                                        <td th:text="${item.quote != null and item.quote.jobRequest != null ? item.quote.jobRequest.jobNo : ''}"></td>
+                                        <td th:text="${item.quote != null ? item.quote.jobRequestNo : ''}"></td>
+                                        <td th:text="${item.quote != null and item.quote.jobRequest != null ? item.quote.jobRequest.requestNo : ''}"></td>
                                         <td th:text="${item.quote != null and item.quote.jobRequest != null ? item.quote.jobRequest.customerName : ''}"></td>
                                         <td th:text="${item.quote != null and item.quote.jobRequest != null ? item.quote.jobRequest.factoryName : item.factoryName}"></td>
                                         <td th:text="${item.productName}"></td>
