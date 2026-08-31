@@ -145,9 +145,15 @@
     
     // Check if we're editing an existing quote
     const isEditing = /*[[${quote.id != null}]]*/ false;
-    
+
     // Get quote ID for edit mode
     const quoteId = /*[[${quote.id}]]*/ null;
+
+    // Initial JobRequest metadata (used on page load when a JobRequest is
+    // already pre-selected, e.g. /quotes/new?jobId=...). These feed the
+    // auto-population of CCS 견적날짜 / CCS 견적번호.
+    const initialJobRequestNo = /*[[${quote.jobRequest?.jobNo}]]*/ null;
+    const initialJobRequestDate = /*[[${quote.jobRequest?.requestDate}]]*/ null;
 </script>
 <script>
     const datePattern = /^\d{4}-\d{2}-\d{2}$/;
@@ -189,6 +195,37 @@
         return isValid;
     }
 
+    /**
+     * Auto-populate CCS 견적날짜 / CCS 견적번호 from the selected JobRequest.
+     * - Edit mode: no-op (preserves existing CCS values).
+     * - Both target fields must be empty; existing user input is preserved.
+     * - requestDate (YYYY-MM-DD) is taken from JobRequest.requestDate and is
+     *   already in the expected format, so we set the value directly.
+     */
+    function applyCcsFromJobRequestData(jobNo, requestDate) {
+        if (isEditing) return;
+
+        const ccsQuoteDateInput = document.getElementById('ccsQuoteDate');
+        const ccsQuoteNoInput = document.getElementById('ccsQuoteNo');
+        if (!ccsQuoteDateInput || !ccsQuoteNoInput) return;
+
+        const ccsQuoteDateEmpty = !ccsQuoteDateInput.value || !ccsQuoteDateInput.value.trim();
+        const ccsQuoteNoEmpty = !ccsQuoteNoInput.value || !ccsQuoteNoInput.value.trim();
+
+        if (ccsQuoteDateEmpty ) {
+            if (requestDate) {
+                ccsQuoteDateInput.value = requestDate;
+                validateDateInput(ccsQuoteDateInput);
+            }
+        }
+
+        if ( ccsQuoteNoEmpty){
+            if (jobNo) {
+                ccsQuoteNoInput.value = jobNo;
+            }
+        }
+    }
+
     function bindDateInput(input) {
         if (!input) return;
         // Blur 시점에 자동 하이픈 생성 및 유효성 검사
@@ -225,13 +262,16 @@
     let partPopupWindow = null;
 
     document.addEventListener('DOMContentLoaded', () => {
+        // Auto-fill today's date only for BRT견적날짜.
+        // CCS견적날짜는 자동 채움하지 않음 (요청에 따라 제거).
+        setTodayIfEmpty(document.getElementById('brtQuoteDate'));
+
         const dateInputs = [
             document.getElementById('ccsQuoteDate'),
             document.getElementById('brtQuoteDate')
         ];
 
         dateInputs.forEach(input => {
-            setTodayIfEmpty(input);
             bindDateInput(input);
             validateDateInput(input);
         });
@@ -276,7 +316,14 @@
                 if (!response.ok) {
                     throw new Error('Failed to fetch parts');
                 }
-                const parts = await response.json();
+                const data = await response.json();
+
+                // Auto-populate CCS 견적날짜 / CCS 견적번호 from JobRequest metadata
+                if (data) {
+                    applyCcsFromJobRequestData(data.jobNo, data.requestDate);
+                }
+
+                const parts = data && data.parts ? data.parts : [];
 
                 if (parts && parts.length > 0) {
                     const partsData = parts.map((part, index) => ({

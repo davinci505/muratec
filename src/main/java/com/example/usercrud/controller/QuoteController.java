@@ -260,9 +260,17 @@ public class QuoteController {
 
     @GetMapping("/api/job-request-parts")
     @ResponseBody
-    public List<Map<String, Object>> getJobRequestParts(@RequestParam("jobRequestId") Long jobRequestId) {
+    public Map<String, Object> getJobRequestParts(@RequestParam("jobRequestId") Long jobRequestId) {
+        // Include JobRequest metadata (jobNo, requestDate) so the client can
+        // auto-populate the quote's CCS 견적날짜 / CCS 견적번호 fields when a
+        // JobRequest is selected in the quote form.
+        Optional<JobRequest> jobRequestOpt = jobRequestService.getJobRequestById(jobRequestId);
+        String jobNo = jobRequestOpt.map(JobRequest::getJobNo).orElse(null);
+        String requestDate = jobRequestOpt.map(JobRequest::getRequestDate)
+                .map(LocalDate::toString).orElse(null);
+
         List<JobRequestPart> jobRequestParts = jobRequestService.getPartsByJobRequestId(jobRequestId);
-        return jobRequestParts.stream().map(part -> {
+        List<Map<String, Object>> parts = jobRequestParts.stream().map(part -> {
             Map<String, Object> map = new HashMap<>();
             map.put("partName", part.getPartName());
             map.put("partNumber", part.getPartNumber());
@@ -276,6 +284,12 @@ public class QuoteController {
             }
             return map;
         }).collect(Collectors.toList());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("jobNo", jobNo);
+        response.put("requestDate", requestDate);
+        response.put("parts", parts);
+        return response;
     }
 
     @GetMapping("/api/quote-parts/{quoteId}")
