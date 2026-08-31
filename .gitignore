@@ -102,3 +102,5 @@ application-local.yml
 
 #nodejs
 node_modules/
+
+nul
