@@ -32,7 +32,7 @@ public class QuotePart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quote_id", nullable = false)
     @ToString.Exclude
     @JsonIgnore
