@@ -61,34 +61,27 @@
                                                             </div>
                                                         </div>
 
-                                                        <div class="mb-3">
-                                                            <label for="description" class="form-label">내역</label>
-                                                            <textarea class="form-control" id="description" th:field="*{description}" rows="2"></textarea>
-                                                        </div>
+                                                        
 
                                                         <div class="row">
-                                                            <div class="col-md-3 mb-3">
-                                                                <label for="brtQuoteNo" class="form-label">BRT견적번호</label>
-                                                                <input type="text" class="form-control" id="brtQuoteNo" th:field="*{brtQuoteNo}">
-                                                            </div>
-                                                            <div class="col-md-3 mb-3">
-                                                                <label for="brtAmount" class="form-label">BRT견적금액 (￦)</label>
-                                                                <input type="text" class="form-control" id="brtAmount" th:field="*{brtAmount}" placeholder="금액 입력 시 ￦ 자동생성">
-                                                            </div>
-                                                            <div class="col-md-3 mb-3">
+                                                            <div class="col-md-4 mb-3">
                                                                 <label for="brtQuoteDate" class="form-label">BRT견적날짜</label>
                                                                  <input type="text" class="form-control" id="brtQuoteDate" th:field="*{brtQuoteDate}" placeholder="YYYYMMDD" maxlength="10" pattern="\d{4}-\d{2}-\d{2}" inputmode="numeric"
                                                                      th:classappend="${#fields.hasErrors('brtQuoteDate')} ? ' is-invalid' : ''">
                                                                 <div class="invalid-feedback">YYYY-MM-DD 형식으로 입력하세요.</div>
                                                             </div>
-                                                            <div class="col-md-3 mb-3">
-                                                                <label for="brtNegotiatedAmount" class="form-label">BRT네고금액</label>
-                                                                <input type="text" class="form-control" id="brtNegotiatedAmount" th:field="*{brtNegotiatedAmount}" placeholder="텍스트 입력">
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="brtQuoteNo" class="form-label">BRT견적번호</label>
+                                                                <input type="text" class="form-control" id="brtQuoteNo" th:field="*{brtQuoteNo}">
+                                                            </div>
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="brtAmount" class="form-label">BRT견적금액 (￦)</label>
+                                                                <input type="text" class="form-control" id="brtAmount" th:field="*{brtAmount}" placeholder="금액 입력 시 ￦ 자동생성">
                                                             </div>
                                                         </div>
 
                                                         <div class="row">
-                                                            <div class="col-md-6 mb-3">
+                                                            <div class="col-md-8 mb-3">
                                                                 <label for="status" class="form-label">상태</label>
                                                                 <select id="status" class="form-select" th:field="*{status}"
                                                                         th:classappend="${statusError} ? ' is-invalid' : ''" required>
@@ -97,6 +90,16 @@
                                                                 </select>
                                                                 <div class="invalid-feedback">상태를 선택하세요.</div>
                                                             </div>
+
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="brtNegotiatedAmount" class="form-label">BRT네고금액</label>
+                                                                <input type="text" class="form-control" id="brtNegotiatedAmount" th:field="*{brtNegotiatedAmount}" placeholder="텍스트 입력">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="mb-3">
+                                                            <label for="description" class="form-label">내역</label>
+                                                            <textarea class="form-control" id="description" th:field="*{description}" rows="2"></textarea>
                                                         </div>
 
                             <!-- 의뢰부품목록 표시 영역 (Tabulator) -->
@@ -104,9 +107,14 @@
                                 <div class="card">
                                     <div class="card-header bg-light d-flex justify-content-between align-items-center">
                                         <h5 class="mb-0">의뢰부품목록</h5>
-                                        <button type="button" class="btn btn-outline-primary btn-sm" id="btn-add-part" onclick="openPartPopup()">
-                                            <i class="bi bi-plus-circle"></i> 부품 추가
-                                        </button>
+                                        <div class="d-flex gap-2">
+                                            <button type="button" class="btn btn-outline-success btn-sm" id="btn-fill-amounts" onclick="recalcAmountTotals()">
+                                                <i class="bi bi-calculator"></i> 견적금액 입력
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary btn-sm" id="btn-add-part" onclick="openPartPopup()">
+                                                <i class="bi bi-plus-circle"></i> 부품 추가
+                                            </button>
+                                        </div>
                                     </div>
                                     <div class="card-body p-0">
                                         <div id="jobRequestPartsTable"></div>
@@ -636,6 +644,39 @@
         } else {
             row.update({ purchasePrice: null, sellingPrice: null });
         }
+    }
+
+    /**
+     * Aggregate parts into the CCS견적금액 (sum of purchasePrice) and
+     * BRT견적금액 (sum of sellingPrice) input fields.
+     *
+     * Triggered manually by the "견적금액 추가" button. If the table is
+     * empty, alerts the user and leaves the input values untouched so
+     * any existing manual entry is preserved.
+     */
+    function recalcAmountTotals() {
+        if (!partsTable) return;
+        const ccsInput = document.getElementById('ccsAmount');
+        const brtInput = document.getElementById('brtAmount');
+        if (!ccsInput || !brtInput) return;
+
+        const data = partsTable.getData();
+        if (!data || data.length === 0) {
+            alert('합산할 부품이 없습니다.');
+            return;
+        }
+
+        let purchaseSum = 0;
+        let sellingSum = 0;
+        for (const row of data) {
+            const p = Number(row.purchasePrice);
+            const s = Number(row.sellingPrice);
+            if (Number.isFinite(p)) purchaseSum += p;
+            if (Number.isFinite(s)) sellingSum += s;
+        }
+
+        ccsInput.value = '￥' + Math.round(purchaseSum).toLocaleString();
+        brtInput.value = '￦' + Math.round(sellingSum).toLocaleString();
     }
 
     function updateSortOrders() {
