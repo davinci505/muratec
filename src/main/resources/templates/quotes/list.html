@@ -1,9 +1,46 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{})}"
-    th:with="activePage='quotes'">
+<html xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{::style}, ~{::script})}"
+      th:with="activePage='quotes'">
 
 <head>
     <title>견적 관리 - BARATEC</title>
+    <style>
+        /* Center pagination in Tabulator footer */
+        .tabulator-footer-contents {
+            justify-content: center !important;
+        }
+        .tabulator-paginator {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            width: 100% !important;
+            text-align: center !important;
+        }
+        .tabulator-paginator label {
+            display: inline-flex !important;
+            align-items: center !important;
+            margin-right: 8px !important;
+            margin-bottom: 0 !important;
+        }
+        .tabulator-page-size {
+            display: inline-flex !important;
+            align-items: center !important;
+            margin: 0 8px !important;
+            vertical-align: middle !important;
+        }
+        .tabulator-paginator .tabulator-page {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            margin: 0 2px !important;
+        }
+        .tabulator-pages {
+            display: inline-flex !important;
+            align-items: center !important;
+            margin: 0 8px !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -21,80 +58,188 @@
             <a th:href="@{/quotes/new(jobId=${jobId})}" class="btn btn-primary">새 견적 추가</a>
             <a href="/quotes/bulk" class="btn btn-success">📊 대량 등록</a>
 
-            <form method="get" action="/quotes" class="ms-auto d-flex flex-wrap gap-2 align-items-center">
-                <input type="hidden" name="jobId" th:value="${jobId}">
-                <select id="status" name="status" class="form-select form-select-sm" style="width: 140px;">
+            <div class="ms-auto d-flex flex-wrap gap-2 align-items-center">
+                <label for="filter-status" class="form-label mb-0">상태</label>
+                <select id="filter-status" class="form-select form-select-sm" style="width: 140px;">
                     <option value="">전체</option>
-                    <option th:each="s : ${statusOptions}" th:value="${s}" th:text="${s}" th:selected="${s == status}">
-                    </option>
+                    <option th:each="s : ${statusOptions}" th:value="${s}" th:text="${s}"
+                        th:selected="${s == status}"></option>
                 </select>
-                <input id="ccsQuoteNo" name="ccsQuoteNo" type="text" class="form-control form-control-sm"
-                    style="width: 160px;" placeholder="CCS견적번호" th:value="${ccsQuoteNo}">
-                <button type="submit" class="btn btn-outline-secondary btn-sm">검색</button>
-            </form>
+                <label for="filter-ccsQuoteNo" class="form-label mb-0">CCS견적번호</label>
+                <input id="filter-ccsQuoteNo" type="text" class="form-control form-control-sm"
+                    style="width: 180px;" placeholder="CCS견적번호 검색" th:value="${ccsQuoteNo}">
+                <button id="btn-search" type="button" class="btn btn-outline-secondary btn-sm">검색</button>
+                <button id="btn-reset" type="button" class="btn btn-outline-secondary btn-sm">초기화</button>
+            </div>
         </div>
 
-        <div th:if="${quotes.isEmpty()}" class="alert alert-info">
-            등록된 견적이 없습니다.
-        </div>
-
-        <div th:if="${!quotes.isEmpty()}" class="table-responsive">
-            <table class="table table-striped table-bordered table-hover">
-                <thead>
-                    <tr>
-                        <th class="col-medium">구분</th>
-                        <th class="col-medium">작번</th>
-                        <th class="col-medium">고객명</th>
-                        <th class="col-medium">의뢰인</th>
-                        <th class="col-medium">의뢰날짜</th>
-                        <th class="col-medium">CCS견적날짜</th>
-                        <th class="col-medium">CCS견적번호</th>
-                        <th class="col-medium">CCS견적금액 (￥)</th>
-                        <th class="col-long">내역</th>
-                                        <th class="col-medium">BRT견적번호</th>
-                                        <th class="col-medium">BRT견적금액 (￦)</th>
-                                        <th class="col-medium">BRT견적날짜</th>
-                        <th class="col-medium">BRT네고금액</th>
-                        <th class="col-medium">상태</th>
-                        <th class="col-short">관리</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="quote : ${quotes}">
-                        <td th:text="${quote.jobRequest != null ? quote.jobRequest.division : ''}"></td>
-                        <td th:text="${quote.jobRequest != null ? quote.jobRequest.jobNo : ''}"></td>
-                        <td th:text="${quote.jobRequest != null ? quote.jobRequest.customerName : ''}"></td>
-                        <td th:text="${quote.jobRequest != null ? quote.jobRequest.requester : ''}"></td>
-                        <td th:text="${quote.jobRequest != null ? quote.jobRequest.requestDate : ''}"></td>
-                        <td th:text="${quote.ccsQuoteDate}"></td>
-                        <td>
-                            <a th:href="@{/quote-parts(quoteId=${quote.id})}" th:text="${quote.ccsQuoteNo}"></a>
-                        </td>
-                        <td th:text="${quote.ccsAmount}"></td>
-                        <td th:text="${quote.description}"></td>
-                                        <td th:text="${quote.brtQuoteNo}"></td>
-                                        <td th:text="${quote.brtAmount}"></td>
-                                        <td th:text="${quote.brtQuoteDate}"></td>
-                        <td th:text="${quote.brtNegotiatedAmount}"></td>
-                        <td th:text="${quote.status}"></td>
-                        <td>
-                            <div class="d-flex gap-1 justify-content-center">
-                                <a th:href="@{/quotes/edit/{id}(id=${quote.id})}"
-                                    class="btn btn-sm btn-outline-primary px-2" title="수정" aria-label="수정">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
-                                <a th:href="@{/quotes/delete/{id}(id=${quote.id})}"
-                                    class="btn btn-sm btn-outline-danger px-2" title="삭제" aria-label="삭제"
-                                    onclick="return confirm('삭제하시겠습니까?');">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <!-- Tabulator Container -->
+        <div id="quotes-table"></div>
     </div>
+
+    <script th:inline="javascript">
+        // Read initial jobId from URL (preserved across reloads)
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialJobId = urlParams.get('jobId') || '';
+    </script>
+    <script>
+        // Tabulator 테이블 초기화 - using global Tabulator
+        console.log("Tabulator global:", typeof Tabulator);
+        const table = new Tabulator("#quotes-table", {
+            layout: "fitColumns",
+            pagination: true,
+            paginationMode: "remote",
+            sortMode: "remote",
+            paginationSize: 10,
+            paginationSizeSelector: [10, 20, 50, 100],
+            placeholder: "등록된 견적이 없습니다.",
+            ajaxURL: "/api/quotes",
+            ajaxParams: {
+                jobId: initialJobId,
+                status: "",
+                ccsQuoteNo: ""
+            },
+            ajaxResponse: function(url, params, response) {
+                // For remote pagination, Tabulator expects response with last_page and data
+                return response;
+            },
+            ajaxURLGenerator: function(url, config, params) {
+                const searchParams = new URLSearchParams();
+
+                if (params.jobId) searchParams.append("jobId", params.jobId);
+                if (params.status) searchParams.append("status", params.status);
+                if (params.ccsQuoteNo) searchParams.append("ccsQuoteNo", params.ccsQuoteNo);
+                if (params.page) searchParams.append("page", params.page);
+                if (params.size) searchParams.append("size", params.size);
+
+                if (Array.isArray(params.sort) && params.sort.length > 0) {
+                    searchParams.append("sort", params.sort[0].field);
+                    searchParams.append("order", params.sort[0].dir);
+                }
+
+                return url + "?" + searchParams.toString();
+            },
+            columns: [
+                { title: "No.", field: "id", width: 60, hozAlign: "center",
+                  formatter: function(cell) {
+                      const page = table.getPage();
+                      const pageSize = table.getPageSize();
+                      const rowIndex = cell.getRow().getPosition(true);
+                      return (page - 1) * pageSize + rowIndex;
+                  }
+                },
+                { title: "구분", field: "division" },
+                { title: "작번", field: "jobNo" },
+                { title: "고객명", field: "customerName" },
+                { title: "의뢰인", field: "requester" },
+                { title: "의뢰날짜", field: "requestDate", width: 110, hozAlign: "center" },
+                { title: "CCS견적날짜", field: "ccsQuoteDate", width: 110, hozAlign: "center" },
+                { title: "CCS견적번호", field: "ccsQuoteNo", width: 130,
+                  formatter: function(cell) {
+                      const data = cell.getRow().getData();
+                      const val = cell.getValue() || "";
+                      return `<a href="/quote-parts?quoteId=${data.id}">${val}</a>`;
+                  }
+                },
+                { title: "CCS견적금액(￥)", field: "ccsAmount", width: 130, hozAlign: "right",
+                  formatter: function(cell) {
+                      const v = cell.getValue();
+                      if (v === null || v === undefined || v === "") return "";
+                      const num = Number(v);
+                      return isNaN(num) ? v : num.toLocaleString();
+                  }
+                },
+                { title: "내역", field: "description", minWidth: 150 },
+                { title: "BRT견적번호", field: "brtQuoteNo", width: 130 },
+                { title: "BRT견적금액(￦)", field: "brtAmount", width: 130, hozAlign: "right",
+                  formatter: function(cell) {
+                      const v = cell.getValue();
+                      if (v === null || v === undefined || v === "") return "";
+                      const num = Number(v);
+                      return isNaN(num) ? v : num.toLocaleString();
+                  }
+                },
+                { title: "BRT견적날짜", field: "brtQuoteDate", width: 110, hozAlign: "center" },
+                { title: "BRT네고금액", field: "brtNegotiatedAmount", width: 110, hozAlign: "right" },
+                { title: "상태", field: "status", width: 100, hozAlign: "center" },
+                { title: "관리", field: "actions", width: 100, hozAlign: "center",
+                  formatter: function(cell) {
+                      const id = cell.getRow().getData().id;
+                      return `
+                        <div class="d-flex gap-1 justify-content-center">
+                            <a href="/quotes/edit/${id}" class="btn btn-sm btn-outline-primary px-2" title="수정">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a href="/quotes/delete/${id}" class="btn btn-sm btn-outline-danger px-2" title="삭제" onclick="return confirm('삭제하시겠습니까?');">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                      `;
+                  }
+                }
+            ],
+            initialSort: [{ column: "id", dir: "desc" }],
+            locale: true,
+            langs: {
+                "ko": {
+                    "pagination": {
+                        "first": "처음",
+                        "first_title": "첫 페이지",
+                        "last": "마지막",
+                        "last_title": "마지막 페이지",
+                        "prev": "이전",
+                        "prev_title": "이전 페이지",
+                        "next": "다음",
+                        "next_title": "다음 페이지",
+                        "all": "전체"
+                    }
+                }
+            }
+        });
+
+        console.log("Quotes Tabulator initialized successfully");
+
+        table.on("dataLoaded", function(data) {
+            console.log("Quote data loaded:", data.length, "rows");
+        });
+
+        table.on("dataLoadingError", function(error) {
+            console.error("Quote data loading error:", error);
+        });
+
+        // External search button - trigger Tabulator AJAX with filters
+        document.getElementById('btn-search').addEventListener('click', function() {
+            const status = document.getElementById('filter-status').value;
+            const ccsQuoteNo = document.getElementById('filter-ccsQuoteNo').value;
+
+            table.setData("/api/quotes", {
+                jobId: initialJobId,
+                status: status,
+                ccsQuoteNo: ccsQuoteNo
+            });
+        });
+
+        // Reset filters
+        document.getElementById('btn-reset').addEventListener('click', function() {
+            document.getElementById('filter-status').value = '';
+            document.getElementById('filter-ccsQuoteNo').value = '';
+
+            table.setData("/api/quotes", {
+                jobId: initialJobId,
+                status: "",
+                ccsQuoteNo: ""
+            });
+        });
+
+        // Enter key support for filter inputs
+        ['filter-ccsQuoteNo'].forEach(id => {
+            document.getElementById(id).addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('btn-search').click();
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

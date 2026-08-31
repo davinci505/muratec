@@ -283,9 +283,10 @@
                         partName: part.partName,
                         partNumber: part.partNumber,
                         spec: part.spec,
+                        priceJpy: part.priceJpy,
                         quantity: part.quantity || 1,
                         sortOrder: part.sortOrder !== undefined ? part.sortOrder : index
-                    }));
+                    })).map(applyPriceCalculations);
                     if (partsTable) {
                         partsTable.setData(partsData);
                     }
@@ -349,7 +350,9 @@
                         partNumber: row.partNumber,
                         spec: row.spec,
                         quantity: row.quantity,
-                        sortOrder: row.sortOrder
+                        sortOrder: row.sortOrder,
+                        purchasePrice: row.purchasePrice,
+                        sellingPrice: row.sellingPrice
                     }));
                     document.getElementById('partsJson').value = JSON.stringify(partsData);
                 }
@@ -375,11 +378,12 @@
                             partName: part.partName,
                             partNumber: part.partNumber,
                             spec: part.spec,
+                            priceJpy: part.priceJpy,
                             quantity: part.quantity || 1,
                             sortOrder: part.sortOrder !== undefined ? part.sortOrder : index
-                        }));
+                        })).map(applyPriceCalculations);
                         partsTable.setData(partsToLoad);
-                        
+
                         // Show parts section
                         const partsSection = document.getElementById('jobRequestPartsSection');
                         if (partsSection) {
@@ -406,10 +410,28 @@
                 { title: "부품명", field: "partName", editor: false },
                 { title: "품번", field: "partNumber", editor: false },
                 { title: "스펙", field: "spec", editor: false },
-                { title: "수량", field: "quantity", width: 80, hozAlign: "center", 
+                { title: "수량", field: "quantity", width: 80, hozAlign: "center",
                   editor: "number",
                   editorParams: { min: 1, step: 1 },
                   validator: ["min:1", "integer"]
+                },
+                { title: "부품가격(￥)", field: "priceJpy", width: 110, hozAlign: "right", editor: false,
+                  formatter: function(cell) {
+                      const v = cell.getValue();
+                      return (v === null || v === undefined || v === '') ? '' : Number(v).toLocaleString();
+                  }
+                },
+                { title: "매입가(￥)", field: "purchasePrice", width: 120, hozAlign: "right", editor: false,
+                  formatter: function(cell) {
+                      const v = cell.getValue();
+                      return (v === null || v === undefined || v === '') ? '' : Number(v).toLocaleString();
+                  }
+                },
+                { title: "공급가(￥)", field: "sellingPrice", width: 120, hozAlign: "right", editor: false,
+                  formatter: function(cell) {
+                      const v = cell.getValue();
+                      return (v === null || v === undefined || v === '') ? '' : Number(v).toLocaleString();
+                  }
                 },
                 { title: "삭제", field: "delete", width: 60, hozAlign: "center",
                   formatter: function(cell) {
@@ -444,11 +466,12 @@
                     partName: part.partName,
                     partNumber: part.partNumber,
                     spec: part.spec,
+                    priceJpy: part.priceJpy,
                     quantity: part.quantity || 1,
                     sortOrder: part.sortOrder !== undefined ? part.sortOrder : index
-                }));
+                })).map(applyPriceCalculations);
                 partsTable.setData(partsToLoad);
-                
+
                 // Show parts section
                 const partsSection = document.getElementById('jobRequestPartsSection');
                 if (partsSection) {
@@ -462,10 +485,110 @@
             updateSortOrders();
         });
 
-        // Update sortOrder when data changes
+        // Live recalculation: observe the table for new <input> elements
+        // (created when a cell becomes editable) and recompute the price
+        // cells on every keystroke / spinner click of the quantity input.
+        const recomputeFor = (row, qty) => {
+            const data = row.getData();
+            const priceJpy = Number(data.priceJpy) || 0;
+            const safeQty = Number.isFinite(qty) && qty > 0 ? qty : 0;
+            let purchasePrice = null;
+            let sellingPrice = null;
+            if (priceJpy > 0 && safeQty > 0) {
+                purchasePrice = Math.round(priceJpy * safeQty * PURCHASE_MULTIPLIER_A * PURCHASE_MULTIPLIER_B);
+                sellingPrice = Math.round(safeQty * priceJpy * SELLING_MULTIPLIER_A * SELLING_MULTIPLIER_B);
+            }
+            if (data.purchasePrice !== purchasePrice || data.sellingPrice !== sellingPrice) {
+                row.update({ purchasePrice: purchasePrice, sellingPrice: sellingPrice });
+            }
+        };
+
+        const tableEl = document.getElementById('jobRequestPartsTable');
+        if (tableEl) {
+            const mo = new MutationObserver((mutations) => {
+                for (const m of mutations) {
+                    for (const node of m.addedNodes) {
+                        if (node.nodeType !== 1) continue;
+                        // Find all inputs in the added subtree
+                        const inputs = node.matches && node.matches('input')
+                            ? [node]
+                            : (node.querySelectorAll ? Array.from(node.querySelectorAll('input')) : []);
+                        for (const input of inputs) {
+                            if (input.dataset.liveRecalcBound === '1') continue;
+                            const cellEl = input.closest('.tabulator-cell');
+                            if (!cellEl) continue;
+                            const field = cellEl.getAttribute('tabulator-field');
+                            if (field !== 'quantity') continue;
+                            input.dataset.liveRecalcBound = '1';
+                            // Find the row by walking up to .tabulator-row and matching
+                            const rowEl = input.closest('.tabulator-row');
+                            if (!rowEl) continue;
+                            const row = partsTable.getRows().find(r => r.getElement() === rowEl);
+                            if (!row) continue;
+                            const handler = () => {
+                                const qty = parseInt(input.value, 10);
+                                recomputeFor(row, qty);
+                            };
+                            input.addEventListener('input', handler);
+                            handler();
+                        }
+                    }
+                }
+            });
+            mo.observe(tableEl, { childList: true, subtree: true });
+        }
+
+        // Final commit: ensure prices reflect the persisted quantity value
+        // (e.g. after Enter / blur / arrow-key adjustment).
         partsTable.on("dataEdited", function(cell) {
-            updateSortOrders();
+            if (cell.getField() === 'quantity') {
+                recalcRowPrices(cell.getRow());
+                updateSortOrders();
+            }
         });
+    }
+
+    // Price calculation constants
+    const PURCHASE_MULTIPLIER_A = 1;
+    const PURCHASE_MULTIPLIER_B = 1;
+    const SELLING_MULTIPLIER_A = 1;
+    const SELLING_MULTIPLIER_B = 1.65;
+
+    /**
+     * Apply purchasePrice and sellingPrice calculations to a row data object.
+     * Returns a new object with computed price fields.
+     * - purchasePrice = priceJpy * quantity * 1.3 * 11
+     * - sellingPrice  = quantity * priceJpy * 12 * 1.2
+     */
+    function applyPriceCalculations(row) {
+        const qty = Number(row.quantity) || 0;
+        const priceJpy = Number(row.priceJpy) || 0;
+        if (priceJpy > 0 && qty > 0) {
+            const purchasePrice = priceJpy * qty * PURCHASE_MULTIPLIER_A * PURCHASE_MULTIPLIER_B;
+            const sellingPrice = qty * priceJpy * SELLING_MULTIPLIER_A * SELLING_MULTIPLIER_B;
+            row.purchasePrice = Math.round(purchasePrice);
+            row.sellingPrice = Math.round(sellingPrice);
+        } else {
+            row.purchasePrice = row.purchasePrice || null;
+            row.sellingPrice = row.sellingPrice || null;
+        }
+        return row;
+    }
+
+    /**
+     * Recalculate purchasePrice and sellingPrice for a given Tabulator row.
+     */
+    function recalcRowPrices(row) {
+        const data = row.getData();
+        const qty = Number(data.quantity) || 0;
+        const priceJpy = Number(data.priceJpy) || 0;
+        if (priceJpy > 0 && qty > 0) {
+            const purchasePrice = Math.round(priceJpy * qty * PURCHASE_MULTIPLIER_A * PURCHASE_MULTIPLIER_B);
+            const sellingPrice = Math.round(qty * priceJpy * SELLING_MULTIPLIER_A * SELLING_MULTIPLIER_B);
+            row.update({ purchasePrice: purchasePrice, sellingPrice: sellingPrice });
+        } else {
+            row.update({ purchasePrice: null, sellingPrice: null });
+        }
     }
 
     function updateSortOrders() {
@@ -494,14 +617,17 @@
         }
 
         const newSortOrder = partsTable.getDataCount();
-        partsTable.addRow({
+        const newRow = {
             partName: partData.partName,  // Part's partName becomes partName
             partNumber: partData.partNumber,
             spec: partData.spec || '',
+            priceJpy: partData.priceJpy,
             quantity: 1,
             sortOrder: newSortOrder
-        }, true); // true = add to top, false = add to bottom
-        
+        };
+        applyPriceCalculations(newRow);
+        partsTable.addRow(newRow, true); // true = add to top, false = add to bottom
+
         updateSortOrders();
     }
 

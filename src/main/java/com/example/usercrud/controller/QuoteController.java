@@ -227,10 +227,55 @@ public class QuoteController {
         return quote == null || quote.getStatus() == null || !StringUtils.hasText(quote.getStatus());
     }
 
+    /**
+     * Convert various object types (Number, String) to BigDecimal safely.
+     * Returns null if the value cannot be parsed.
+     */
+    private BigDecimal toBigDecimal(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof BigDecimal) {
+            return (BigDecimal) value;
+        }
+        if (value instanceof Number) {
+            return new BigDecimal(value.toString());
+        }
+        if (value instanceof String) {
+            String s = ((String) value).trim();
+            if (s.isEmpty()) {
+                return null;
+            }
+            try {
+                return new BigDecimal(s);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    @Autowired
+    private com.example.usercrud.repository.PartRepository partRepository;
+
     @GetMapping("/api/job-request-parts")
     @ResponseBody
-    public List<JobRequestPart> getJobRequestParts(@RequestParam("jobRequestId") Long jobRequestId) {
-        return jobRequestService.getPartsByJobRequestId(jobRequestId);
+    public List<Map<String, Object>> getJobRequestParts(@RequestParam("jobRequestId") Long jobRequestId) {
+        List<JobRequestPart> jobRequestParts = jobRequestService.getPartsByJobRequestId(jobRequestId);
+        return jobRequestParts.stream().map(part -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("partName", part.getPartName());
+            map.put("partNumber", part.getPartNumber());
+            map.put("spec", part.getSpec());
+            map.put("quantity", part.getQuantity());
+            map.put("sortOrder", part.getSortOrder());
+            // Lookup priceJpy from Part repository by partNumber
+            if (part.getPartNumber() != null) {
+                partRepository.findByPartNumber(part.getPartNumber())
+                        .ifPresent(p -> map.put("priceJpy", p.getPriceJpy()));
+            }
+            return map;
+        }).collect(Collectors.toList());
     }
 
     @GetMapping("/api/quote-parts/{quoteId}")
@@ -244,6 +289,13 @@ public class QuoteController {
             map.put("spec", part.getSpec());
             map.put("quantity", part.getQuantity());
             map.put("sortOrder", part.getSortOrder());
+            map.put("purchasePrice", part.getPurchasePrice());
+            map.put("sellingPrice", part.getSellingPrice());
+            // Include priceJpy for reference (look up by partNumber)
+            if (part.getPartNumber() != null) {
+                partRepository.findByPartNumber(part.getPartNumber())
+                        .ifPresent(p -> map.put("priceJpy", p.getPriceJpy()));
+            }
             return map;
         }).collect(Collectors.toList());
     }
@@ -295,7 +347,19 @@ public class QuoteController {
                 } else {
                     quotePart.setSortOrder(i);
                 }
-                
+
+                // Map purchasePrice from partsData
+                Object purchasePriceObj = partData.get("purchasePrice");
+                if (purchasePriceObj != null) {
+                    quotePart.setPurchasePrice(toBigDecimal(purchasePriceObj));
+                }
+
+                // Map sellingPrice from partsData
+                Object sellingPriceObj = partData.get("sellingPrice");
+                if (sellingPriceObj != null) {
+                    quotePart.setSellingPrice(toBigDecimal(sellingPriceObj));
+                }
+
                 // Try to find and link Part entity by partNumber
                 String partNumber = quotePart.getPartNumber();
                 if (partNumber != null && !partNumber.isEmpty()) {
@@ -305,7 +369,7 @@ public class QuoteController {
                     //     quotePart.setPart(partEntity);
                     // }
                 }
-                
+
                 quotePartService.saveQuotePart(quotePart);
             }
         } catch (Exception e) {

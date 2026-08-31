@@ -59,6 +59,12 @@ public class QuotePart {
     @Column(name = "sort_order")
     private Integer sortOrder = 0;
 
+    @Column(name = "purchase_price", precision = 15, scale = 2)
+    private BigDecimal purchasePrice;
+
+    @Column(name = "selling_price", precision = 15, scale = 2)
+    private BigDecimal sellingPrice;
+
     // Convenience constructor for creating from Part
     public QuotePart(Quote quote, Part part, int sortOrder) {
         this.quote = quote;

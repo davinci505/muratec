@@ -3,6 +3,8 @@ package com.example.usercrud.service;
 import com.example.usercrud.model.Quote;
 import com.example.usercrud.repository.QuoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -75,6 +77,42 @@ public class QuoteService {
 
     public Quote saveQuote(Quote quote) {
         return quoteRepository.save(quote);
+    }
+
+    /**
+     * Pageable variant of getByFilters for Tabulator remote pagination.
+     * Mirrors the same conditional logic as the non-paged version.
+     */
+    public Page<Quote> getByFilters(Long jobRequestId, String status, String ccsQuoteNo, Pageable pageable) {
+        boolean hasJob = jobRequestId != null;
+        boolean hasStatus = status != null && StringUtils.hasText(status);
+        String keyword = (ccsQuoteNo != null && StringUtils.hasText(ccsQuoteNo)) ? ccsQuoteNo.trim() : null;
+        boolean hasCcsQuoteNo = keyword != null;
+
+        if (hasJob && hasStatus && hasCcsQuoteNo) {
+            return quoteRepository.findByJobRequestIdAndStatusAndCcsQuoteNoContainingIgnoreCase(
+                    jobRequestId, status, keyword, pageable);
+        }
+        if (hasJob && hasStatus) {
+            return quoteRepository.findByJobRequestIdAndStatus(jobRequestId, status, pageable);
+        }
+        if (hasJob && hasCcsQuoteNo) {
+            return quoteRepository.findByJobRequestIdAndCcsQuoteNoContainingIgnoreCase(
+                    jobRequestId, keyword, pageable);
+        }
+        if (hasStatus && hasCcsQuoteNo) {
+            return quoteRepository.findByStatusAndCcsQuoteNoContainingIgnoreCase(status, keyword, pageable);
+        }
+        if (hasJob) {
+            return quoteRepository.findByJobRequestId(jobRequestId, pageable);
+        }
+        if (hasStatus) {
+            return quoteRepository.findByStatus(status, pageable);
+        }
+        if (hasCcsQuoteNo) {
+            return quoteRepository.findByCcsQuoteNoContainingIgnoreCase(keyword, pageable);
+        }
+        return quoteRepository.findAll(pageable);
     }
 
     public void deleteQuote(Long id) {
