@@ -18,20 +18,24 @@
                             <h5>엑셀 파일 형식 안내</h5>
                             <ul class="mb-0">
                                 <li>첫 번째 행은 헤더로 사용됩니다 (무시됨)</li>
-                                <li>열 순서: <strong>품번, 부품설명, 스펙, 가격(엔화)</strong></li>
-                                <li>이미 존재하는 품번인 경우 업데이트됩니다</li>
-                                <li>가격은 숫자만 입력 (예: 15000)</li>
+                                <li>열 순서: <strong>품번, 부품명, 스펙, 가격(엔화)</strong></li>
+                                <li>이미 존재하는 품번인 경우 자동으로 업데이트됩니다</li>
+                                <li>가격은 숫자만 입력 (예: 15000, 쉼표/원화 기호 불가)</li>
                             </ul>
                         </div>
 
-                        <div class="alert alert-warning">
-                            <strong>샘플 데이터:</strong>
-                            <pre class="mb-0 mt-2" style="font-size: 0.75rem;">
-품번        부품설명              스펙              가격(엔화)
-PRT-001    볼트 M6x20           스테인리스 304      150
-PRT-002    너트 M6              스테인리스 304      80
-PRT-003    와셔 M6              스테인리스 304      30
-                            </pre>
+                        <div class="card mb-3 border-success">
+                            <div class="card-body py-3">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <h6 class="mb-1"><i class="bi bi-file-earmark-spreadsheet text-success"></i> 샘플 엑셀 템플릿</h6>
+                                        <small class="text-muted">아래 버튼을 눌러 양식이 미리 채워진 엑셀을 다운받은 뒤, 데이터를 채워 업로드하세요.</small>
+                                    </div>
+                                    <a href="/parts/bulk/template" class="btn btn-success">
+                                        <i class="bi bi-download"></i> 템플릿 다운로드
+                                    </a>
+                                </div>
+                            </div>
                         </div>
 
                         <form id="bulkForm" enctype="multipart/form-data">

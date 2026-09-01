@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+
 import java.util.Optional;
 
 @Controller
@@ -59,6 +63,16 @@ public class PartController {
         
         service.save(entity);
         return "redirect:/parts";
+    }
+
+    @GetMapping("/bulk/template")
+    public ResponseEntity<byte[]> downloadBulkTemplate() {
+        byte[] data = service.createTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        headers.setContentDispositionFormData("attachment", "parts_bulk_template.xlsx");
+        return new ResponseEntity<>(data, headers, 200);
     }
 
     @PostMapping("/bulk")

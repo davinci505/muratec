@@ -153,6 +153,63 @@ public class PartService {
         }
     }
 
+    /**
+     * 샘플 엑셀 템플릿을 생성합니다. 헤더 + 샘플 데이터 2행이 포함됩니다.
+     */
+    public byte[] createTemplate() {
+        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("부품 일괄등록");
+
+            // 헤더 스타일
+            CellStyle headerStyle = workbook.createCellStyle();
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerStyle.setFont(headerFont);
+            headerStyle.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            headerStyle.setAlignment(HorizontalAlignment.CENTER);
+
+            // 헤더 행
+            String[] headers = {"품번", "부품명", "스펙", "가격(엔화)"};
+            Row headerRow = sheet.createRow(0);
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+            }
+
+            // 샘플 데이터
+            Object[][] sampleData = {
+                {"PRT-001", "볼트 M6x20", "스테인리스 304", 150},
+                {"PRT-002", "너트 M6",    "스테인리스 304", 80}
+            };
+            for (int r = 0; r < sampleData.length; r++) {
+                Row row = sheet.createRow(r + 1);
+                for (int c = 0; c < sampleData[r].length; c++) {
+                    Cell cell = row.createCell(c);
+                    Object v = sampleData[r][c];
+                    if (v instanceof Number) {
+                        cell.setCellValue(((Number) v).doubleValue());
+                    } else {
+                        cell.setCellValue(String.valueOf(v));
+                    }
+                }
+            }
+
+            // 컬럼 너비 자동
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            try (java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream()) {
+                workbook.write(out);
+                return out.toByteArray();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("엑셀 템플릿 생성 실패: " + e.getMessage(), e);
+        }
+    }
+
     private BigDecimal getCellValueAsBigDecimal(Cell cell) {
         if (cell == null) return null;
         try {
