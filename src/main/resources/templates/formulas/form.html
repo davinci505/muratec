@@ -44,7 +44,7 @@
                                 </div>
                                 <div class="form-text mb-2">저장 시 입력한 순서대로 곱셈이 적용됩니다 (값 × A항목 × B항목 × ...).</div>
 
-                                <div id="items-table" style="max-height: 400px; overflow-y: auto;"></div>
+                                <div id="items-table" style="max-height: 200px; overflow-y: auto;"></div>
                             </div>
                         </div>
 
@@ -79,7 +79,6 @@
     // 항목 테이블 (Tabulator inline editing)
     const itemsTable = new Tabulator("#items-table", {
         layout: "fitColumns",
-        maxHeight: 360,
         data: (INITIAL_ITEMS || []).slice().sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)),
         placeholder: "아래 [+ 항목 추가] 버튼으로 곱셈 항목을 등록하세요.",
         columns: [
