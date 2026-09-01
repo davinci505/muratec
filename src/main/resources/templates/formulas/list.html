@@ -3,7 +3,7 @@
       th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{::style}, ~{::script})}"
       th:with="activePage='formulas'">
 <head>
-    <title>계산법 관리 - BARATEC</title>
+    <title>단가 산출식 관리 - BARATEC</title>
     <style>
         .tabulator-footer-contents { justify-content: center !important; }
         .tabulator-paginator { display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important; text-align: center !important; }
@@ -15,10 +15,10 @@
 </head>
 <body>
     <div class="content">
-        <h1 class="mb-4 text-center">계산법 관리</h1>
+        <h1 class="mb-4 text-center">단가 산출식 관리</h1>
 
         <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
-            <a href="/formulas/new" class="btn btn-primary">새 계산법 추가</a>
+            <a href="/formulas/new" class="btn btn-primary">새 산출식 추가</a>
         </div>
 
         <div id="formulas-table"></div>

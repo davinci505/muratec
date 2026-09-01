@@ -3,7 +3,7 @@
       th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{::script})}"
       th:with="activePage='formulas'">
 <head>
-    <title th:text="${pageTitle != null ? pageTitle : '계산법 - BARATEC'}">Formula Form</title>
+    <title th:text="${pageTitle != null ? pageTitle : '단가 산출식 - BARATEC'}">Formula Form</title>
 </head>
 <body>
     <div class="content">
@@ -11,7 +11,7 @@
             <div class="col-md-10">
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <h2 class="mb-0" th:text="${formula.id != null ? '계산법 수정' : '새 계산법 등록'}">계산법</h2>
+                        <h2 class="mb-0" th:text="${formula.id != null ? '단가 산출식 수정' : '새 산출식 등록'}">계산법</h2>
                     </div>
                     <div class="card-body">
                         <div id="form-error" class="alert alert-danger d-none"></div>
