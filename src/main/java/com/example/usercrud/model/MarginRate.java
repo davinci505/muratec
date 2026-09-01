@@ -89,16 +89,6 @@ public class MarginRate {
         }
     }
 
-    private BigDecimal sum(BigDecimal... values) {
-        BigDecimal total = BigDecimal.ZERO;
-        for (BigDecimal value : values) {
-            if (value != null) {
-                total = total.add(value);
-            }
-        }
-        return total;
-    }
-
     @Transient
     public boolean isHmxType() {
         return name != null && "HMX".equalsIgnoreCase(name);

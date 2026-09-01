@@ -19,6 +19,7 @@ public class SalesPartsPerformanceService {
         return repository.findAll();
     }
 
+    @SuppressWarnings("null")
     public Optional<SalesPartsPerformance> getById(Long id) {
         return repository.findById(id);
     }
@@ -62,6 +63,7 @@ public class SalesPartsPerformanceService {
         return repository.findAll();
     }
 
+    @SuppressWarnings("null")
     public SalesPartsPerformance save(SalesPartsPerformance entity) {
         return repository.save(entity);
     }
@@ -70,6 +72,7 @@ public class SalesPartsPerformanceService {
         repository.deleteById(id);
     }
 
+    @SuppressWarnings("null")
     public SalesPartsPerformance update(Long id, SalesPartsPerformance details) {
         SalesPartsPerformance entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("SalesPartsPerformance not found with id: " + id));

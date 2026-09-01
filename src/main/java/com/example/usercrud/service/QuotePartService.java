@@ -15,11 +15,13 @@ public class QuotePartService {
     @Autowired
     private QuotePartRepository quotePartRepository;
 
+    @SuppressWarnings("null")
     public List<QuotePart> search(Long quoteId, String q) {
         String query = (q == null || !StringUtils.hasText(q)) ? null : q.trim();
             return quotePartRepository.search(quoteId, query);
         }
 
+    @SuppressWarnings("null")
     public Optional<QuotePart> getQuotePartById(Long id) {
         return quotePartRepository.findById(id);
     }
@@ -36,6 +38,7 @@ public class QuotePartService {
         quotePartRepository.deleteByQuoteId(quoteId);
     }
 
+    @SuppressWarnings("null")
     public QuotePart updateQuotePart(Long id, QuotePart details) {
         QuotePart quotePart = quotePartRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("QuotePart not found"));

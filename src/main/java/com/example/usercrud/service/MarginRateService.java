@@ -2,6 +2,8 @@ package com.example.usercrud.service;
 
 import com.example.usercrud.model.MarginRate;
 import com.example.usercrud.repository.MarginRateRepository;
+import lombok.NonNull;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,18 +28,20 @@ public class MarginRateService {
         return getAllMarginRates();
     }
 
+    @SuppressWarnings("null")
     public Optional<MarginRate> getMarginRateById(String id) {
         return marginRateRepository.findById(id);
     }
 
-    public MarginRate saveMarginRate(MarginRate marginRate) {
+    public MarginRate saveMarginRate(@NonNull MarginRate marginRate) {
         return marginRateRepository.save(marginRate);
     }
 
-    public void deleteMarginRate(String id) {
+    public void deleteMarginRate(@NonNull String id) {
         marginRateRepository.deleteById(id);
     }
 
+    @SuppressWarnings("null")
     public MarginRate updateMarginRate(String id, MarginRate details) {
         MarginRate marginRate = marginRateRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("MarginRate not found"));

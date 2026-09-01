@@ -10,6 +10,7 @@ import java.util.List;
 
 @Service
 @Transactional
+@SuppressWarnings("null")
 public class JobRequestPartService {
 
     @Autowired

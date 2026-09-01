@@ -13,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +26,7 @@ public class PartService {
         return repository.findAll();
     }
 
+    @SuppressWarnings("null")
     public Optional<Part> getById(Long id) {
         return repository.findById(id);
     }
@@ -55,6 +55,7 @@ public class PartService {
     }
 
     // Pagination support
+    @SuppressWarnings("null")
     public Page<Part> getByFilters(String partNumber, String partName, Pageable pageable) {
         boolean hasPartNumber = partNumber != null && StringUtils.hasText(partNumber);
         boolean hasPartName = partName != null && StringUtils.hasText(partName);
@@ -82,6 +83,7 @@ public class PartService {
         repository.deleteById(id);
     }
 
+    @SuppressWarnings("null")
     public Part update(Long id, Part details) {
         Part entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Part not found with id: " + id));

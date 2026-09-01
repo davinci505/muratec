@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -260,6 +259,7 @@ public class QuoteController {
 
     @GetMapping("/api/job-request-parts")
     @ResponseBody
+    @SuppressWarnings("null")
     public Map<String, Object> getJobRequestParts(@RequestParam("jobRequestId") Long jobRequestId) {
         // Include JobRequest metadata (requestNo, requestDate) so the client can
         // auto-populate the quote's CCS 견적날짜 / CCS 견적번호 fields when a

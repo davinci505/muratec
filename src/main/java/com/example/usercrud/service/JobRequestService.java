@@ -5,13 +5,15 @@ import com.example.usercrud.model.JobRequestPart;
 import com.example.usercrud.model.Part;
 import com.example.usercrud.repository.JobRequestRepository;
 import com.example.usercrud.repository.PartRepository;
+
+import lombok.NonNull;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +41,7 @@ public class JobRequestService {
         return jobRequestRepository.findByRequestNoContainingIgnoreCaseOrRequesterContainingIgnoreCase(keyword, keyword);
     }
 
+    @SuppressWarnings("null")
     public Optional<JobRequest> getJobRequestById(Long id) {
         return jobRequestRepository.findById(id);
     }
@@ -50,6 +53,7 @@ public class JobRequestService {
         return jobRequestRepository.findByRequestNo(requestNo.trim());
     }
 
+    @SuppressWarnings("null")
     public JobRequest saveJobRequest(JobRequest jobRequest) {
         JobRequest saved = jobRequestRepository.save(jobRequest);
         // Save parts if any
@@ -71,10 +75,11 @@ public class JobRequestService {
         return saved;
     }
 
-    public void deleteJobRequest(Long id) {
+    public void deleteJobRequest(@NonNull Long id) {
         jobRequestRepository.deleteById(id);
     }
 
+    @SuppressWarnings("null")
     public JobRequest updateJobRequest(Long id, JobRequest details) {
         JobRequest jobRequest = jobRequestRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("JobRequest not found"));
@@ -111,6 +116,7 @@ public class JobRequestService {
     }
 
     // Pagination support for Tabulator
+    @SuppressWarnings("null")
     public Page<JobRequest> getByFilters(String requestNo, String requester, String customerName, Pageable pageable) {
         boolean hasRequestNo = requestNo != null && StringUtils.hasText(requestNo);
         boolean hasRequester = requester != null && StringUtils.hasText(requester);

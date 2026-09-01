@@ -1,7 +1,5 @@
 package com.example.usercrud.controller;
 
-import com.example.usercrud.service.MarginRateService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,9 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/margin-values")
 public class MarginValueController {
-
-    @Autowired
-    private MarginRateService marginRateService;
 
     @GetMapping
     public String listMarginValues(Model model) {

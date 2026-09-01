@@ -23,6 +23,7 @@ public class QuoteService {
         return quoteRepository.findAll();
     }
 
+    @SuppressWarnings("null")
     public Optional<Quote> getQuoteById(Long id) {
         return quoteRepository.findById(id);
     }
@@ -85,6 +86,7 @@ public class QuoteService {
      * Pageable variant of getByFilters for Tabulator remote pagination.
      * Mirrors the same conditional logic as the non-paged version.
      */
+    @SuppressWarnings("null")
     public Page<Quote> getByFilters(Long jobRequestId, String status, String jobRequestNo, Pageable pageable) {
         boolean hasJob = jobRequestId != null;
         boolean hasStatus = status != null && StringUtils.hasText(status);
@@ -117,12 +119,14 @@ public class QuoteService {
         return quoteRepository.findAll(pageable);
     }
 
+    @SuppressWarnings("null")
     public void deleteQuote(Long id) {
         Quote quote = quoteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Quote not found: " + id));
         quoteRepository.delete(quote);
     }
 
+    @SuppressWarnings("null")
     public Quote updateQuote(Long id, Quote details) {
         Quote quote = quoteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Quote not found"));

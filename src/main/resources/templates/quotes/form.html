@@ -138,30 +138,40 @@
     </div>
 </body>
 <script th:inline="javascript">
-    const errorMessage = /*[[${errorMessage}]]*/ null;
-    if (errorMessage) {
-        alert(errorMessage);
-    }
-    
-    // Initialize parts data from server-side model (JobRequest parts for new quotes)
-    /*[# th:if="${quote.jobRequest != null}"]*/
-    const initialParts = /*[[${quote.jobRequest.parts}]]*/ [];
-    /*[/]*/
-    /*[# th:if="${quote.jobRequest == null}"]*/
-    const initialParts = [];
-    /*[/]*/
-    
-    // Check if we're editing an existing quote
-    const isEditing = /*[[${quote.id != null}]]*/ false;
+    /*<![CDATA[*/
+    // IIFE로 스코프를 분리하여 동일 변수 재선언 문제를 방지한다.
+    (function () {
+        const errorMessage = /*[[${errorMessage}]]*/ null;
+        if (errorMessage) {
+            alert(errorMessage);
+        }
 
-    // Get quote ID for edit mode
-    const quoteId = /*[[${quote.id}]]*/ null;
+        // Initialize parts data from server-side model (JobRequest parts for new quotes)
+        // 단일 삼항 표현으로 th:if 분기 제거 → 중복 const 선언 방지
+        const initialParts = /*[[${quote.jobRequest != null ? quote.jobRequest.parts : null}]]*/ [];
 
-    // Initial JobRequest metadata (used on page load when a JobRequest is
-    // already pre-selected, e.g. /quotes/new?jobId=...). These feed the
-    // auto-population of CCS 견적날짜 / CCS 견적번호.
-    const initialJobRequestNo = /*[[${quote.jobRequest?.requestNo}]]*/ null;
-    const initialJobRequestDate = /*[[${quote.jobRequest?.requestDate}]]*/ null;
+        // Check if we're editing an existing quote
+        const isEditing = /*[[${quote.id != null}]]*/ false;
+
+        // Get quote ID for edit mode
+        const quoteId = /*[[${quote.id}]]*/ null;
+
+        // Initial JobRequest metadata (used on page load when a JobRequest is
+        // already pre-selected, e.g. /quotes/new?jobId=...). These feed the
+        // auto-population of CCS 견적날짜 / CCS 견적번호.
+        const initialJobRequestNo = /*[[${quote.jobRequest?.requestNo}]]*/ null;
+        const initialJobRequestDate = /*[[${quote.jobRequest?.requestDate}]]*/ null;
+
+        // Expose to global scope so the second <script> block can use them
+        // (non-strict <script> 태그는 bare 식별자를 window 통해 해석한다).
+        window.errorMessage = errorMessage;
+        window.initialParts = initialParts;
+        window.isEditing = isEditing;
+        window.quoteId = quoteId;
+        window.initialJobRequestNo = initialJobRequestNo;
+        window.initialJobRequestDate = initialJobRequestDate;
+    })();
+    /*]]>*/
 </script>
 <script>
     const datePattern = /^\d{4}-\d{2}-\d{2}$/;
