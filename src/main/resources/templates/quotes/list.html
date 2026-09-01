@@ -138,7 +138,11 @@
                   formatter: function(cell) {
                       const data = cell.getRow().getData();
                       const val = cell.getValue() || "";
-                      return `<a href="/quote-parts?quoteId=${data.id}">${val}</a>`;
+                      // Link to the parent JobRequest page; fall back to plain text if missing
+                      if (data.jobRequestId != null) {
+                          return `<a href="/jobs/edit/${data.jobRequestId}">${val}</a>`;
+                      }
+                      return val;
                   }
                 },
                 { title: "Muratec견적금액(￥)", field: "ccsAmount", width: 130, hozAlign: "right",
