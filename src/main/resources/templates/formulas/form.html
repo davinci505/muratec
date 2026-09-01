@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::.content}, ~{}, ~{::script})}"
+      th:with="activePage='formulas'">
+<head>
+    <title th:text="${pageTitle != null ? pageTitle : '계산법 - BARATEC'}">Formula Form</title>
+</head>
+<body>
+    <div class="content">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="mb-0" th:text="${formula.id != null ? '계산법 수정' : '새 계산법 등록'}">계산법</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="form-error" class="alert alert-danger d-none"></div>
+
+                        <div class="mb-3">
+                            <label for="code" class="form-label">코드 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="code" th:value="${formula.code}" required>
+                            <div class="form-text">고유 식별자 (예: FORMULA_1). 곱셈에 사용할 항목들을 아래에서 등록하세요.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">설명</label>
+                            <textarea class="form-control" id="description" rows="2" th:text="${formula.description}"></textarea>
+                        </div>
+
+                        <hr/>
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="mb-0">곱셈 항목</h5>
+                            <button id="btn-add-item" type="button" class="btn btn-sm btn-success">+ 항목 추가</button>
+                        </div>
+                        <div class="form-text mb-2">저장 시 입력한 순서대로 곱셈이 적용됩니다 (값 × A항목 × B항목 × ...).</div>
+
+                        <div id="items-table"></div>
+
+                        <div class="d-flex gap-2 mt-3">
+                            <button id="btn-save" type="button" class="btn btn-primary">저장</button>
+                            <a href="/formulas" class="btn btn-secondary">취소</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script th:inline="javascript">
+    const FORMULA_ID = /*[[${formula.id}]]*/ null;
+    const INITIAL_ITEMS = /*[[${formula.items}]]*/ [];
+
+    // 폼 상단 컨트롤
+    const codeInput = document.getElementById('code');
+    const descInput = document.getElementById('description');
+    const errorBox = document.getElementById('form-error');
+
+    function showError(msg) {
+        errorBox.textContent = msg;
+        errorBox.classList.remove('d-none');
+    }
+    function clearError() {
+        errorBox.textContent = '';
+        errorBox.classList.add('d-none');
+    }
+
+    // 항목 테이블 (Tabulator inline editing)
+    const itemsTable = new Tabulator("#items-table", {
+        layout: "fitColumns",
+        data: (INITIAL_ITEMS || []).slice().sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)),
+        placeholder: "아래 [+ 항목 추가] 버튼으로 곱셈 항목을 등록하세요.",
+        columns: [
+            { title: "항목명", field: "itemName", minWidth: 200, editor: "input" },
+            { title: "곱할 값", field: "multiplier", width: 200, hozAlign: "right", editor: "number",
+              formatter: function(cell) {
+                  const v = cell.getValue();
+                  return v == null ? '' : Number(v).toLocaleString();
+              },
+              validator: ["required"] },
+            {
+                title: "관리", field: "actions", width: 90, hozAlign: "center",
+                formatter: function() {
+                    return '<button type="button" class="btn btn-sm btn-outline-danger btn-row-delete">삭제</button>';
+                },
+                cellClick: function(e, cell) {
+                    if (e.target.classList.contains('btn-row-delete')) {
+                        cell.getRow().delete();
+                    }
+                }
+            }
+        ],
+        locale: true,
+        langs: {
+            "ko": {
+                "pagination": {
+                    "first": "처음", "first_title": "첫 페이지",
+                    "last": "마지막", "last_title": "마지막 페이지",
+                    "prev": "이전", "prev_title": "이전 페이지",
+                    "next": "다음", "next_title": "다음 페이지",
+                    "all": "전체"
+                }
+            }
+        }
+    });
+
+    document.getElementById('btn-add-item').addEventListener('click', () => {
+        itemsTable.addRow({ itemName: '', multiplier: 1 });
+    });
+
+    document.getElementById('btn-save').addEventListener('click', async () => {
+        clearError();
+
+        const code = (codeInput.value || '').trim();
+        if (!code) { showError('코드를 입력하세요.'); codeInput.focus(); return; }
+
+        const rowsData = itemsTable.getData().map(r => ({
+            itemName: (r.itemName || '').trim(),
+            multiplier: r.multiplier == null || r.multiplier === '' ? null : Number(r.multiplier)
+        }));
+
+        // 유효성 검증
+        for (let i = 0; i < rowsData.length; i++) {
+            const r = rowsData[i];
+            if (r.multiplier == null || isNaN(r.multiplier)) { showError(`항목 ${i + 1}: 곱할 값이 비어있거나 숫자가 아닙니다.`); return; }
+        }
+
+        const payload = {
+            code: code,
+            description: (descInput.value || '').trim() || null,
+            items: rowsData
+        };
+
+        const url = FORMULA_ID ? `/api/formulas/${FORMULA_ID}` : '/api/formulas';
+        const method = FORMULA_ID ? 'PUT' : 'POST';
+
+        try {
+            const resp = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!resp.ok) {
+                const err = await resp.json().catch(() => ({}));
+                showError(err.error || `저장 실패 (HTTP ${resp.status})`);
+                return;
+            }
+            window.location.href = '/formulas';
+        } catch (e) {
+            showError('저장 중 오류: ' + e.message);
+        }
+    });
+</script>
+</html>
