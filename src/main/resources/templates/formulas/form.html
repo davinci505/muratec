@@ -30,7 +30,7 @@
                         <hr/>
 
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h5 class="mb-0">곱셈 항목</h5>
+                            <h5 class="mb-0">항목</h5>
                             <button id="btn-add-item" type="button" class="btn btn-sm btn-success">+ 항목 추가</button>
                         </div>
                         <div class="form-text mb-2">저장 시 입력한 순서대로 곱셈이 적용됩니다 (값 × A항목 × B항목 × ...).</div>
@@ -71,8 +71,8 @@
         data: (INITIAL_ITEMS || []).slice().sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)),
         placeholder: "아래 [+ 항목 추가] 버튼으로 곱셈 항목을 등록하세요.",
         columns: [
-            { title: "항목명", field: "itemName", minWidth: 200, editor: "input" },
-            { title: "곱할 값", field: "multiplier", width: 200, hozAlign: "right", editor: "number",
+            { title: "항목명", field: "itemName", minWidth: 100, editor: "input" },
+            { title: "값", field: "multiplier", width: 200, hozAlign: "right", editor: "number",
               formatter: function(cell) {
                   const v = cell.getValue();
                   return v == null ? '' : Number(v).toLocaleString();
