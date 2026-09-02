@@ -467,11 +467,6 @@
             height: "300px",
             placeholder: "추가된 부품이 없습니다. '부품 추가' 버튼을 클릭하세요.",
             columns: [
-                { title: "No.", field: "sortOrder", width: 50, hozAlign: "center",
-                  formatter: function(cell) {
-                      return cell.getRow().getPosition(true);
-                  }
-                },
                 { title: "부품명", field: "partName", editor: false },
                 { title: "품번", field: "partNumber", editor: false },
                 { title: "스펙", field: "spec", editor: false },
