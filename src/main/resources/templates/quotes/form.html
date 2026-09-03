@@ -111,6 +111,9 @@
                                             <button type="button" class="btn btn-outline-success btn-sm" id="btn-fill-amounts" onclick="recalcAmountTotals()">
                                                 <i class="bi bi-calculator"></i> 견적금액 입력
                                             </button>
+                                            <button type="button" class="btn btn-outline-info btn-sm" id="btn-toggle-krw" onclick="toggleKrwView()" aria-pressed="false">
+                                                <i class="bi bi-currency-exchange"></i> 원화보기
+                                            </button>
                                             <button type="button" class="btn btn-outline-primary btn-sm" id="btn-add-part" onclick="openPartPopup()">
                                                 <i class="bi bi-plus-circle"></i> 부품 추가
                                             </button>
@@ -682,6 +685,21 @@
 
         ccsInput.value = '￥' + Math.round(purchaseSum).toLocaleString();
         brtInput.value = '￦' + Math.round(sellingSum).toLocaleString();
+    }
+
+    /**
+     * 원화보기 토글 핸들러 (stub).
+     * 현재는 라벨과 aria-pressed 상태만 전환한다.
+     * TODO: 사용자가 추후 환율 적용 로직(테이블 컬럼 KRW 표기 등)을 이 함수에 추가할 자리.
+     */
+    function toggleKrwView() {
+        const btn = document.getElementById('btn-toggle-krw');
+        if (!btn) return;
+        const isKrwView = btn.getAttribute('aria-pressed') === 'true';
+        const next = !isKrwView;
+        btn.setAttribute('aria-pressed', String(next));
+        btn.innerHTML = '<i class="bi bi-currency-exchange"></i> ' + (next ? '엔화보기' : '원화보기');
+        // TODO: 환율 적용 로직 추가 자리
     }
 
     function updateSortOrders() {
