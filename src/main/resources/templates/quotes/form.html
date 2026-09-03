@@ -173,6 +173,8 @@
         window.quoteId = quoteId;
         window.initialJobRequestNo = initialJobRequestNo;
         window.initialJobRequestDate = initialJobRequestDate;
+        // 원화보기 토글 상태 초기값. toggleKrwView()와 Tabulator formatter가 참조한다.
+        window.isKrwView = false;
     })();
     /*]]>*/
 </script>
@@ -480,20 +482,26 @@
                 },
                 { title: "부품가격(￥)", field: "priceJpy", width: 110, hozAlign: "right", editor: false,
                   formatter: function(cell) {
-                      const v = cell.getValue();
-                      return (v === null || v === undefined || v === '') ? '' : Number(v).toLocaleString();
+                      const rowData = cell.getRow().getData();
+                      const v = window.isKrwView ? rowData.priceKrw : cell.getValue();
+                      if (v === null || v === undefined || v === '') return '';
+                      return (window.isKrwView ? '￦' : '') + Number(v).toLocaleString();
                   }
                 },
                 { title: "매입가(￥)", field: "purchasePrice", width: 120, hozAlign: "right", editor: false,
                   formatter: function(cell) {
-                      const v = cell.getValue();
-                      return (v === null || v === undefined || v === '') ? '' : Number(v).toLocaleString();
+                      const rowData = cell.getRow().getData();
+                      const v = window.isKrwView ? rowData.purchaseKrw : cell.getValue();
+                      if (v === null || v === undefined || v === '') return '';
+                      return (window.isKrwView ? '￦' : '') + Number(v).toLocaleString();
                   }
                 },
                 { title: "공급가(￥)", field: "sellingPrice", width: 120, hozAlign: "right", editor: false,
                   formatter: function(cell) {
-                      const v = cell.getValue();
-                      return (v === null || v === undefined || v === '') ? '' : Number(v).toLocaleString();
+                      const rowData = cell.getRow().getData();
+                      const v = window.isKrwView ? rowData.sellingKrw : cell.getValue();
+                      if (v === null || v === undefined || v === '') return '';
+                      return (window.isKrwView ? '￦' : '') + Number(v).toLocaleString();
                   }
                 },
                 { title: "삭제", field: "delete", width: 60, hozAlign: "center",
@@ -558,8 +566,8 @@
             let purchasePrice = null;
             let sellingPrice = null;
             if (priceJpy > 0 && safeQty > 0) {
-                purchasePrice = Math.round(priceJpy * safeQty * PURCHASE_MULTIPLIER_A * PURCHASE_MULTIPLIER_B);
-                sellingPrice = Math.round(safeQty * priceJpy * SELLING_MULTIPLIER_A * SELLING_MULTIPLIER_B);
+                purchasePrice = Math.round(priceJpy * safeQty);
+                sellingPrice = Math.round(safeQty * priceJpy * SELLING_MULTIPLIER_FACTOR);
             }
             if (data.purchasePrice !== purchasePrice || data.sellingPrice !== sellingPrice) {
                 row.update({ purchasePrice: purchasePrice, sellingPrice: sellingPrice });
@@ -612,23 +620,20 @@
     }
 
     // Price calculation constants
-    const PURCHASE_MULTIPLIER_A = 1;
-    const PURCHASE_MULTIPLIER_B = 1;
-    const SELLING_MULTIPLIER_A = 1;
-    const SELLING_MULTIPLIER_B = 1.65;
+    const SELLING_MULTIPLIER_FACTOR = 1.65;
 
     /**
      * Apply purchasePrice and sellingPrice calculations to a row data object.
      * Returns a new object with computed price fields.
-     * - purchasePrice = priceJpy * quantity * 1.3 * 11
-     * - sellingPrice  = quantity * priceJpy * 12 * 1.2
+     * - purchasePrice = priceJpy * quantity
+     * - sellingPrice  = quantity * priceJpy * 1.65
      */
     function applyPriceCalculations(row) {
         const qty = Number(row.quantity) || 0;
         const priceJpy = Number(row.priceJpy) || 0;
         if (priceJpy > 0 && qty > 0) {
-            const purchasePrice = priceJpy * qty * PURCHASE_MULTIPLIER_A * PURCHASE_MULTIPLIER_B;
-            const sellingPrice = qty * priceJpy * SELLING_MULTIPLIER_A * SELLING_MULTIPLIER_B;
+            const purchasePrice = priceJpy * qty;
+            const sellingPrice = qty * priceJpy * SELLING_MULTIPLIER_FACTOR;
             row.purchasePrice = Math.round(purchasePrice);
             row.sellingPrice = Math.round(sellingPrice);
         } else {
@@ -646,8 +651,8 @@
         const qty = Number(data.quantity) || 0;
         const priceJpy = Number(data.priceJpy) || 0;
         if (priceJpy > 0 && qty > 0) {
-            const purchasePrice = Math.round(priceJpy * qty * PURCHASE_MULTIPLIER_A * PURCHASE_MULTIPLIER_B);
-            const sellingPrice = Math.round(qty * priceJpy * SELLING_MULTIPLIER_A * SELLING_MULTIPLIER_B);
+            const purchasePrice = Math.round(priceJpy * qty);
+            const sellingPrice = Math.round(qty * priceJpy * SELLING_MULTIPLIER_FACTOR);
             row.update({ purchasePrice: purchasePrice, sellingPrice: sellingPrice });
         } else {
             row.update({ purchasePrice: null, sellingPrice: null });
@@ -688,18 +693,149 @@
     }
 
     /**
-     * 원화보기 토글 핸들러 (stub).
-     * 현재는 라벨과 aria-pressed 상태만 전환한다.
-     * TODO: 사용자가 추후 환율 적용 로직(테이블 컬럼 KRW 표기 등)을 이 함수에 추가할 자리.
+     * Tabulator는 editor:false 컬럼에 대해 row.update()로 데이터를 갱신해도 formatter가
+     * 재호출되지 않는다. setData()는 초기화 시 verticalFillMode null 에러로 실패하므로 피하고,
+     * 각 cell element에 formatter 결과를 직접 innerHTML로 써넣어 강제 재렌더한다.
+     * row.update()는 비동기로 cell을 다시 그릴 수 있어, requestAnimationFrame으로 한 프레임 뒤에
+     * 덮어써서 race condition을 회피한다.
+     */
+    function rerenderPriceCells() {
+        if (!partsTable) return;
+        const colMap = [
+            { field: 'priceJpy',      krwField: 'priceKrw' },
+            { field: 'purchasePrice', krwField: 'purchaseKrw' },
+            { field: 'sellingPrice',  krwField: 'sellingKrw' }
+        ];
+        const apply = function () {
+            partsTable.getRows().forEach(function (row) {
+                const d = row.getData();
+                colMap.forEach(function (cm) {
+                    const cell = row.getCell(cm.field);
+                    if (!cell) return;
+                    const v = window.isKrwView ? d[cm.krwField] : cell.getValue();
+                    let display;
+                    if (v === null || v === undefined || v === '') {
+                        display = '';
+                    } else {
+                        display = (window.isKrwView ? '￦' : '') + Number(v).toLocaleString();
+                    }
+                    const el = cell.getElement();
+                    if (el) el.innerHTML = display;
+                });
+            });
+        };
+        if (typeof requestAnimationFrame === 'function') {
+            requestAnimationFrame(apply);
+        } else {
+            setTimeout(apply, 0);
+        }
+    }
+
+    /**
+     * 원화보기 토글 핸들러.
+     * - OFF → ON: /api/formulas에서 '바라텍'/'무라텍' 산출식을 찾아 items.multiplier를 곱한 값으로
+     *   priceKrw/purchaseKrw/sellingKrw 임시 필드를 계산해 행에 주입한다.
+     * - 매칭되는 산출식이 하나라도 없으면 경고 alert 후 OFF 상태로 유지한다.
+     * - ON → OFF: 임시 KRW 필드를 제거하여 원본(JPY) 표시로 복귀.
      */
     function toggleKrwView() {
         const btn = document.getElementById('btn-toggle-krw');
         if (!btn) return;
-        const isKrwView = btn.getAttribute('aria-pressed') === 'true';
-        const next = !isKrwView;
-        btn.setAttribute('aria-pressed', String(next));
-        btn.innerHTML = '<i class="bi bi-currency-exchange"></i> ' + (next ? '엔화보기' : '원화보기');
-        // TODO: 환율 적용 로직 추가 자리
+
+        const wasKrwView = window.isKrwView === true;
+
+        if (wasKrwView) {
+            // ON → OFF: 임시 KRW 필드 제거 + 원본 JPY 셀로 강제 재렌더
+            if (partsTable) {
+                partsTable.getRows().forEach(function (row) {
+                    row.update({ priceKrw: null, purchaseKrw: null, sellingKrw: null });
+                });
+                rerenderPriceCells();
+            }
+            window.isKrwView = false;
+            btn.setAttribute('aria-pressed', 'false');
+            btn.innerHTML = '<i class="bi bi-currency-exchange"></i> 원화보기';
+            return;
+        }
+
+        // OFF → ON: 산출식 조회
+        if (!partsTable) return;
+
+        fetch('/api/formulas')
+            .then(resp => {
+                if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                return resp.json();
+            })
+            .then(payload => {
+                const formulas = (payload && Array.isArray(payload.data)) ? payload.data : [];
+
+                const purchaseFormula = formulas.find(f => matchesFormula(f, '바라텍'));
+                const sellingFormula = formulas.find(f => matchesFormula(f, '무라텍'));
+
+                if (!purchaseFormula || !sellingFormula) {
+                    alert('해당되는 산출식이 없습니다, 확인바람');
+                    return;
+                }
+
+                const purchaseMult = multiplyFormulaItems(purchaseFormula.items);
+                const sellingMult = multiplyFormulaItems(sellingFormula.items);
+
+                // 상태 ON 전환
+                window.isKrwView = true;
+                btn.setAttribute('aria-pressed', 'true');
+                btn.innerHTML = '<i class="bi bi-currency-exchange"></i> 엔화보기';
+
+                // 각 행에 KRW 임시 필드 계산/주입
+                partsTable.getRows().forEach(function (row) {
+                    const d = row.getData();
+                    const pj = Number(d.priceJpy);
+                    const pp = Number(d.purchasePrice);
+                    const sp = Number(d.sellingPrice);
+                    row.update({
+                        priceKrw: Number.isFinite(pj) ? Math.round(pj * purchaseMult) : null,
+                        purchaseKrw: Number.isFinite(pp) ? Math.round(pp * purchaseMult) : null,
+                        sellingKrw: Number.isFinite(sp) ? Math.round(sp * sellingMult) : null
+                    });
+                });
+                // editor:false 셀의 formatter는 데이터 변경만으로 재호출되지 않으므로
+                // cell element에 직접 렌더링 결과를 써넣어 강제 재렌더.
+                rerenderPriceCells();
+            })
+            .catch(err => {
+                console.error('toggleKrwView fetch error:', err);
+                alert('산출식 정보를 가져오지 못했습니다: ' + err.message);
+            });
+    }
+
+    /**
+     * formula의 code 또는 description에 keyword가 포함되는지 검사 (대소문자 무시).
+     */
+    function matchesFormula(formula, keyword) {
+        if (!formula || !keyword) return false;
+        const k = String(keyword).toLowerCase();
+        const code = (formula.code || '').toString().toLowerCase();
+        const desc = (formula.description || '').toString().toLowerCase();
+        return code.indexOf(k) !== -1 || desc.indexOf(k) !== -1;
+    }
+
+    /**
+     * formula의 items를 sortOrder 오름차순으로 정렬 후 multiplier를 모두 곱한 값을 반환.
+     * null multiplier는 스킵, items가 비어있으면 1(변화 없음).
+     * 서버의 Formula.calculate()와 동일한 곱셈 의미.
+     */
+    function multiplyFormulaItems(items) {
+        if (!Array.isArray(items) || items.length === 0) return 1;
+        const ordered = items.slice().sort((a, b) => {
+            const ao = (a && a.sortOrder != null) ? Number(a.sortOrder) : 0;
+            const bo = (b && b.sortOrder != null) ? Number(b.sortOrder) : 0;
+            return ao - bo;
+        });
+        let result = 1;
+        for (const it of ordered) {
+            const m = (it && it.multiplier != null) ? Number(it.multiplier) : NaN;
+            if (Number.isFinite(m)) result *= m;
+        }
+        return result;
     }
 
     function updateSortOrders() {
