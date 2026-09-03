@@ -679,17 +679,61 @@
             return;
         }
 
+        // ccsAmount(매입가)는 항상 엔화 합계(purchasePrice)로 채운다.
         let purchaseSum = 0;
-        let sellingSum = 0;
         for (const row of data) {
             const p = Number(row.purchasePrice);
-            const s = Number(row.sellingPrice);
             if (Number.isFinite(p)) purchaseSum += p;
-            if (Number.isFinite(s)) sellingSum += s;
+        }
+        ccsInput.value = '￥' + Math.round(purchaseSum).toLocaleString();
+
+        // brtAmount(공급가)는 모드와 무관하게 항상 원화보기 환산값(원화 기준)으로 합산한다.
+        // - 행에 sellingKrw 임시 필드가 이미 있으면 그 값을 그대로 사용한다.
+        // - 없으면(엔화보기 모드에서 한 번도 toggleKrwView를 누르지 않은 경우) /api/formulas
+        //   에서 '무라텍' 산출식을 조회해 환산 계수를 가져온 뒤 sellingPrice * multiplier 로
+        //   계산한다.
+        const hasAnyKrw = data.some(row => {
+            const sk = Number(row.sellingKrw);
+            return Number.isFinite(sk);
+        });
+
+        if (hasAnyKrw) {
+            let sellingKrwSum = 0;
+            for (const row of data) {
+                const sk = Number(row.sellingKrw);
+                if (Number.isFinite(sk)) sellingKrwSum += sk;
+            }
+            brtInput.value = '￦' + Math.round(sellingKrwSum).toLocaleString();
+            return;
         }
 
-        ccsInput.value = '￥' + Math.round(purchaseSum).toLocaleString();
-        brtInput.value = '￦' + Math.round(sellingSum).toLocaleString();
+        fetch('/api/formulas')
+            .then(resp => {
+                if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                return resp.json();
+            })
+            .then(payload => {
+                const formulas = (payload && Array.isArray(payload.data)) ? payload.data : [];
+                const sellingFormula = formulas.find(f => matchesFormula(f, '무라텍'));
+                if (!sellingFormula) {
+                    alert('해당되는 산출식이 없습니다, 확인바람');
+                    return;
+                }
+                const sellingMult = multiplyFormulaItems(sellingFormula.items);
+
+                let sellingKrwSum = 0;
+                for (const row of data) {
+                    const s = Number(row.sellingPrice);
+                    if (Number.isFinite(s)) {
+                        sellingKrwSum += s * sellingMult;
+                    }
+                }
+                brtInput.value = '￦' + Math.round(sellingKrwSum).toLocaleString();
+            })
+            .catch(err => {
+                console.error('recalcAmountTotals fetch error:', err);
+                alert('산출식 정보를 가져오지 못했습니다: ' + err.message);
+            });
     }
 
     /**
